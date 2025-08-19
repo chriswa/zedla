@@ -14,7 +14,5 @@ export default defineConfig({
       '@': '/src', // so you can import from "@/math/vector"
     },
   },
-  plugins: [
-    swc.vite(),
-  ],
+  plugins: [swc.vite()],
 })
