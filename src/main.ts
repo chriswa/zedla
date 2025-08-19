@@ -1,4 +1,12 @@
+import 'reflect-metadata' // must be first import
+import { container } from 'tsyringe'
 import { assertExists } from '@/util/typeUtil'
+import { Foo } from './foo'
+
+console.log(Reflect.getMetadata('design:paramtypes', Foo))
+
+const foo = container.resolve(Foo)
+foo.hello()
 
 type Vec2 = Readonly<{ x: number; y: number }>
 
