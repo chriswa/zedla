@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* extra stuff from chatgpt */
+    "resolveJsonModule": true /* for `import data from './foo.json'` */,
+    "isolatedModules": true /* Prevents surprises between tsc --noEmit and the Vite build */,
+    "noUncheckedIndexedAccess": true /* arr[5] => number | undefined */,
+    "exactOptionalPropertyTypes": true /* Treats a?: T as “property may be missing” (not “present and maybe undefined”). */,
+    "noPropertyAccessFromIndexSignature": true /* prevents accidental dot-typos by forcing bracket access for dynamic keys */,
+    "useUnknownInCatchVariables": true,
+    "noImplicitReturns": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+  },
+  "include": ["src"]
+}
