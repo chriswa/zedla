@@ -1,10 +1,7 @@
-import { frames } from './frames/frames'
-import type { FrameKeys } from './frames/frames'
+import { frames } from './frames'
+import { tilesets } from './tilesets'
 
 export const resources = {
   frames,
-}
-
-export type {
-  FrameKeys
+  tilesets
 }

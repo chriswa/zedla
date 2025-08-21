@@ -11,7 +11,6 @@ export class Tilemap implements Renderable {
   constructor(
     public tilesetDef: TilesetDef,
     public offset: Vec3,
-    public parallax: Vec3,
     public size: Vec2,
   ) {
     this.tiles = new Uint16Array(this.size[0]! * this.size[1]!)

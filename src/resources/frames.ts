@@ -5,4 +5,4 @@ export const frames = {
   link_walk_2: { src: 'link.png', x: 16, y: 0, w: 16, h: 32 },
 } as const satisfies Record<string, FrameDef>
 
-export type FrameKeys = keyof typeof frames
+// export type FrameKeys = keyof typeof frames
