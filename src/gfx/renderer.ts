@@ -6,6 +6,7 @@ import { assert } from '@/util/assert'
 
 export interface Renderable {
   getZ(): number
+  tick(): void
   render(canvas: Canvas, camera: Camera, imageLoader: ImageLoader): void
 }
 
@@ -25,6 +26,12 @@ export class Renderer {
   remove(item: Renderable) {
     assert(this.items.has(item))
     this.items.delete(item)
+  }
+  tick() {
+    Array.from(this.items)
+      .forEach(item => {
+        item.tick()
+      })
   }
   render() {
     this.canvas.ctx.imageSmoothingEnabled = false

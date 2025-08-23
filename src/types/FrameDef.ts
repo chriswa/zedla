@@ -4,4 +4,6 @@ export interface FrameDef {
   y: number
   w: number
   h: number
+  offsetX: number
+  offsetY: number
 }

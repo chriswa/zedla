@@ -7,12 +7,14 @@ import type { Renderable } from "./renderer"
 
 export class Sprite implements Renderable {
   constructor(
-    public frameDef: FrameDef,
     public offset: Vec3,
+    public frameDef: FrameDef,
   ) {
   }
   getZ() {
     return this.offset[2]!
+  }
+  tick() {
   }
   render(canvas: Canvas, camera: Camera, imageLoader: ImageLoader) {
     canvas.ctx.drawImage(
@@ -21,10 +23,17 @@ export class Sprite implements Renderable {
       this.frameDef.y,
       this.frameDef.w,
       this.frameDef.h,
-      camera.zoom * (this.offset[0]! - camera.offset[0]!),
-      camera.zoom * (this.offset[1]! - camera.offset[1]!),
+      camera.zoom * (this.offset[0]! - camera.offset[0]! - this.frameDef.offsetX),
+      camera.zoom * (this.offset[1]! - camera.offset[1]! + this.frameDef.offsetY),
       camera.zoom * this.frameDef.w,
       camera.zoom * this.frameDef.h,
+    )
+    canvas.ctx.fillStyle = Math.random() > 0.5 ? 'white' : 'black'
+    canvas.ctx.fillRect(
+      camera.zoom * (this.offset[0]! - camera.offset[0]!) - 2,
+      camera.zoom * (this.offset[1]! - camera.offset[1]!) - 2,
+      4,
+      4,
     )
   }
 }

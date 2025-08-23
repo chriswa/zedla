@@ -25,6 +25,8 @@ export class Tilemap implements Renderable {
   getZ() {
     return this.offset[2]!
   }
+  tick() {
+  }
   render(canvas: Canvas, camera: Camera, imageLoader: ImageLoader) {
     for (let y = 0; y < this.size[1]!; y += 1) {
       for (let x = 0; x < this.size[0]!; x += 1) {
