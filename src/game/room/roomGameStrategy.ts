@@ -17,18 +17,17 @@ export class RoomGameStrategy extends GameStrategy {
   }
   initializeRoom() {
     assert(this.roomDef.layers.length === 1, 'multiple tile layers not supported yet')
-    const tileLayer = this.roomDef.layers[0]!
 
     this.tilemaps = this.roomDef.layers.map(roomLayerDef => {
       const tilemap = new Tilemap(
-        tileLayer.tileset,
+        roomLayerDef.tileset,
         vec3.create(0, 0, -1), // put behind sprites
-        tileLayer.cols,
-        new Uint16Array(tileLayer.tiles),
+        roomLayerDef.cols,
+        new Uint16Array(roomLayerDef.tiles),
       )
       for (let y = 0; y < tilemap.size[1]!; y += 1) {
         for (let x = 0; x < tilemap.size[0]!; x += 1) {
-          tilemap.set(x, y, tileLayer.tiles[x + y * tileLayer.cols]!)
+          tilemap.set(x, y, roomLayerDef.tiles[x + y * roomLayerDef.cols]!)
         }
       }
       return tilemap
