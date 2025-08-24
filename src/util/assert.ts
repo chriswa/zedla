@@ -1,6 +1,6 @@
-export function assert(condition: Boolean) {
+export function assert(condition: Boolean, message?: string) {
   if (!condition) {
     debugger
-    throw new Error('assertion failed')
+    throw new Error(`assertion failed: ${message ?? 'no message supplied'}`)
   }
 }

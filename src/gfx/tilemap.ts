@@ -1,25 +1,27 @@
-import type { Vec2 } from "@/math/vec2"
+import { vec2, type Vec2 } from "@/math/vec2"
 import type { Vec3 } from "@/math/vec3"
-import type { TilesetDef } from "@/types/TilesetDef"
+import type { Tileset } from "@/types/tileset"
 import type { Renderable } from "./renderer"
 import type { Canvas } from "./canvas"
 import type { Camera } from "./camera"
 import type { ImageLoader } from "./imageLoader"
 
 export class Tilemap implements Renderable {
-  private tiles: Uint16Array
+  public readonly size: Vec2
   constructor(
-    public tilesetDef: TilesetDef,
+    public tilesetDef: Tileset,
     public offset: Vec3,
-    public size: Vec2,
+    cols: number,
+    private tileIndices: Uint16Array,
   ) {
-    this.tiles = new Uint16Array(this.size[0]! * this.size[1]!)
+    // this.tiles = new Uint16Array(this.size[0]! * this.size[1]!)
+    this.size = vec2.create(cols, Math.round(tileIndices.length / cols))
   }
   get(x: number, y: number) {
-    return this.tiles[x + y * this.size[0]!]
+    return this.tileIndices[x + y * this.size[0]!]
   }
   set(x: number, y: number, newValue: number) {
-    this.tiles[x + y * this.size[0]!] = newValue
+    this.tileIndices[x + y * this.size[0]!] = newValue
   }
 
   getZ() {

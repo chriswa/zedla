@@ -1,7 +1,7 @@
 import { animations } from "@/resources/animations";
 import { Sprite } from "./sprite";
 import type { Vec3 } from "@/math/vec3";
-import type { AnimationDef } from "@/types/AnimationDef";
+import type { Animation } from "@/types/Axnimation";
 import { frames } from "@/resources/frames";
 
 type Animations = typeof animations
@@ -12,7 +12,7 @@ export class AnimatedSprite<
   C extends Character,
   A extends AnimationName<C>
 > extends Sprite {
-  private animation!: AnimationDef
+  private animation!: Animation
   private frameIndex = 0
   private ticksElapsedThisFrame = 0
   constructor(
@@ -20,14 +20,14 @@ export class AnimatedSprite<
     private characterId: C,
     initialAnimationId: A,
   ) {
-    const initialAnimation = animations[characterId][initialAnimationId] as AnimationDef // required because `as const`
+    const initialAnimation = animations[characterId][initialAnimationId] as Animation // required because `as const`
     const frameId = initialAnimation.frames[0]!.frame
     const frameDef = frames[frameId]
     super(offset, frameDef)
     this.setAnimation(initialAnimationId)
   }
   private setAnimation(animationId: A) {
-    this.animation = animations[this.characterId][animationId] as AnimationDef // required because `as const`
+    this.animation = animations[this.characterId][animationId] as Animation // required because `as const`
     this.frameIndex = 0
     this.ticksElapsedThisFrame = 0
   }

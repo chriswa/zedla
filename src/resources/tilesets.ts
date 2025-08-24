@@ -1,6 +1,13 @@
-import type { TilesetDef } from "@/types/TilesetDef"
+import type { Tileset } from "@/types/tileset"
 
 export const tilesets = {
+  tiles3: {
+    src: 'tiles3.png',
+    tileWidth: 16,
+    tileHeight: 16,
+    cols: 8,
+    rows: 8,
+  },
   tiles4: {
     src: 'tiles4.png',
     tileWidth: 16,
@@ -8,6 +15,4 @@ export const tilesets = {
     cols: 16,
     rows: 16,
   },
-} as const satisfies Record<string, TilesetDef>
-
-// export type TilesetKeys = keyof typeof tilesets
+} as const satisfies Record<string, Tileset>

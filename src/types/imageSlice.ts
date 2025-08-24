@@ -1,4 +1,4 @@
-export interface FrameDef {
+export interface ImageSlice {
   src: string
   x: number
   y: number

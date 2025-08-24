@@ -1,5 +1,5 @@
 import type { Vec3 } from "@/math/vec3"
-import type { FrameDef } from "@/types/FrameDef"
+import type { ImageSlice } from "@/types/ImageSlice"
 import type { Canvas } from "./canvas"
 import type { Camera } from "./camera"
 import type { ImageLoader } from "./imageLoader"
@@ -8,7 +8,7 @@ import type { Renderable } from "./renderer"
 export class Sprite implements Renderable {
   constructor(
     public offset: Vec3,
-    public frameDef: FrameDef,
+    public frameDef: ImageSlice,
   ) {
   }
   getZ() {

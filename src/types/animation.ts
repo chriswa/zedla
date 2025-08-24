@@ -1,11 +1,11 @@
 import type { frames } from "@/resources/frames"
 
-export interface AnimationFrameDef {
+export interface AnimationFrame {
   frame: keyof typeof frames
   duration: number
 }
 
-export interface AnimationDef {
+export interface Animation {
   loop: boolean
-  frames: Array<AnimationFrameDef>
+  frames: Array<AnimationFrame>
 }
