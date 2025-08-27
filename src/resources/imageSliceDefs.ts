@@ -1,6 +1,6 @@
-import type { ImageSlice } from "@/types/imageSlice"
+import type { ImageSliceDef } from "@/types/imageSliceDef"
 
-export const frames = {
+export const imageSliceDefs = {
   "blob_twitch_0": {
     src: "enemies.png",
     x: 92,
@@ -727,4 +727,4 @@ export const frames = {
     offsetY: 0,
     // offsetXFlipped: -8
   }
-} as const satisfies Record<string, ImageSlice>
+} as const satisfies Record<string, ImageSliceDef>

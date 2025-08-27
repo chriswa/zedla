@@ -1,6 +1,6 @@
 import { vec2, type Vec2 } from "@/math/vec2"
 import type { Vec3 } from "@/math/vec3"
-import type { Tileset } from "@/types/tileset"
+import type { TilesetDef } from "@/types/tilesetDef"
 import type { Renderable } from "./renderer"
 import type { Canvas } from "./canvas"
 import type { Camera } from "./camera"
@@ -9,7 +9,7 @@ import type { ImageLoader } from "./imageLoader"
 export class Tilemap implements Renderable {
   public readonly size: Vec2
   constructor(
-    public tilesetDef: Tileset,
+    public tilesetDef: TilesetDef,
     public offset: Vec3,
     cols: number,
     private tileIndices: Uint16Array,

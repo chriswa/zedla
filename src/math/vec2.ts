@@ -1,15 +1,21 @@
-export type Vec2 = Float32Array
+import type { LayeredBrand } from "@/util/brand"
+
+export type Vec2 = LayeredBrand<Float32Array, ['vec2']>
 
 export const vec2 = {
   create(x: number, y: number): Vec2 {
-    const out = new Float32Array(2)
+    const out = new Float32Array(2) as Vec2
     out[0] = x
     out[1] = y
     return out
   },
 
+  zero(): Vec2 {
+    return new Float32Array(2) as Vec2
+  },
+
   clone(v: Vec2): Vec2 {
-    return new Float32Array(v)
+    return new Float32Array(v) as Vec2
   },
 
   set(out: Vec2, x: number, y: number, z: number): Vec2 {
@@ -28,28 +34,28 @@ export const vec2 = {
     return new Float32Array([
       a[0]! + b[0]!,
       a[1]! + b[1]!,
-    ])
+    ]) as Vec2
   },
 
   sub(a: Vec2, b: Vec2): Vec2 {
     return new Float32Array([
       a[0]! - b[0]!,
       a[1]! - b[1]!,
-    ])
+    ]) as Vec2
   },
 
   mulScalar(v: Vec2, scalar: number): Vec2 {
     return new Float32Array([
       v[0]! * scalar,
       v[1]! * scalar,
-    ])
+    ]) as Vec2
   },
 
   divScalar(v: Vec2, scalar: number): Vec2 {
     return new Float32Array([
       v[0]! / scalar,
       v[1]! / scalar,
-    ])
+    ]) as Vec2
   },
 
   lengthSqr(v: Vec2): number {

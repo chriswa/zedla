@@ -3,7 +3,8 @@ import { GameStrategy } from "./gameStrategy"
 import { FSM } from "@/util/fsm"
 import { RoomGameStrategy } from "./room/roomGameStrategy"
 import { Renderer } from "@/gfx/renderer"
-import { rooms } from "@/resources/rooms"
+import { roomDefs } from "@/resources/roomDefs"
+import { Input } from "@/app/input"
 
 @singleton()
 export class Game {
@@ -12,11 +13,12 @@ export class Game {
 
   constructor(
     public renderer: Renderer,
+    public input: Input,
   ) {
   }
 
   start() {
-    this.fsm.queued = new RoomGameStrategy(this, rooms.intro1)
+    this.fsm.queued = new RoomGameStrategy(this, roomDefs.intro1)
   }
 
   tick() {

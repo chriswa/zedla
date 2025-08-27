@@ -1,30 +1,35 @@
-export type Vec3 = Float32Array
+import type { LayeredBrand } from "@/util/brand"
+
+export type Vec3 = LayeredBrand<Float32Array, ['vec2', 'vec3']>
 
 export const vec3 = {
   create(x: number, y: number, z: number): Vec3 {
-    const out = new Float32Array(3)
+    const out = new Float32Array(3) as Vec3
     out[0] = x
     out[1] = y
     out[2] = z
     return out
+  },
+
+  zero(): Vec3 {
+    return new Float32Array(3) as Vec3
   },
 
   clone(v: Vec3): Vec3 {
-    return new Float32Array(v)
+    return new Float32Array(v) as Vec3
   },
 
-  set(out: Vec3, x: number, y: number, z: number): Vec3 {
+  setComponents(out: Vec3, x: number, y: number, z: number): Vec3 {
     out[0] = x
     out[1] = y
     out[2] = z
     return out
   },
 
-  copy(out: Vec3, v: Vec3): Vec3 {
+  setVec3(out: Vec3, v: Vec3): void {
     out[0] = v[0]!
     out[1] = v[1]!
     out[2] = v[2]!
-    return out
   },
 
   add(a: Vec3, b: Vec3): Vec3 {
@@ -32,7 +37,7 @@ export const vec3 = {
       a[0]! + b[0]!,
       a[1]! + b[1]!,
       a[2]! + b[2]!,
-    ])
+    ]) as Vec3
   },
 
   sub(a: Vec3, b: Vec3): Vec3 {
@@ -40,7 +45,7 @@ export const vec3 = {
       a[0]! - b[0]!,
       a[1]! - b[1]!,
       a[2]! - b[2]!,
-    ])
+    ]) as Vec3
   },
 
   mulScalar(v: Vec3, scalar: number): Vec3 {
@@ -48,7 +53,7 @@ export const vec3 = {
       v[0]! * scalar,
       v[1]! * scalar,
       v[2]! * scalar,
-    ])
+    ]) as Vec3
   },
 
   divScalar(v: Vec3, scalar: number): Vec3 {
@@ -56,7 +61,7 @@ export const vec3 = {
       v[0]! / scalar,
       v[1]! / scalar,
       v[2]! / scalar,
-    ])
+    ]) as Vec3
   },
 
   lengthSqr(v: Vec3): number {

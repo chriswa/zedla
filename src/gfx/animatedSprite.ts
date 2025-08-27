@@ -1,33 +1,31 @@
-import { animations } from "@/resources/animations";
-import { Sprite } from "./sprite";
-import type { Vec3 } from "@/math/vec3";
-import type { Animation } from "@/types/Axnimation";
-import { frames } from "@/resources/frames";
+import { animationDefs } from "@/resources/animationDefs"
+import { Sprite } from "./sprite"
+import { vec3, type Vec3 } from "@/math/vec3"
+import type { AnimationDef } from "@/types/animationDef"
+import { imageSliceDefs } from "@/resources/imageSliceDefs"
 
-type Animations = typeof animations
-type Character = keyof Animations
-type AnimationName<C extends Character> = keyof Animations[C]
+type AnimationDefs = typeof animationDefs
+export type AnimationDefCharacterKeys = keyof AnimationDefs
+export type AnimationDefKeys<TCharacterKey extends AnimationDefCharacterKeys> = keyof AnimationDefs[TCharacterKey]
 
 export class AnimatedSprite<
-  C extends Character,
-  A extends AnimationName<C>
+  TCharacterKey extends AnimationDefCharacterKeys,
 > extends Sprite {
-  private animation!: Animation
+  private animation!: AnimationDef
   private frameIndex = 0
   private ticksElapsedThisFrame = 0
   constructor(
-    offset: Vec3,
-    private characterId: C,
-    initialAnimationId: A,
+    private animationDefCharacterKey: TCharacterKey,
+    initialAnimationDefKey: AnimationDefKeys<TCharacterKey>,
   ) {
-    const initialAnimation = animations[characterId][initialAnimationId] as Animation // required because `as const`
+    const initialAnimation = animationDefs[animationDefCharacterKey][initialAnimationDefKey] as AnimationDef // required because `as const`
     const frameId = initialAnimation.frames[0]!.frame
-    const frameDef = frames[frameId]
-    super(offset, frameDef)
-    this.setAnimation(initialAnimationId)
+    const frameDef = imageSliceDefs[frameId]
+    super(frameDef)
+    this.startAnimation(initialAnimationDefKey)
   }
-  private setAnimation(animationId: A) {
-    this.animation = animations[this.characterId][animationId] as Animation // required because `as const`
+  public startAnimation(animationId: AnimationDefKeys<TCharacterKey>) {
+    this.animation = animationDefs[this.animationDefCharacterKey][animationId] as AnimationDef // required because `as const`
     this.frameIndex = 0
     this.ticksElapsedThisFrame = 0
   }
@@ -41,7 +39,13 @@ export class AnimatedSprite<
       else if (this.animation.loop) {
         this.frameIndex = 0
       }
-      this.frameDef = frames[this.animation.frames[this.frameIndex]!.frame]
+      this.frameDef = imageSliceDefs[this.animation.frames[this.frameIndex]!.frame]
     }
   }
 }
+
+// const x = new AnimatedSprite(vec3.create(0, 0, 0), 'blob', 'twitch')
+// x.startAnimation('jump')
+// x.startAnimation('xxx')
+// const bad = new AnimatedSprite(vec3.create(0, 0, 0), 'foo', 'bar')
+// const bad2 = new AnimatedSprite(vec3.create(0, 0, 0), 'blob', 'waldo')

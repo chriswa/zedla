@@ -1,4 +1,4 @@
-export interface ImageSlice {
+export interface ImageSliceDef {
   src: string
   x: number
   y: number

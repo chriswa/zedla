@@ -1,11 +1,23 @@
-import type { Tileset } from "./tileset";
+import type { TilesetDef } from "./tilesetDef";
 
-export interface TileLayerDef {
-  tileset: Tileset,
-  cols: number,
-  tiles: Array<number>
+export interface PhysicsTilemapDef {
+  tileSize: number
+  cols: number
+  tiles: Uint16Array
+}
+
+export interface BackgroundTilemapDef {
+  tileset: TilesetDef
+  cols: number
+  tiles: Uint16Array
 }
 
 export interface RoomDef {
-  layers: Array<TileLayerDef>
+  physicsTilemap: PhysicsTilemapDef
+  backgroundTilemaps: Array<BackgroundTilemapDef>
+  spawns: Array<{
+    kind: string // TODO: typing based on resources/entities (maybe ts-intern?)
+    x: number
+    y: number
+  }>
 }

@@ -1,4 +1,4 @@
-export interface Tileset {
+export interface TilesetDef {
   src: string
   tileWidth: number
   tileHeight: number

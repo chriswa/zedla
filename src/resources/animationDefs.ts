@@ -1,7 +1,7 @@
-import type { Animation } from "@/types/Axnimation"
+import type { AnimationDef } from "@/types/animationDef"
 
 // export const animations: Record<string, Record<string, Animation>> = {
-export const animations = {
+export const animationDefs = {
 
   "blob": {
     "twitch": {
@@ -646,4 +646,4 @@ export const animations = {
       ]
     }
   }
-} as const satisfies Record<string, Record<string, Animation>>
+} as const satisfies Record<string, Record<string, AnimationDef>>

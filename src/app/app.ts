@@ -1,10 +1,11 @@
 import { singleton } from 'tsyringe'
 import { Canvas } from '@/gfx/canvas'
-import { resources } from '@/resources/resources'
 import { ImageLoader } from '@/gfx/imageLoader'
 import { Renderer } from '@/gfx/renderer'
-// import { TimeStep } from '@/timeStep'
 import { Game } from '@/game/game'
+import { Input } from './input'
+import { imageSliceDefs } from '@/resources/imageSliceDefs'
+import { tilesetDefs } from '@/resources/tilesetDefs'
 
 @singleton()
 export class App {
@@ -12,13 +13,14 @@ export class App {
     private gfx: Canvas,
     private imageLoader: ImageLoader,
     private renderer: Renderer,
-    // private timeStep: TimeStep,
     private game: Game,
+    private input: Input,
   ) {
     this.rafCallback = this.rafCallback.bind(this)
   }
 
   // TODO: FSM with game selection (e.g. new game (choose difficulty) or continue) (this FSM is separate from Game's FSM)
+
   async start() {
     await this.loadAllResources()
     requestAnimationFrame(this.rafCallback)
@@ -27,12 +29,13 @@ export class App {
 
   async loadAllResources() {
     await this.imageLoader.loadAll([
-      ...Object.values(resources.frames).map(f => f.src),
-      ...Object.values(resources.tilesets).map(f => f.src),
+      ...Object.values(imageSliceDefs).map(f => f.src),
+      ...Object.values(tilesetDefs).map(f => f.src),
     ])
   }
 
   private rafCallback(_timestamp: number): void {
+    this.input.sample()
     this.game.tick()
     this.renderer.tick()
     this.gfx.cls()
