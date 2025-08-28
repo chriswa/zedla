@@ -1,5 +1,6 @@
 import type { RoomDef } from "@/types/roomDef"
 import { tilesetDefs } from "./tilesetDefs"
+import { vec3 } from "@/math/vec3"
 
 export const roomDefs = {
   "intro1": {
@@ -56,14 +57,16 @@ export const roomDefs = {
     //   { "area": "intro1_down", "hitbox": { "x1": 512, "y1": 448, "x2": 704, "y2": 480 } }
     // ],
     spawns: [
-      { kind: "Bot", x: 2672, y: 272 },
-      { kind: "Bot", x: 2320, y: 272 },
-      { kind: "Bot", x: 2352, y: 208 },
-      { kind: "Bot", x: 2640, y: 208 },
-      { kind: "Octorok", x: 1936, y: 400 },
-      { kind: "Bot", x: 1072, y: 304 },
-      // { kind: "Lock", x: 720, y: 368, "onceEver": 1002 },
-      { kind: "Elevator", x: 608, y: 416 },
+      { kind: 'Sample', args: [vec3.zero(), 123, 'hello'] },
+      { kind: 'Sample', args: [vec3.zero(), 456, 'world'] },
+      // { kind: "Bot", x: 2672, y: 272 },
+      // { kind: "Bot", x: 2320, y: 272 },
+      // { kind: "Bot", x: 2352, y: 208 },
+      // { kind: "Bot", x: 2640, y: 208 },
+      // { kind: "Octorok", x: 1936, y: 400 },
+      // { kind: "Bot", x: 1072, y: 304 },
+      // // { kind: "Lock", x: 720, y: 368, "onceEver": 1002 },
+      // { kind: "Elevator", x: 608, y: 416 },
     ],
   },
 } as const satisfies Record<string, RoomDef>

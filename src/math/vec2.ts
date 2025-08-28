@@ -1,4 +1,4 @@
-import type { LayeredBrand } from "@/util/brand"
+import type { LayeredBrand } from "@/util/type/brand"
 
 export type Vec2 = LayeredBrand<Float32Array, ['vec2']>
 

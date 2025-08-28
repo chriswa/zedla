@@ -1,3 +1,4 @@
+import type { RoomEntityDef } from "./spawnDef";
 import type { TilesetDef } from "./tilesetDef";
 
 export interface PhysicsTilemapDef {
@@ -15,9 +16,5 @@ export interface BackgroundTilemapDef {
 export interface RoomDef {
   physicsTilemap: PhysicsTilemapDef
   backgroundTilemaps: Array<BackgroundTilemapDef>
-  spawns: Array<{
-    kind: string // TODO: typing based on resources/entities (maybe ts-intern?)
-    x: number
-    y: number
-  }>
+  spawns: Array<RoomEntityDef>
 }
