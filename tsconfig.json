@@ -35,7 +35,8 @@
     "useUnknownInCatchVariables": true,
     "noImplicitReturns": true,
 
-    "strictFunctionTypes": true,
+    // added for eventBus, but doesn't seem necessary
+    // "strictFunctionTypes": true,
 
     "baseUrl": ".",
     "paths": {

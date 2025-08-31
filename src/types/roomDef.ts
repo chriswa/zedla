@@ -18,3 +18,5 @@ export interface RoomDef {
   backgroundTilemaps: Array<BackgroundTilemapDef>
   spawns: Array<RoomEntityDef>
 }
+
+export const RoomDefToken = Symbol('RoomDef')

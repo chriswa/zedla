@@ -18,7 +18,7 @@ export class Game {
   }
 
   start() {
-    this.fsm.queued = new RoomGameStrategy(this, this.renderer, roomDefs.intro1)
+    this.fsm.queued = new RoomGameStrategy(this, roomDefs.intro1)
   }
 
   tick() {
