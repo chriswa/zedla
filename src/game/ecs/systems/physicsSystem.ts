@@ -6,6 +6,8 @@ export class PhysicsSystem implements ISystem, Disposable {
   constructor(
   ) {
   }
+  tick() {
+  }
   dispose() {
   }
 }

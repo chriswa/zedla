@@ -19,11 +19,15 @@ export class ECS {
   }
 
   private nextEntityId = 0 as EntityId;
-  private entities = new Map<EntityId, EntityComponentMap>();
+  private _entities = new Map<EntityId, EntityComponentMap>();
+
+  get entities() {
+    return this._entities as ReadonlyMap<EntityId, EntityComponentMap>
+  }
 
   createEntity(): EntityId {
     const entityId = this.nextEntityId++ as EntityId;
-    this.entities.set(entityId, {});
+    this._entities.set(entityId, {});
     this.gameEventBus.emit('ecs:entity_added', entityId)
     return entityId;
   }
@@ -33,7 +37,7 @@ export class ECS {
     componentKey: K,
     component: EntityComponentMap[K],
   ) {
-    const entity = assertExists(this.entities.get(entityId))
+    const entity = assertExists(this._entities.get(entityId))
     assert(entity[componentKey] === undefined)
     entity[componentKey] = component
     this.gameEventBus.emit('ecs:component_added', entityId, componentKey)
@@ -43,26 +47,26 @@ export class ECS {
     entityId: EntityId,
     componentKey: K,
   ): EntityComponentMap[K] | undefined {
-    return this.entities.get(entityId)?.[componentKey]
+    return this._entities.get(entityId)?.[componentKey]
   }
 
   removeComponent<K extends keyof typeof componentRegistry>(
     entityId: EntityId,
     componentKey: K,
   ): void {
-    const entity = assertExists(this.entities.get(entityId))
+    const entity = assertExists(this._entities.get(entityId))
     assert(entity[componentKey] !== undefined)
     this.gameEventBus.emit('ecs:component_removed', entityId, componentKey)
     delete entity[componentKey]
   }
 
   destroyEntity(entityId: EntityId): void {
-    const entity = assertExists(this.entities.get(entityId))
+    const entity = assertExists(this._entities.get(entityId))
     const componentKeys = Object.keys(entity) as Array<keyof typeof componentRegistry> // n.b. cast required because Object.keys typing doesn't respect Record<>
     componentKeys.forEach(componentKey => {
       this.removeComponent(entityId, componentKey)
     })
     this.gameEventBus.emit('ecs:entity_removed', entityId)
-    this.entities.delete(entityId)
+    this._entities.delete(entityId)
   }
 }

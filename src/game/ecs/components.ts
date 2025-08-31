@@ -25,7 +25,7 @@ export class AnimationComponent {
   public frameIndex = 0
   public ticksElapsedThisFrame = 0
   constructor(
-    public characterId: keyof typeof animationDefs,
+    public character: typeof animationDefs[keyof typeof animationDefs],
     public animation: AnimationDef,
   ) {}
 }

@@ -1,30 +1,24 @@
 import { singleton } from 'tsyringe'
-import { Canvas } from '@/gfx/canvas'
 import { ImageLoader } from '@/gfx/imageLoader'
-import { Renderer } from '@/gfx/renderer'
 import { Game } from '@/game/game'
-import { Input } from './input'
 import { imageSliceDefs } from '@/resources/imageSliceDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
 
 @singleton()
 export class App {
   constructor(
-    private gfx: Canvas,
     private imageLoader: ImageLoader,
-    private renderer: Renderer,
     private game: Game,
-    private input: Input,
   ) {
     this.rafCallback = this.rafCallback.bind(this)
   }
 
   // TODO: FSM with game selection (e.g. new game (choose difficulty) or continue) (this FSM is separate from Game's FSM)
 
-  async start() {
+  async boot() {
     await this.loadAllResources()
     requestAnimationFrame(this.rafCallback)
-    this.game.start()
+    this.game.boot()
   }
 
   async loadAllResources() {
@@ -35,12 +29,9 @@ export class App {
   }
 
   private rafCallback(_timestamp: number): void {
-    this.input.sample()
+    // TODO: fix your timestep
     this.game.tick()
-    this.renderer.tick()
-    this.gfx.cls()
-    this.renderer.render()
-
+    this.game.render()
     requestAnimationFrame(this.rafCallback)
   }
 }
