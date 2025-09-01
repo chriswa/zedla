@@ -14,7 +14,7 @@ import { animationDefs } from "@/resources/animationDefs";
 export class RoomSimulation implements Disposable {
   private testEntityId: EntityId
   constructor(
-    @inject(RoomDefToken) private roomDef: RoomDef,
+    // @inject(RoomDefToken) private roomDef: RoomDef,
     private ecs: ECS,
     private physicsSystem: PhysicsSystem,
     private animationSystem: AnimationSystem,
