@@ -6,6 +6,9 @@ import { ImageLoader } from "@/gfx/imageLoader";
 import { Camera } from "@/gfx/camera";
 import { ECS } from "../ecs";
 import { assertExists } from "@/util/assertExists";
+import { vec3 } from "@/math/vec3";
+
+const DO_INTERPOLATION = false
 
 @scoped(Lifecycle.ContainerScoped)
 export class RenderSystem implements ISystem, Disposable {
@@ -17,26 +20,31 @@ export class RenderSystem implements ISystem, Disposable {
     private ecs: ECS,
   ) {
   }
-  render() {
+  render(renderBlend: number) {
     this.canvas.ctx.imageSmoothingEnabled = false
     this.renderTilemaps()
-    this.renderSprites()
+    this.renderSprites(renderBlend)
   }
-  private renderSprites() {
+  private renderSprites(renderBlend: number) {
     // TODO: sort order by Z?
+    const interpolatedCameraOffset = DO_INTERPOLATION ? vec3.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
+    
     this.ecs.entities.forEach((components, _entityId) => {
       const spriteComponent = components.SpriteComponent
       if (spriteComponent !== undefined) {
         const positionComponent = assertExists(components.PositionComponent)
         const frameDef = spriteComponent.frameDef
+        
+        const interpolatedPosition = DO_INTERPOLATION ? vec3.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
+        
         this.canvas.ctx.drawImage(
           this.imageLoader.get(frameDef.src),
           frameDef.x,
           frameDef.y,
           frameDef.w,
           frameDef.h,
-          this.camera.zoom * (Math.round(positionComponent.offset[0]!) - Math.round(this.camera.offset[0]!) - frameDef.offsetX),
-          this.camera.zoom * (Math.round(positionComponent.offset[1]!) - Math.round(this.camera.offset[1]!) + frameDef.offsetY),
+          this.camera.zoom * (Math.round(interpolatedPosition[0]!) - Math.round(interpolatedCameraOffset[0]!) - frameDef.offsetX),
+          this.camera.zoom * (Math.round(interpolatedPosition[1]!) - Math.round(interpolatedCameraOffset[1]!) + frameDef.offsetY),
           this.camera.zoom * frameDef.w,
           this.camera.zoom * frameDef.h,
         )

@@ -3,12 +3,16 @@ import { ImageLoader } from '@/gfx/imageLoader'
 import { Game } from '@/game/game'
 import { imageSliceDefs } from '@/resources/imageSliceDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
+import { Input } from './input'
+import { FixedTimeStep } from '@/util/fixedTimeStep'
 
 @singleton()
 export class App {
   constructor(
     private imageLoader: ImageLoader,
+    private input: Input,
     private game: Game,
+    private fixedTimeStep: FixedTimeStep,
   ) {
     this.rafCallback = this.rafCallback.bind(this)
   }
@@ -28,10 +32,14 @@ export class App {
     ])
   }
 
-  private rafCallback(_timestamp: number): void {
-    // TODO: fix your timestep
-    this.game.tick()
-    this.game.render()
+  private rafCallback(timestamp: number): void {
+    this.input.sample()
+    
+    const renderBlend = this.fixedTimeStep.tick(timestamp, () => {
+      this.game.tick()
+    })
+    
+    this.game.render(renderBlend)
     requestAnimationFrame(this.rafCallback)
   }
 }

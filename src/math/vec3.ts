@@ -87,4 +87,12 @@ export const vec3 = {
   equals(a: Vec3, b: Vec3): boolean {
     return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
   },
+
+  lerp(a: Vec3, b: Vec3, t: number): Vec3 {
+    return new Float32Array([
+      a[0]! + (b[0]! - a[0]!) * t,
+      a[1]! + (b[1]! - a[1]!) * t,
+      a[2]! + (b[2]! - a[2]!) * t,
+    ]) as Vec3
+  },
 }

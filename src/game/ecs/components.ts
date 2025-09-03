@@ -1,14 +1,18 @@
 import type { Rect } from "@/math/rect";
 import type { Vec2 } from "@/math/vec2";
 import type { Vec3 } from "@/math/vec3";
+import { vec3 } from "@/math/vec3";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
 
 export class PositionComponent {
+  public previousOffset: Vec3
   constructor(
     public offset: Vec3,
-  ) {}
+  ) {
+    this.previousOffset = vec3.clone(offset)
+  }
 }
 export class PhysicsBodyComponent {
   constructor(
