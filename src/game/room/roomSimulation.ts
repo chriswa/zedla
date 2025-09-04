@@ -12,6 +12,7 @@ import { GameStrategy } from "../gameStrategy";
 import { RoomDefToken, type RoomDef } from "@/types/roomDef";
 import { PlayerSystem } from "../ecs/systems/playerSystem";
 import { NpcSystem } from "../ecs/systems/npcSystem";
+import { CameraSystem } from "../ecs/systems/cameraSystem";
 import { RoomContext } from "../roomContext";
 import { Camera } from "@/gfx/camera";
 
@@ -24,6 +25,7 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     private playerSystem: PlayerSystem,
     private npcSystem: NpcSystem,
     private physicsSystem: PhysicsSystem,
+    private cameraSystem: CameraSystem,
     private animationSystem: AnimationSystem,
     private renderSystem: RenderSystem,
 
@@ -41,6 +43,7 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     this.playerSystem.tick()
     this.npcSystem.tick()
     this.physicsSystem.tick()
+    this.cameraSystem.tick()
     this.animationSystem.tick()
   }
   render(renderBlend: number) {
