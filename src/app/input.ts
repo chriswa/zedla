@@ -1,8 +1,9 @@
 import { singleton } from "tsyringe";
+import * as KeyCode from 'keycode-js'
 
 export enum Button {
-  UP,
-  DOWN,
+  // UP,
+  // DOWN,
   LEFT,
   RIGHT,
   ATTACK,
@@ -10,12 +11,17 @@ export enum Button {
 }
 
 const keyboardEventCodeToButton: Record<string, Button> = {
-  ArrowUp: Button.UP,
-  ArrowDown: Button.DOWN,
-  ArrowLeft: Button.LEFT,
-  ArrowRight: Button.RIGHT,
-  KeyZ: Button.ATTACK,
-  KeyX: Button.JUMP,
+  // [KeyCode.CODE_UP]: Button.UP,
+  // [KeyCode.CODE_DOWN]: Button.DOWN,
+  [KeyCode.CODE_LEFT]: Button.LEFT,
+  [KeyCode.CODE_RIGHT]: Button.RIGHT,
+  [KeyCode.CODE_Z]: Button.JUMP,
+  [KeyCode.CODE_X]: Button.ATTACK,
+
+  [KeyCode.CODE_A]: Button.LEFT,
+  [KeyCode.CODE_D]: Button.RIGHT,
+  [KeyCode.CODE_SLASH]: Button.JUMP,
+  [KeyCode.CODE_QUOTE]: Button.ATTACK,
 }
 
 @singleton()

@@ -6,9 +6,11 @@ import { ImageLoader } from "@/gfx/imageLoader";
 import { Camera } from "@/gfx/camera";
 import { ECS } from "../ecs";
 import { assertExists } from "@/util/assertExists";
-import { vec3 } from "@/math/vec3";
+import { vec2 } from "@/math/vec2";
+import { rect } from "@/math/rect";
 
 const DO_INTERPOLATION = false
+const RENDER_PHYSICS_HITBOXES = true
 
 @scoped(Lifecycle.ContainerScoped)
 export class RenderSystem implements ISystem, Disposable {
@@ -24,10 +26,13 @@ export class RenderSystem implements ISystem, Disposable {
     this.canvas.ctx.imageSmoothingEnabled = false
     this.renderTilemaps()
     this.renderSprites(renderBlend)
+    if (RENDER_PHYSICS_HITBOXES) {
+      this.renderPhysicsHitboxes(renderBlend)
+    }
   }
   private renderSprites(renderBlend: number) {
     // TODO: sort order by Z?
-    const interpolatedCameraOffset = DO_INTERPOLATION ? vec3.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
+    const interpolatedCameraOffset = DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
     
     this.ecs.entities.forEach((components, _entityId) => {
       const spriteComponent = components.SpriteComponent
@@ -35,7 +40,7 @@ export class RenderSystem implements ISystem, Disposable {
         const positionComponent = assertExists(components.PositionComponent)
         const frameDef = spriteComponent.frameDef
         
-        const interpolatedPosition = DO_INTERPOLATION ? vec3.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
+        const interpolatedPosition = DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
         
         this.canvas.ctx.drawImage(
           this.imageLoader.get(frameDef.src),
@@ -78,6 +83,29 @@ export class RenderSystem implements ISystem, Disposable {
           tilemapX = 0
           tilemapY += 1
         }
+      }
+    })
+  }
+  private renderPhysicsHitboxes(renderBlend: number) {
+    const interpolatedCameraOffset = DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
+    
+    this.ecs.entities.forEach((components, _entityId) => {
+      const physicsBodyComponent = components.PhysicsBodyComponent
+      const positionComponent = components.PositionComponent
+      
+      if (physicsBodyComponent && positionComponent) {
+        const interpolatedPosition = DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
+        
+        const worldRect = rect.add(physicsBodyComponent.rect, interpolatedPosition)
+        
+        this.canvas.ctx.strokeStyle = 'red'
+        this.canvas.ctx.lineWidth = 1
+        this.canvas.ctx.strokeRect(
+          this.camera.zoom * (worldRect[0]! - interpolatedCameraOffset[0]!),
+          this.camera.zoom * (worldRect[1]! - interpolatedCameraOffset[1]!),
+          this.camera.zoom * (worldRect[2]! - worldRect[0]!),
+          this.camera.zoom * (worldRect[3]! - worldRect[1]!)
+        )
       }
     })
   }

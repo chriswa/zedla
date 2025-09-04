@@ -1,6 +1,6 @@
 import type { RoomDef } from "@/types/roomDef"
 import { tilesetDefs } from "./tilesetDefs"
-import { vec3 } from "@/math/vec3"
+import { vec2 } from "@/math/vec2"
 
 export const roomDefs = {
   "intro1": {
@@ -57,8 +57,8 @@ export const roomDefs = {
     //   { "area": "intro1_down", "hitbox": { "x1": 512, "y1": 448, "x2": 704, "y2": 480 } }
     // ],
     spawns: [
-      { kind: 'Sample', args: [vec3.zero(), 123, 'hello'] },
-      { kind: 'Sample', args: [vec3.zero(), 456, 'world'] },
+      { kind: 'Sample', args: [vec2.zero(), 123, 'hello'] },
+      { kind: 'Sample', args: [vec2.zero(), 456, 'world'] },
       // { kind: "Bot", x: 2672, y: 272 },
       // { kind: "Bot", x: 2320, y: 272 },
       // { kind: "Bot", x: 2352, y: 208 },

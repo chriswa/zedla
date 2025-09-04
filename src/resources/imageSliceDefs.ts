@@ -549,7 +549,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -32,
   },
   "link_walk_1": {
     src: "player.png",
@@ -558,7 +558,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -32,
   },
   "link_walk_2": {
     src: "player.png",
@@ -567,7 +567,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 31,
     offsetX: 9,
-    offsetY: -17,
+    offsetY: -32,
   },
   "lock_default_0": {
     src: "player.png",

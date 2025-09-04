@@ -18,7 +18,7 @@ export const vec2 = {
     return new Float32Array(v) as Vec2
   },
 
-  set(out: Vec2, x: number, y: number, z: number): Vec2 {
+  set(out: Vec2, x: number, y: number): Vec2 {
     out[0] = x
     out[1] = y
     return out
@@ -79,5 +79,12 @@ export const vec2 = {
 
   equals(a: Vec2, b: Vec2): boolean {
     return a[0] === b[0] && a[1] === b[1]
+  },
+
+  lerp(a: Vec2, b: Vec2, t: number): Vec2 {
+    return new Float32Array([
+      a[0]! + (b[0]! - a[0]!) * t,
+      a[1]! + (b[1]! - a[1]!) * t,
+    ]) as Vec2
   },
 }
