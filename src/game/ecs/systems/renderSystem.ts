@@ -1,6 +1,5 @@
-import { inject, Lifecycle, scoped, type Disposable } from "tsyringe";
+import { Lifecycle, scoped, type Disposable } from "tsyringe";
 import { type ISystem } from "./types";
-import { RoomDefToken, type RoomDef } from "@/types/roomDef";
 import { Canvas } from "@/gfx/canvas";
 import { ImageLoader } from "@/gfx/imageLoader";
 import { Camera } from "@/gfx/camera";
@@ -8,6 +7,7 @@ import { ECS } from "../ecs";
 import { assertExists } from "@/util/assertExists";
 import { vec2 } from "@/math/vec2";
 import { rect } from "@/math/rect";
+import { RoomContext } from "@/game/roomContext";
 
 const DO_INTERPOLATION = false
 const RENDER_PHYSICS_HITBOXES = true
@@ -15,7 +15,7 @@ const RENDER_PHYSICS_HITBOXES = true
 @scoped(Lifecycle.ContainerScoped)
 export class RenderSystem implements ISystem, Disposable {
   constructor(
-    @inject(RoomDefToken) private roomDef: RoomDef,
+    private roomContext: RoomContext,
     private canvas: Canvas,
     private imageLoader: ImageLoader,
     private camera: Camera,
@@ -57,31 +57,28 @@ export class RenderSystem implements ISystem, Disposable {
     })
   }
   private renderTilemaps() {
-    this.roomDef.backgroundTilemaps.forEach(backgroundTilemapDef => {
+    this.roomContext.roomDef.backgroundTilemaps.forEach((backgroundTilemapDef, gridIndex) => {
       const tileset = backgroundTilemapDef.tileset
-      let tilemapX = 0
-      let tilemapY = 0
-      for (let i = 0; i < backgroundTilemapDef.tiles.length; i += 1) {
-        const tileIndex = backgroundTilemapDef.tiles[i]!
-        const tilesetX = tileIndex % tileset.cols
-        const tilesetY = Math.floor(tileIndex / tileset.cols)
-        this.canvas.ctx.drawImage(
-          this.imageLoader.get(tileset.src),
-          tilesetX * tileset.tileWidth,
-          tilesetY * tileset.tileHeight,
-          tileset.tileWidth,
-          tileset.tileHeight,
-          this.camera.zoom * (tilemapX * tileset.tileWidth - this.camera.offset[0]!),
-          this.camera.zoom * (tilemapY * tileset.tileHeight - this.camera.offset[1]!),
-          this.camera.zoom * tileset.tileWidth,
-          this.camera.zoom * tileset.tileHeight,
-        )
-
-        // advance tile coords
-        tilemapX += 1
-        if (tilemapX >= backgroundTilemapDef.cols) {
-          tilemapX = 0
-          tilemapY += 1
+      const grid = this.roomContext.backgroundGrids[gridIndex]!
+      
+      for (let tileY = 0; tileY < grid.rows; tileY++) {
+        for (let tileX = 0; tileX < grid.cols; tileX++) {
+          const tileIndex = grid.get(tileX, tileY)
+          // if (tileIndex === 0) continue // Skip empty tiles
+          
+          const tilesetX = tileIndex % tileset.cols
+          const tilesetY = Math.floor(tileIndex / tileset.cols)
+          this.canvas.ctx.drawImage(
+            this.imageLoader.get(tileset.src),
+            tilesetX * tileset.tileWidth,
+            tilesetY * tileset.tileHeight,
+            tileset.tileWidth,
+            tileset.tileHeight,
+            this.camera.zoom * (tileX * tileset.tileWidth - this.camera.offset[0]!),
+            this.camera.zoom * (tileY * tileset.tileHeight - this.camera.offset[1]!),
+            this.camera.zoom * tileset.tileWidth,
+            this.camera.zoom * tileset.tileHeight,
+          )
         }
       }
     })

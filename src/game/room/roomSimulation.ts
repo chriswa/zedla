@@ -15,6 +15,7 @@ import { NpcSystem } from "../ecs/systems/npcSystem";
 import { CameraSystem } from "../ecs/systems/cameraSystem";
 import { RoomContext } from "../roomContext";
 import { Camera } from "@/gfx/camera";
+import { Grid2D } from "@/util/grid2D";
 
 @scoped(Lifecycle.ContainerScoped)
 export class RoomSimulation extends GameStrategy implements Disposable {
@@ -32,9 +33,15 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     private camera: Camera,
   ) {
     super()
+    
+    // Initialize RoomContext grids
+    this.roomContext.roomDef = roomDef
+    this.roomContext.physicsGrid = new Grid2D(roomDef.physicsTilemap.tiles, roomDef.physicsTilemap.cols)
+    this.roomContext.backgroundGrids = roomDef.backgroundTilemaps.map(bg => new Grid2D(bg.tiles, bg.cols))
+    
     this.roomContext.playerEntityId = ecs.createEntity()
     const playerEntityId = this.roomContext.playerEntityId
-    ecs.addComponent(playerEntityId, 'PositionComponent', new PositionComponent(vec2.create(16, 16)))
+    ecs.addComponent(playerEntityId, 'PositionComponent', new PositionComponent(vec2.create(64, 64)))
     ecs.addComponent(playerEntityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-8, -32, 8, 0), vec2.zero()))
     ecs.addComponent(playerEntityId, 'SpriteComponent', new SpriteComponent(imageSliceDefs.link_walk_0))
     ecs.addComponent(playerEntityId, 'AnimationComponent', new AnimationComponent(animationDefs.link, animationDefs.link.walk))

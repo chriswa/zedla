@@ -14,6 +14,11 @@ export class PositionComponent {
   }
 }
 export class PhysicsBodyComponent {
+  public touchingLeft = false
+  public touchingRight = false
+  public touchingUp = false
+  public touchingDown = false
+
   constructor(
     public rect: Rect,
     public velocity: Vec2,
