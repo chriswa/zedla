@@ -4,6 +4,7 @@ import { vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
+import type { NpcKindKey } from "../npc/npcKindRegistry";
 
 export class PositionComponent {
   public previousOffset: Vec2
@@ -38,6 +39,12 @@ export class AnimationComponent {
   ) {}
 }
 
+export class NpcKindComponent {
+  constructor(
+    public kind: NpcKindKey,
+  ) {}
+}
+
 export type ComponentKey = keyof typeof componentRegistry
 
 // TODO: auto-generate this object with barrelsby/ts-intern
@@ -46,4 +53,5 @@ export const componentRegistry = {
   PhysicsBodyComponent,
   SpriteComponent,
   AnimationComponent,
+  NpcKindComponent,
 } as const

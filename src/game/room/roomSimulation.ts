@@ -3,7 +3,7 @@ import { AnimationSystem } from "../ecs/systems/animationSystem";
 import { RenderSystem } from "../ecs/systems/renderSystem";
 import { ECS } from "../ecs/ecs";
 import { PhysicsSystem } from "../ecs/systems/physicsSystem";
-import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent } from "../ecs/components";
+import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent, NpcKindComponent } from "../ecs/components";
 import { vec2 } from "@/math/vec2";
 import { rect } from "@/math/rect";
 import { imageSliceDefs } from "@/resources/imageSliceDefs";
@@ -16,6 +16,7 @@ import { CameraSystem } from "../ecs/systems/cameraSystem";
 import { RoomContext } from "../roomContext";
 import { Camera } from "@/gfx/camera";
 import { Grid2D } from "@/util/grid2D";
+import { spawnNpcByKind } from "../npc/npcKindRegistry";
 
 @scoped(Lifecycle.ContainerScoped)
 export class RoomSimulation extends GameStrategy implements Disposable {
@@ -45,7 +46,18 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     ecs.addComponent(playerEntityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-8, -32, 8, 0), vec2.zero()))
     ecs.addComponent(playerEntityId, 'SpriteComponent', new SpriteComponent(imageSliceDefs.link_walk_0))
     ecs.addComponent(playerEntityId, 'AnimationComponent', new AnimationComponent(animationDefs.link, animationDefs.link.walk))
+    
+    // Spawn NPCs
+    roomDef.spawns.forEach(spawn => {
+      const npcEntityId = ecs.createEntity()
+      ecs.addComponent(npcEntityId, 'PositionComponent', new PositionComponent(spawn.position))
+      ecs.addComponent(npcEntityId, 'NpcKindComponent', new NpcKindComponent(spawn.kind))
+      
+      // Call kind-specific spawn method
+      spawnNpcByKind(npcEntityId, spawn.kind, spawn.spawnData)
+    })
   }
+
   tick() {
     this.playerSystem.tick()
     this.npcSystem.tick()

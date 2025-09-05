@@ -57,16 +57,8 @@ export const roomDefs = {
     //   { "area": "intro1_down", "hitbox": { "x1": 512, "y1": 448, "x2": 704, "y2": 480 } }
     // ],
     spawns: [
-      { kind: 'Sample', args: [vec2.zero(), 123, 'hello'] },
-      { kind: 'Sample', args: [vec2.zero(), 456, 'world'] },
-      // { kind: "Bot", x: 2672, y: 272 },
-      // { kind: "Bot", x: 2320, y: 272 },
-      // { kind: "Bot", x: 2352, y: 208 },
-      // { kind: "Bot", x: 2640, y: 208 },
-      // { kind: "Octorok", x: 1936, y: 400 },
-      // { kind: "Bot", x: 1072, y: 304 },
-      // // { kind: "Lock", x: 720, y: 368, "onceEver": 1002 },
-      // { kind: "Elevator", x: 608, y: 416 },
+      { kind: 'Foo', position: vec2.create(100, 100), spawnData: { health: 100, speed: 50 } },
+      { kind: 'Bar', position: vec2.create(200, 150), spawnData: { name: 'Guard', patrolDistance: 64 } },
     ],
   },
 } as const satisfies Record<string, RoomDef>

@@ -7,7 +7,7 @@ import { singleton } from "tsyringe"
 
 export type EntityId = Brand<number, 'EntityId'>
 
-type EntityComponentMap = {
+export type EntityComponentMap = {
   [K in keyof typeof componentRegistry]?: InstanceType<typeof componentRegistry[K]>
 }
 
@@ -55,8 +55,8 @@ export class ECS {
     componentKey: K,
   ): void {
     const entity = assertExists(this._entities.get(entityId))
-    assert(entity[componentKey] !== undefined)
-    this.gameEventBus.emit('ecs:component_removed', entityId, componentKey)
+    const component = assertExists(entity[componentKey])
+    this.gameEventBus.emit('ecs:component_removing', entityId, componentKey, component)
     delete entity[componentKey]
   }
 
