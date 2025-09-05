@@ -1,4 +1,5 @@
 // EventBus.ts — class-based bus + compile-time subset enforcement (self-contained)
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-parameters, @typescript-eslint/no-empty-object-type */
 
 /* ====================== Types ====================== */
 
@@ -65,12 +66,12 @@ export class EventBus<S extends EventSchema> {
   }
 
   emit<E extends keyof S>(event: E, ...a: ParamsOf<S[E]>) {
-    this.listeners[event]?.forEach(fn => fn(...a));
+    if (this.listeners[event]) for (const fn of this.listeners[event]) fn(...a);
   }
 
   clear<E extends keyof S>(event?: E) {
     if (event) this.listeners[event]?.clear();
-    else (Object.values(this.listeners) as Array<Set<any> | undefined>).forEach(s => s?.clear());
+    else for (const s of (Object.values(this.listeners) as Array<Set<any> | undefined>)) s?.clear();
   }
 
   listenerCount<E extends keyof S>(event: E) {

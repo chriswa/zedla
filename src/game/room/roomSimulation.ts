@@ -1,28 +1,30 @@
 import { inject, Lifecycle, scoped, type Disposable } from "tsyringe";
-import { AnimationSystem } from "../ecs/systems/animationSystem";
-import { RenderSystem } from "../ecs/systems/renderSystem";
-import { ECS } from "../ecs/ecs";
-import { PhysicsSystem } from "../ecs/systems/physicsSystem";
+
 import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent, NpcKindComponent } from "../ecs/components";
-import { vec2 } from "@/math/vec2";
-import { rect } from "@/math/rect";
-import { imageSliceDefs } from "@/resources/imageSliceDefs";
-import { animationDefs } from "@/resources/animationDefs";
-import { GameStrategy } from "../gameStrategy";
-import { RoomDefToken, type RoomDef } from "@/types/roomDef";
-import { PlayerSystem } from "../ecs/systems/playerSystem";
-import { NpcSystem } from "../ecs/systems/npcSystem";
+import { ECS } from "../ecs/ecs";
+import { AnimationSystem } from "../ecs/systems/animationSystem";
 import { CameraSystem } from "../ecs/systems/cameraSystem";
-import { RoomContext } from "../roomContext";
-import { Camera } from "@/gfx/camera";
-import { Grid2D } from "@/util/grid2D";
+import { NpcSystem } from "../ecs/systems/npcSystem";
+import { PhysicsSystem } from "../ecs/systems/physicsSystem";
+import { PlayerSystem } from "../ecs/systems/playerSystem";
+import { RenderSystem } from "../ecs/systems/renderSystem";
+import { GameStrategy } from "../gameStrategy";
 import { spawnNpcByKind } from "../npc/npcKindRegistry";
+import { RoomContext } from "../roomContext";
+
+import { rect } from "@/math/rect";
+import { vec2 } from "@/math/vec2";
+import { animationDefs } from "@/resources/animationDefs";
+import { imageSliceDefs } from "@/resources/imageSliceDefs";
+import { RoomDefToken, type RoomDef } from "@/types/roomDef";
+import { Grid2D } from "@/util/grid2D";
+
 
 @scoped(Lifecycle.ContainerScoped)
 export class RoomSimulation extends GameStrategy implements Disposable {
   constructor(
-    @inject(RoomDefToken) private roomDef: RoomDef,
-    private ecs: ECS,
+    @inject(RoomDefToken) roomDef: RoomDef,
+    ecs: ECS,
     private roomContext: RoomContext,
     private playerSystem: PlayerSystem,
     private npcSystem: NpcSystem,
@@ -30,8 +32,6 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     private cameraSystem: CameraSystem,
     private animationSystem: AnimationSystem,
     private renderSystem: RenderSystem,
-
-    private camera: Camera,
   ) {
     super()
     
@@ -48,14 +48,14 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     ecs.addComponent(playerEntityId, 'AnimationComponent', new AnimationComponent(animationDefs.link, animationDefs.link.walk))
     
     // Spawn NPCs
-    roomDef.spawns.forEach(spawn => {
+    for (const spawn of roomDef.spawns) {
       const npcEntityId = ecs.createEntity()
       ecs.addComponent(npcEntityId, 'PositionComponent', new PositionComponent(spawn.position))
       ecs.addComponent(npcEntityId, 'NpcKindComponent', new NpcKindComponent(spawn.kind))
       
       // Call kind-specific spawn method
       spawnNpcByKind(npcEntityId, spawn.kind, spawn.spawnData)
-    })
+    }
   }
 
   tick() {

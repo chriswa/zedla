@@ -1,5 +1,6 @@
-import { assertExists } from '@/util/assertExists'
 import { singleton } from 'tsyringe'
+
+import { assertExists } from '@/util/assertExists'
 
 @singleton()
 export class Canvas {

@@ -1,9 +1,12 @@
 import { container, singleton } from "tsyringe"
+
 import { GameStrategy } from "./gameStrategy"
-import { FSM } from "@/util/fsm"
+import { RoomSimulation } from "./room/roomSimulation"
+
 import { roomDefs } from "@/resources/roomDefs"
 import { RoomDefToken, type RoomDef } from "@/types/roomDef"
-import { RoomSimulation } from "./room/roomSimulation"
+import { FSM } from "@/util/fsm"
+
 
 class NoOpGameStrategy extends GameStrategy {}
 

@@ -1,13 +1,19 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
-import { ECS } from "../ecs";
-import { RoomContext } from "@/game/roomContext";
-import { npcKindRegistry } from "../../npc/npcKindRegistry";
+
 import { GameEventBus } from "../../event/gameEventBus";
+import { npcKindRegistry } from "../../npc/npcKindRegistry";
+import { ECS } from "../ecs";
+
+import { type ITickingSystem } from "./types";
+
 import type { NpcKindComponent } from "../components";
 
+import { RoomContext } from "@/game/roomContext";
+
+
+
 @scoped(Lifecycle.ContainerScoped)
-export class NpcSystem implements ISystem, Disposable {
+export class NpcSystem implements ITickingSystem, Disposable {
   private unsubscribeFromEvents: () => void
 
   constructor(
@@ -19,19 +25,19 @@ export class NpcSystem implements ISystem, Disposable {
       if (componentKey === 'NpcKindComponent') {
         const npcKindComponent = component as NpcKindComponent
         const npcKind = npcKindRegistry[npcKindComponent.kind]
-        npcKind.onDestroy?.(entityId)
+        npcKind.onDestroy(entityId)
       }
     })
   }
 
   tick() {
-    this.ecs.entities.forEach((components, entityId) => {
+    for (const [entityId, components] of this.ecs.entities.entries()) {
       const npcKindComponent = components.NpcKindComponent
       if (npcKindComponent) {
         const npcKind = npcKindRegistry[npcKindComponent.kind]
         npcKind.tick(entityId, components, this.roomContext)
       }
-    })
+    }
   }
 
   dispose() {

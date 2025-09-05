@@ -1,12 +1,15 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
+
 import { ECS } from "../ecs";
+
+import { type ITickingSystem } from "./types";
+
 import { RoomContext } from "@/game/roomContext";
 import { Camera } from "@/gfx/camera";
 import { Canvas } from "@/gfx/canvas";
 
 @scoped(Lifecycle.ContainerScoped)
-export class CameraSystem implements ISystem, Disposable {
+export class CameraSystem implements ITickingSystem, Disposable {
   constructor(
     private ecs: ECS,
     private roomContext: RoomContext,

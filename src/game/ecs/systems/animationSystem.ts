@@ -1,17 +1,20 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
+
 import { ECS } from "../ecs";
-import { assertExists } from "@/util/assertExists";
+
+import { type ITickingSystem } from "./types";
+
 import { imageSliceDefs } from "@/resources/imageSliceDefs";
+import { assertExists } from "@/util/assertExists";
 
 @scoped(Lifecycle.ContainerScoped)
-export class AnimationSystem implements ISystem, Disposable {
+export class AnimationSystem implements ITickingSystem, Disposable {
   constructor(
     private ecs: ECS,
   ) {
   }
   tick() {
-    this.ecs.entities.forEach((components, _entityId) => {
+    for (const [_entityId, components] of this.ecs.entities.entries()) {
       const animationComponent = components.AnimationComponent
       if (animationComponent !== undefined) {
         const spriteComponent = assertExists(components.SpriteComponent)
@@ -28,7 +31,7 @@ export class AnimationSystem implements ISystem, Disposable {
           spriteComponent.frameDef = imageSliceDefs[frameKey]
         }
       }
-    })
+    }
   }
   dispose() {
   }

@@ -1,8 +1,8 @@
 import { singleton } from "tsyringe";
+
 import type { INpcKind } from "./npcKind";
-import type { EntityId } from "../ecs/ecs";
+import type { EntityId , EntityComponentMap } from "../ecs/ecs";
 import type { RoomContext } from "../roomContext";
-import type { EntityComponentMap } from "../ecs/ecs";
 
 interface FooNpcData {
   health: number
@@ -22,7 +22,7 @@ export class FooNpcKind implements INpcKind<FooSpawnData> {
     this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
   }
 
-  tick(entityId: EntityId, components: EntityComponentMap, roomContext: RoomContext): void {
+  tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
     const data = this.npcData.get(entityId)
     if (data) {
       // Simple behavior: could move based on speed, take damage, etc.

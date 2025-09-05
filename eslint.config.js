@@ -57,6 +57,9 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-useless-constructor': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
 
       // --- Imports hygiene
       'import/first': 'error',

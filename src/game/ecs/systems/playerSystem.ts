@@ -1,13 +1,16 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
+
 import { ECS } from "../ecs";
-import { RoomContext } from "@/game/roomContext";
+
+import { type ITickingSystem } from "./types";
+
 import { Input, Button } from "@/app/input";
+import { RoomContext } from "@/game/roomContext";
 
 const PLAYER_SPEED = 120
 
 @scoped(Lifecycle.ContainerScoped)
-export class PlayerSystem implements ISystem, Disposable {
+export class PlayerSystem implements ITickingSystem, Disposable {
   constructor(
     private ecs: ECS,
     private roomContext: RoomContext,

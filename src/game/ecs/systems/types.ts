@@ -1,2 +1,3 @@
-export interface ISystem {
+export interface ITickingSystem {
+  tick(): void
 }

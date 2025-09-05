@@ -1,8 +1,8 @@
 import { singleton } from "tsyringe";
+
 import type { INpcKind } from "./npcKind";
-import type { EntityId } from "../ecs/ecs";
+import type { EntityId , EntityComponentMap } from "../ecs/ecs";
 import type { RoomContext } from "../roomContext";
-import type { EntityComponentMap } from "../ecs/ecs";
 
 interface BarNpcData {
   name: string
@@ -27,7 +27,7 @@ export class BarNpcKind implements INpcKind<BarSpawnData> {
     })
   }
 
-  tick(entityId: EntityId, components: EntityComponentMap, roomContext: RoomContext): void {
+  tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
     const data = this.npcData.get(entityId)
     if (data) {
       // Simple behavior: could patrol back and forth

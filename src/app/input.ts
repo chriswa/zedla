@@ -1,5 +1,5 @@
-import { singleton } from "tsyringe";
 import * as KeyCode from 'keycode-js'
+import { singleton } from "tsyringe";
 
 export enum Button {
   // UP,

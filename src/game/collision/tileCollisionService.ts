@@ -1,6 +1,9 @@
 import { Lifecycle, scoped } from "tsyringe";
+
 import { RoomContext } from "../roomContext";
+
 import type { Rect } from "@/math/rect";
+
 import { rect } from "@/math/rect";
 import { vec2 } from "@/math/vec2";
 

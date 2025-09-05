@@ -1,7 +1,9 @@
 import { container } from "tsyringe";
-import { FooNpcKind } from "./fooNpcKind";
-import { BarNpcKind } from "./barNpcKind";
+
 import { type EntityId } from "../ecs/ecs";
+
+import { BarNpcKind } from "./barNpcKind";
+import { FooNpcKind } from "./fooNpcKind";
 
 export const npcKindRegistry = {
   Foo: container.resolve(FooNpcKind),
@@ -12,7 +14,7 @@ export type NpcKindKey = keyof typeof npcKindRegistry
 
 export type NpcSpawnData = {
   [K in keyof typeof npcKindRegistry]: 
-    typeof npcKindRegistry[K] extends { spawn(entityId: any, spawnData: infer TSpawnData): void } 
+    typeof npcKindRegistry[K] extends { spawn(entityId: EntityId, spawnData: infer TSpawnData): void } 
       ? TSpawnData 
       : never
 }
@@ -31,5 +33,6 @@ export function spawnNpcByKind<K extends NpcKindKey>(
   kind: K,
   spawnData: NpcSpawnData[K]
 ): void {
-  (npcKindRegistry[kind].spawn as any)(entityId, spawnData) // TODO: is a more type-elegant solution possible
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+  (npcKindRegistry[kind].spawn as any)(entityId, spawnData) // TODO: find a more type-elegant solution possible
 }

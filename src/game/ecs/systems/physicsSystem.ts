@@ -1,15 +1,19 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
-import { ECS } from "../ecs";
-import { vec2 } from "@/math/vec2";
-import { rect } from "@/math/rect";
-import { Camera } from "@/gfx/camera";
+
 import { TileCollisionService } from "../../collision/tileCollisionService";
+import { ECS } from "../ecs";
+
+import { type ITickingSystem } from "./types";
+
+import { Camera } from "@/gfx/camera";
+import { rect } from "@/math/rect";
+import { vec2 } from "@/math/vec2";
+
 
 const GRAVITY = 100
 
 @scoped(Lifecycle.ContainerScoped)
-export class PhysicsSystem implements ISystem, Disposable {
+export class PhysicsSystem implements ITickingSystem, Disposable {
   constructor(
     private ecs: ECS,
     private camera: Camera,
@@ -20,7 +24,7 @@ export class PhysicsSystem implements ISystem, Disposable {
     // Store previous positions before updating current positions
     vec2.copy(this.camera.previousOffset, this.camera.offset)
     
-    this.ecs.entities.forEach((components, _entityId) => {
+    for (const [_entityId, components] of this.ecs.entities.entries()) {
       const positionComponent = components.PositionComponent
       const physicsBodyComponent = components.PhysicsBodyComponent
       
@@ -64,7 +68,7 @@ export class PhysicsSystem implements ISystem, Disposable {
           }
         }
       }
-    })
+    }
     
     // TODO: Add camera logic here (following player, bounds checking, etc.)
   }

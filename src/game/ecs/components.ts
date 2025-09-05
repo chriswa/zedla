@@ -1,10 +1,11 @@
+import type { NpcKindKey } from "../npc/npcKindRegistry";
 import type { Rect } from "@/math/rect";
 import type { Vec2 } from "@/math/vec2";
-import { vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
-import type { NpcKindKey } from "../npc/npcKindRegistry";
+
+import { vec2 } from "@/math/vec2";
 
 export class PositionComponent {
   public previousOffset: Vec2

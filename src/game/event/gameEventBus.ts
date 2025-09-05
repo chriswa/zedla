@@ -1,10 +1,12 @@
-import { EventBus } from "@/util/eventBus"
 import { singleton } from "tsyringe"
+
 import { ecsEventSchema } from "./schemas/ecsEventSchema"
 
-const gameEventSchema = {
+import { EventBus } from "@/util/eventBus"
+
+const _gameEventSchema = {
   ...ecsEventSchema,
 } as const
 
 @singleton()
-export class GameEventBus extends EventBus<typeof gameEventSchema> {}
+export class GameEventBus extends EventBus<typeof _gameEventSchema> {}

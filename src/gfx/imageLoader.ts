@@ -1,12 +1,13 @@
-import { assertExists } from "@/util/assertExists";
 import { singleton } from "tsyringe";
+
+import { assertExists } from "@/util/assertExists";
 
 @singleton()
 export class ImageLoader {
-  private images: Map<string, HTMLImageElement> = new Map()
+  private images = new Map<string, HTMLImageElement>()
   constructor() {
   }
-  load(filepath: string): Promise<void> {
+  async load(filepath: string): Promise<void> {
     if (this.images.has(filepath)) {
       return Promise.resolve()
     }
@@ -17,14 +18,14 @@ export class ImageLoader {
         this.images.set(filepath, imgElement)
         resolve()
       }
-      imgElement.onerror = (ev) => {
-        throw new Error(`error loading image ${filepath}: ${ev.toString()}`)
+      imgElement.onerror = () => {
+        throw new Error(`error loading image ${filepath}`)
       }
     })
   }
   async loadAll(filepaths: Array<string>) {
     const uniqueSrcs = Array.from(new Set(filepaths))
-    await Promise.all(uniqueSrcs.map(src => this.load(src)))
+    await Promise.all(uniqueSrcs.map(async src => this.load(src)))
   }
   get(filepath: string): HTMLImageElement {
     return assertExists(this.images.get(filepath), `image ${filepath} not loaded`)

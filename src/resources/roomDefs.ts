@@ -1,5 +1,7 @@
-import type { RoomDef } from "@/types/roomDef"
 import { tilesetDefs } from "./tilesetDefs"
+
+import type { RoomDef } from "@/types/roomDef"
+
 import { vec2 } from "@/math/vec2"
 
 export const roomDefs = {

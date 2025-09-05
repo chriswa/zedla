@@ -1,9 +1,11 @@
 import { singleton } from 'tsyringe'
-import { ImageLoader } from '@/gfx/imageLoader'
+
+import { Input } from './input'
+
 import { Game } from '@/game/game'
+import { ImageLoader } from '@/gfx/imageLoader'
 import { imageSliceDefs } from '@/resources/imageSliceDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
-import { Input } from './input'
 import { FixedTimeStep } from '@/util/fixedTimeStep'
 
 @singleton()
@@ -13,15 +15,13 @@ export class App {
     private input: Input,
     private game: Game,
     private fixedTimeStep: FixedTimeStep,
-  ) {
-    this.rafCallback = this.rafCallback.bind(this)
-  }
+  ) {}
 
   // TODO: FSM with game selection (e.g. new game (choose difficulty) or continue) (this FSM is separate from Game's FSM)
 
   async boot() {
     await this.loadAllResources()
-    requestAnimationFrame(this.rafCallback)
+    requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
     this.game.boot()
   }
 
@@ -40,6 +40,6 @@ export class App {
     })
     
     this.game.render(renderBlend)
-    requestAnimationFrame(this.rafCallback)
+    requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
   }
 }

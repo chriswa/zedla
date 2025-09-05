@@ -1,19 +1,21 @@
 import { Lifecycle, scoped, type Disposable } from "tsyringe";
-import { type ISystem } from "./types";
+
+import { ECS } from "../ecs";
+
+
+import { RoomContext } from "@/game/roomContext";
+import { Camera } from "@/gfx/camera";
 import { Canvas } from "@/gfx/canvas";
 import { ImageLoader } from "@/gfx/imageLoader";
-import { Camera } from "@/gfx/camera";
-import { ECS } from "../ecs";
-import { assertExists } from "@/util/assertExists";
-import { vec2 } from "@/math/vec2";
 import { rect } from "@/math/rect";
-import { RoomContext } from "@/game/roomContext";
+import { vec2 } from "@/math/vec2";
+import { assertExists } from "@/util/assertExists";
 
 const DO_INTERPOLATION = false
 const RENDER_PHYSICS_HITBOXES = true
 
 @scoped(Lifecycle.ContainerScoped)
-export class RenderSystem implements ISystem, Disposable {
+export class RenderSystem implements Disposable {
   constructor(
     private roomContext: RoomContext,
     private canvas: Canvas,
@@ -26,20 +28,23 @@ export class RenderSystem implements ISystem, Disposable {
     this.canvas.ctx.imageSmoothingEnabled = false
     this.renderTilemaps()
     this.renderSprites(renderBlend)
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (RENDER_PHYSICS_HITBOXES) {
       this.renderPhysicsHitboxes(renderBlend)
     }
   }
   private renderSprites(renderBlend: number) {
     // TODO: sort order by Z?
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const interpolatedCameraOffset = DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
     
-    this.ecs.entities.forEach((components, _entityId) => {
+    for (const [_entityId, components] of this.ecs.entities.entries()) {
       const spriteComponent = components.SpriteComponent
       if (spriteComponent !== undefined) {
         const positionComponent = assertExists(components.PositionComponent)
         const frameDef = spriteComponent.frameDef
         
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         const interpolatedPosition = DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
         
         this.canvas.ctx.drawImage(
@@ -54,10 +59,10 @@ export class RenderSystem implements ISystem, Disposable {
           this.camera.zoom * frameDef.h,
         )
       }
-    })
+    }
   }
   private renderTilemaps() {
-    this.roomContext.roomDef.backgroundTilemaps.forEach((backgroundTilemapDef, gridIndex) => {
+    for (const [gridIndex, backgroundTilemapDef] of this.roomContext.roomDef.backgroundTilemaps.entries()) {
       const tileset = backgroundTilemapDef.tileset
       const grid = this.roomContext.backgroundGrids[gridIndex]!
       
@@ -81,16 +86,18 @@ export class RenderSystem implements ISystem, Disposable {
           )
         }
       }
-    })
+    }
   }
   private renderPhysicsHitboxes(renderBlend: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const interpolatedCameraOffset = DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
     
-    this.ecs.entities.forEach((components, _entityId) => {
+    for (const [_entityId, components] of this.ecs.entities.entries()) {
       const physicsBodyComponent = components.PhysicsBodyComponent
       const positionComponent = components.PositionComponent
       
       if (physicsBodyComponent && positionComponent) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         const interpolatedPosition = DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
         
         const worldRect = rect.add(physicsBodyComponent.rect, interpolatedPosition)
@@ -104,7 +111,7 @@ export class RenderSystem implements ISystem, Disposable {
           this.camera.zoom * (worldRect[3]! - worldRect[1]!)
         )
       }
-    })
+    }
   }
   dispose() {
   }

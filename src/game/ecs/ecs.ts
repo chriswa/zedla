@@ -1,9 +1,13 @@
-import { GameEventBus } from "../event/gameEventBus"
-import type { Brand } from "@/util/type/brand"
-import { assertExists } from "@/util/assertExists"
-import { assert } from "@/util/assert"
-import { componentRegistry } from "./components"
 import { singleton } from "tsyringe"
+
+import { GameEventBus } from "../event/gameEventBus"
+
+import { componentRegistry } from "./components"
+
+import type { Brand } from "@/util/type/brand"
+
+import { assert } from "@/util/assert"
+import { assertExists } from "@/util/assertExists"
 
 export type EntityId = Brand<number, 'EntityId'>
 
@@ -50,22 +54,23 @@ export class ECS {
     return this._entities.get(entityId)?.[componentKey]
   }
 
-  removeComponent<K extends keyof typeof componentRegistry>(
+  removeComponent(
     entityId: EntityId,
-    componentKey: K,
+    componentKey: keyof typeof componentRegistry,
   ): void {
     const entity = assertExists(this._entities.get(entityId))
     const component = assertExists(entity[componentKey])
     this.gameEventBus.emit('ecs:component_removing', entityId, componentKey, component)
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete entity[componentKey]
   }
 
   destroyEntity(entityId: EntityId): void {
     const entity = assertExists(this._entities.get(entityId))
     const componentKeys = Object.keys(entity) as Array<keyof typeof componentRegistry> // n.b. cast required because Object.keys typing doesn't respect Record<>
-    componentKeys.forEach(componentKey => {
+    for (const componentKey of componentKeys) {
       this.removeComponent(entityId, componentKey)
-    })
+    }
     this.gameEventBus.emit('ecs:entity_removed', entityId)
     this._entities.delete(entityId)
   }
