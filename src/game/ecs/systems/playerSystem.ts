@@ -6,6 +6,7 @@ import { type ITickingSystem } from "./types";
 
 import { Input, Button } from "@/app/input";
 import { RoomContext } from "@/game/roomContext";
+import { GRAVITY } from "./physicsSystem";
 
 const PLAYER_SPEED = 120
 
@@ -23,6 +24,8 @@ export class PlayerSystem implements ITickingSystem, Disposable {
     
     if (physicsBody) {
       physicsBody.velocity[0] = 0
+
+      physicsBody.velocity[1]! += GRAVITY / 60
       
       if (this.input.isDown(Button.LEFT) && !this.input.isDown(Button.RIGHT)) {
         physicsBody.velocity[0] = -PLAYER_SPEED

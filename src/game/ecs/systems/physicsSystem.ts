@@ -10,7 +10,7 @@ import { rect } from "@/math/rect";
 import { vec2 } from "@/math/vec2";
 
 
-const GRAVITY = 100
+export const GRAVITY = 100
 
 @scoped(Lifecycle.ContainerScoped)
 export class PhysicsSystem implements ITickingSystem, Disposable {
@@ -33,7 +33,7 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         
         if (physicsBodyComponent !== undefined) {
           // Apply gravity
-          physicsBodyComponent.velocity[1]! += GRAVITY / 60 // Assuming 60 FPS
+          // physicsBodyComponent.velocity[1]! += GRAVITY / 60 // Assuming 60 FPS
           
           // Calculate desired movement
           const deltaX = physicsBodyComponent.velocity[0]! / 60

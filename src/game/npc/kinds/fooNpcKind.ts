@@ -6,8 +6,10 @@ import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
 import { AnimationController } from "../animationController";
 import { assertExists } from "@/util/assertExists";
-import { FacingComponent } from "@/game/ecs/components";
+import { FacingComponent, HitboxComponent, HurtboxComponent } from "@/game/ecs/components";
 import { Facing } from "@/types/facing";
+import { rect } from "@/math/rect";
+import { CombatBit, createCombatMask } from "@/types/combat";
 
 interface FooNpcData {
   health: number
@@ -32,6 +34,8 @@ export class FooNpcKind implements INpcKind<FooSpawnData> {
     this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
     this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'attack')
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
+    this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
+    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
   }
 
   tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {

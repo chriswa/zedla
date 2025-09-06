@@ -56,4 +56,12 @@ export const rect = {
       r[3]! - v[1]!,
     ]) as Rect
   },
+
+  // Axis-aligned bounding box overlap test
+  aabbOverlap(a: Rect, b: Rect): boolean {
+    return !(a[2]! <= b[0]! || // a right <= b left
+             a[0]! >= b[2]! || // a left >= b right
+             a[3]! <= b[1]! || // a bottom <= b top
+             a[1]! >= b[3]!)   // a top >= b bottom
+  },
 }

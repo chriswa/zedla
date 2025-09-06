@@ -5,6 +5,7 @@ import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
 import type { Facing } from "@/types/facing";
+import type { CombatMask } from "@/types/combat";
 
 import { vec2 } from "@/math/vec2";
 
@@ -52,6 +53,22 @@ export class NpcKindComponent {
   ) {}
 }
 
+export class HitboxComponent {
+  public enabled: boolean = true
+  constructor(
+    public rect: Rect,
+    public mask: CombatMask,
+  ) {}
+}
+
+export class HurtboxComponent {
+  constructor(
+    public rect: Rect,
+    public mask: CombatMask,
+    public enabled: boolean = true,
+  ) {}
+}
+
 export type ComponentKey = keyof typeof componentRegistry
 
 // TODO: auto-generate this object with barrelsby/ts-intern
@@ -60,6 +77,8 @@ export const componentRegistry = {
   PhysicsBodyComponent,
   SpriteComponent,
   FacingComponent,
+  HitboxComponent,
+  HurtboxComponent,
   AnimationComponent,
   NpcKindComponent,
 } as const
