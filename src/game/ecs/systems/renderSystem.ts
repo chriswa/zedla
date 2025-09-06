@@ -10,6 +10,7 @@ import { ImageLoader } from "@/gfx/imageLoader";
 import { rect } from "@/math/rect";
 import { vec2 } from "@/math/vec2";
 import { assertExists } from "@/util/assertExists";
+import { Facing } from "@/types/facing";
 
 const DO_INTERPOLATION = false
 const RENDER_PHYSICS_HITBOXES = true
@@ -43,21 +44,45 @@ export class RenderSystem implements Disposable {
       if (spriteComponent !== undefined) {
         const positionComponent = assertExists(components.PositionComponent)
         const frameDef = spriteComponent.frameDef
+        const facing = components.FacingComponent?.value ?? Facing.RIGHT
         
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         const interpolatedPosition = DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
-        
-        this.canvas.ctx.drawImage(
-          this.imageLoader.get(frameDef.src),
-          frameDef.x,
-          frameDef.y,
-          frameDef.w,
-          frameDef.h,
-          this.camera.zoom * (Math.round(interpolatedPosition[0]!) - Math.round(interpolatedCameraOffset[0]!) - frameDef.offsetX),
-          this.camera.zoom * (Math.round(interpolatedPosition[1]!) - Math.round(interpolatedCameraOffset[1]!) + frameDef.offsetY),
-          this.camera.zoom * frameDef.w,
-          this.camera.zoom * frameDef.h,
-        )
+        const zoom = this.camera.zoom
+        const destX = zoom * (Math.round(interpolatedPosition[0]!) - Math.round(interpolatedCameraOffset[0]!) - frameDef.offsetX)
+        const destY = zoom * (Math.round(interpolatedPosition[1]!) - Math.round(interpolatedCameraOffset[1]!) + frameDef.offsetY)
+        const destW = zoom * frameDef.w
+        const destH = zoom * frameDef.h
+
+        const img = this.imageLoader.get(frameDef.src)
+        if (facing === Facing.LEFT) {
+          this.canvas.ctx.save()
+          this.canvas.ctx.scale(-1, 1)
+          this.canvas.ctx.drawImage(
+            img,
+            frameDef.x,
+            frameDef.y,
+            frameDef.w,
+            frameDef.h,
+            -destX - destW,
+            destY,
+            destW,
+            destH,
+          )
+          this.canvas.ctx.restore()
+        } else {
+          this.canvas.ctx.drawImage(
+            img,
+            frameDef.x,
+            frameDef.y,
+            frameDef.w,
+            frameDef.h,
+            destX,
+            destY,
+            destW,
+            destH,
+          )
+        }
       }
     }
   }

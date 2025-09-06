@@ -1,13 +1,15 @@
 import { singleton } from "tsyringe";
 
 import type { INpcKind } from "../npcKind";
-import type { EntityId , EntityComponentMap } from "../../ecs/ecs";
+import { ECS } from "../../ecs/ecs";
+import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
+import { FacingComponent } from "@/game/ecs/components";
+import { Facing } from "@/types/facing";
 
 interface BarNpcData {
   name: string
   patrolDistance: number
-  currentDirection: 1 | -1
 }
 
 interface BarSpawnData {
@@ -17,22 +19,20 @@ interface BarSpawnData {
 
 @singleton()
 export class BarNpcKind implements INpcKind<BarSpawnData> {
+  constructor(
+    private ecs: ECS,
+  ) {}
   private npcData = new Map<EntityId, BarNpcData>()
 
   spawn(entityId: EntityId, spawnData: BarSpawnData): void {
     this.npcData.set(entityId, { 
       name: spawnData.name, 
       patrolDistance: spawnData.patrolDistance,
-      currentDirection: 1
     })
+    this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
   }
 
   tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
-    const data = this.npcData.get(entityId)
-    if (data) {
-      // Simple behavior: could patrol back and forth
-      data.currentDirection = data.currentDirection === 1 ? -1 : 1
-    }
   }
 
   onDestroy(entityId: EntityId): void {

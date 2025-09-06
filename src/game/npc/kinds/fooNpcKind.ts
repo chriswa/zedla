@@ -6,6 +6,8 @@ import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
 import { AnimationController } from "../animationController";
 import { assertExists } from "@/util/assertExists";
+import { FacingComponent } from "@/game/ecs/components";
+import { Facing } from "@/types/facing";
 
 interface FooNpcData {
   health: number
@@ -29,13 +31,18 @@ export class FooNpcKind implements INpcKind<FooSpawnData> {
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
     this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
     this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'attack')
+    this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
   }
 
   tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
     const data = assertExists(this.npcData.get(entityId))
     // Simple behavior: could move based on speed, take damage, etc.
-    data.health = Math.max(0, data.health - 1)
+    data.health = Math.max(0, data.health + 1)
     this.animationController.playAnimation(this.ecs, entityId, 'walk')
+    if (data.health % 10 === 0) {
+      const facingComponent = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+      facingComponent.value = facingComponent.value === Facing.LEFT ? Facing.RIGHT : Facing.LEFT
+    }
   }
 
   onDestroy(entityId: EntityId): void {

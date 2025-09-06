@@ -4,6 +4,7 @@ import type { Vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
+import type { Facing } from "@/types/facing";
 
 import { vec2 } from "@/math/vec2";
 
@@ -31,6 +32,11 @@ export class SpriteComponent {
     public frameDef: ImageSliceDef,
   ) {}
 }
+export class FacingComponent {
+  constructor(
+    public value: Facing,
+  ) {}
+}
 export class AnimationComponent {
   public frameIndex = 0
   public ticksElapsedThisFrame = 0
@@ -53,6 +59,7 @@ export const componentRegistry = {
   PositionComponent,
   PhysicsBodyComponent,
   SpriteComponent,
+  FacingComponent,
   AnimationComponent,
   NpcKindComponent,
 } as const
