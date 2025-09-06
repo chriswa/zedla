@@ -2,8 +2,8 @@ import { container } from "tsyringe";
 
 import { type EntityId } from "../ecs/ecs";
 
-import { BarNpcKind } from "./barNpcKind";
-import { FooNpcKind } from "./fooNpcKind";
+import { BarNpcKind } from "./kinds/barNpcKind";
+import { FooNpcKind } from "./kinds/fooNpcKind";
 
 export const npcKindRegistry = {
   Foo: container.resolve(FooNpcKind),

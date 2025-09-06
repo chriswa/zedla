@@ -1,8 +1,8 @@
 import { singleton } from "tsyringe";
 
-import type { INpcKind } from "./npcKind";
-import type { EntityId , EntityComponentMap } from "../ecs/ecs";
-import type { RoomContext } from "../roomContext";
+import type { INpcKind } from "../npcKind";
+import type { EntityId , EntityComponentMap } from "../../ecs/ecs";
+import type { RoomContext } from "../../roomContext";
 
 interface BarNpcData {
   name: string
