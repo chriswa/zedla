@@ -10,7 +10,7 @@ import { ImageLoader } from "@/gfx/imageLoader";
 import { rect } from "@/math/rect";
 import type { Rect } from "@/math/rect";
 import { vec2, type Vec2 } from "@/math/vec2";
-import type { ImageSliceDef } from "@/types/imageSliceDef";
+import type { SpriteFrameDef } from "@/types/spriteFrameDef";
 import { assertExists } from "@/util/assertExists";
 import { Facing } from "@/types/facing";
 import type { PositionComponent } from "../components";
@@ -48,8 +48,8 @@ export class RenderSystem implements Disposable {
       const positionComponent = assertExists(components.PositionComponent)
       const facing = components.FacingComponent?.value ?? Facing.RIGHT
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
-      const { x, y, w, h } = this.computeSpriteDest(pos, camOffset, spriteComponent.frameDef)
-      this.drawSprite(spriteComponent.frameDef, x, y, w, h, facing)
+      const { x, y, w, h } = this.computeSpriteDest(pos, camOffset, spriteComponent.spriteFrameDef)
+      this.drawSprite(spriteComponent.spriteFrameDef, x, y, w, h, facing)
     }
   }
   private renderTilemaps() {
@@ -135,7 +135,7 @@ export class RenderSystem implements Disposable {
     this.canvas.ctx.strokeRect(x, y, w, h)
   }
 
-  private computeSpriteDest(pos: Vec2, camOffset: Vec2, frameDef: ImageSliceDef) {
+  private computeSpriteDest(pos: Vec2, camOffset: Vec2, frameDef: SpriteFrameDef) {
     const z = this.camera.zoom
     const x = z * (Math.round(pos[0]!) - Math.round(camOffset[0]!) - frameDef.offsetX)
     const y = z * (Math.round(pos[1]!) - Math.round(camOffset[1]!) + frameDef.offsetY)

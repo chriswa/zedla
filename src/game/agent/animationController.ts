@@ -1,5 +1,5 @@
 import { animationDefs } from "@/resources/animationDefs";
-import { imageSliceDefs } from "@/resources/imageSliceDefs";
+import { spriteFrameDefs } from "@/resources/spriteFrameDefs";
 import { AnimationComponent, SpriteComponent } from "../ecs/components";
 import { ECS } from "../ecs/ecs";
 import type { EntityId } from "../ecs/ecs";
@@ -20,8 +20,8 @@ export class AnimationController<K extends CharacterKey> {
   // Adds both SpriteComponent and AnimationComponent, initialized to the first frame
   addSpriteAndAnimationComponents(ecs: ECS, entityId: EntityId, initialAnimationName: AnimationName<K>) {
     const animDef = this.cachedAnimationDefMap[initialAnimationName]
-    const firstFrameKey = animDef.frames[0]!.frame
-    ecs.addComponent(entityId, 'SpriteComponent', new SpriteComponent(imageSliceDefs[firstFrameKey]))
+    const firstFrameKey = animDef.frames[0]!.spriteFrame
+    ecs.addComponent(entityId, 'SpriteComponent', new SpriteComponent(spriteFrameDefs[firstFrameKey]))
     ecs.addComponent(entityId, 'AnimationComponent', new AnimationComponent(animationDefs[this.characterKey], animDef))
   }
 
@@ -32,9 +32,9 @@ export class AnimationController<K extends CharacterKey> {
     animationComponent.ticksElapsedThisFrame = 0
     animationComponent.animation = this.cachedAnimationDefMap[animationName]
 
-    const firstFrameKey = animationComponent.animation.frames[0]!.frame
+    const firstFrameKey = animationComponent.animation.frames[0]!.spriteFrame
     const spriteComponent = assertExists(ecs.getComponent(entityId, 'SpriteComponent'))
-    spriteComponent.frameDef = imageSliceDefs[firstFrameKey]
+    spriteComponent.spriteFrameDef = spriteFrameDefs[firstFrameKey]
   }
   playAnimation(ecs: ECS, entityId: EntityId, animationName: AnimationName<K>) {
     const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))

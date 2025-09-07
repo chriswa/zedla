@@ -4,7 +4,7 @@ import { Input } from './input'
 
 import { Game } from '@/game/game'
 import { ImageLoader } from '@/gfx/imageLoader'
-import { imageSliceDefs } from '@/resources/imageSliceDefs'
+import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
 import { FixedTimeStep } from '@/util/fixedTimeStep'
 
@@ -27,7 +27,7 @@ export class App {
 
   async loadAllResources() {
     await this.imageLoader.loadAll([
-      ...Object.values(imageSliceDefs).map(f => f.src),
+      ...Object.values(spriteFrameDefs).map(f => f.src),
       ...Object.values(tilesetDefs).map(f => f.src),
     ])
   }

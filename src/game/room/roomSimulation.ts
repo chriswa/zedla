@@ -1,6 +1,6 @@
 import { inject, Lifecycle, scoped, type Disposable } from "tsyringe";
 
-import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent, AgentKindComponent, HitboxComponent, MailboxComponent, FacingComponent } from "../ecs/components";
+import { PositionComponent, AgentKindComponent, MailboxComponent } from "../ecs/components";
 import { ECS, type EntityId } from "../ecs/ecs";
 import { AnimationSystem } from "../ecs/systems/animationSystem";
 import { CameraSystem } from "../ecs/systems/cameraSystem";
@@ -12,14 +12,9 @@ import { GameStrategy } from "../gameStrategy";
 import { spawnAgentByKind, type AgentKindKey, type AgentSpawnData } from "../agent/agentKindRegistry";
 import { RoomContext } from "../roomContext";
 
-import { rect } from "@/math/rect";
 import { vec2, type Vec2 } from "@/math/vec2";
-import { animationDefs } from "@/resources/animationDefs";
-import { imageSliceDefs } from "@/resources/imageSliceDefs";
 import { RoomDefToken, type RoomDef } from "@/types/roomDef";
 import { Grid2D } from "@/util/grid2D";
-import { CombatBit, createCombatMask } from "@/types/combat";
-import { Facing } from "@/types/facing";
 
 
 @scoped(Lifecycle.ContainerScoped)
@@ -44,7 +39,7 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     
     // Spawn Agents
     for (const spawn of roomDef.spawns) {
-      const _agentEntityId = createAgentEntity(this.ecs, spawn.kind, spawn.position, spawn.spawnData)
+      createAgentEntity(this.ecs, spawn.kind, spawn.position, spawn.spawnData)
     }
 
     this.roomContext.playerEntityId = createAgentEntity(this.ecs, 'Player', vec2.create(64, 64), {})

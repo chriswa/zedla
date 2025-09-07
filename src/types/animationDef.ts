@@ -1,7 +1,7 @@
-import type { imageSliceDefs } from "@/resources/imageSliceDefs"
+import type { spriteFrameDefs } from "@/resources/spriteFrameDefs"
 
 export interface AnimationFrameDef {
-  frame: keyof typeof imageSliceDefs
+  spriteFrame: keyof typeof spriteFrameDefs
   duration: number
 }
 

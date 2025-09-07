@@ -3,7 +3,7 @@ import type { Rect } from "@/math/rect";
 import type { Vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
-import type { ImageSliceDef } from "@/types/imageSliceDef";
+import type { SpriteFrameDef } from "@/types/spriteFrameDef";
 import type { Facing } from "@/types/facing";
 import type { CombatMask } from "@/types/combat";
 import type { EntityMail } from "@/types/entityMail";
@@ -31,7 +31,7 @@ export class PhysicsBodyComponent {
 }
 export class SpriteComponent {
   constructor(
-    public frameDef: ImageSliceDef,
+    public spriteFrameDef: SpriteFrameDef,
   ) {}
 }
 export class FacingComponent {

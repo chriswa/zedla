@@ -1,4 +1,4 @@
-export interface ImageSliceDef {
+export interface SpriteFrameDef {
   src: string
   x: number
   y: number
@@ -7,3 +7,4 @@ export interface ImageSliceDef {
   offsetX: number
   offsetY: number
 }
+

@@ -1,6 +1,6 @@
-import type { ImageSliceDef } from "@/types/imageSliceDef"
+import type { SpriteFrameDef } from "@/types/spriteFrameDef"
 
-export const imageSliceDefs = {
+export const spriteFrameDefs = {
   "blob_twitch_0": {
     src: "enemies.png",
     x: 92,
@@ -549,7 +549,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -32,
+    offsetY: -17,
   },
   "link_walk_1": {
     src: "player.png",
@@ -558,7 +558,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -32,
+    offsetY: -17,
   },
   "link_walk_2": {
     src: "player.png",
@@ -567,7 +567,7 @@ export const imageSliceDefs = {
     w: 16,
     h: 31,
     offsetX: 9,
-    offsetY: -32,
+    offsetY: -17,
   },
   "lock_default_0": {
     src: "player.png",
@@ -727,4 +727,4 @@ export const imageSliceDefs = {
     offsetY: 0,
     // offsetXFlipped: -8
   }
-} as const satisfies Record<string, ImageSliceDef>
+} as const satisfies Record<string, SpriteFrameDef>

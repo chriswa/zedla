@@ -4,7 +4,7 @@ import { ECS } from "../ecs";
 
 import { type ITickingSystem } from "./types";
 
-import { imageSliceDefs } from "@/resources/imageSliceDefs";
+import { spriteFrameDefs } from "@/resources/spriteFrameDefs";
 import { assertExists } from "@/util/assertExists";
 
 @scoped(Lifecycle.ContainerScoped)
@@ -27,8 +27,8 @@ export class AnimationSystem implements ITickingSystem, Disposable {
           else if (animationComponent.animation.loop) {
             animationComponent.frameIndex = 0
           }
-          const frameKey = animationComponent.animation.frames[animationComponent.frameIndex]!.frame
-          spriteComponent.frameDef = imageSliceDefs[frameKey]
+          const frameKey = animationComponent.animation.frames[animationComponent.frameIndex]!.spriteFrame
+          spriteComponent.spriteFrameDef = spriteFrameDefs[frameKey]
         }
       }
     }

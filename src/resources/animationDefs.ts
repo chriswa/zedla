@@ -8,11 +8,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "blob_twitch_0",
+          spriteFrame: "blob_twitch_0",
           duration: 4,
         },
         {
-          frame: "blob_twitch_1",
+          spriteFrame: "blob_twitch_1",
           duration: 2,
         }
       ]
@@ -21,11 +21,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "blob_idle",
+          spriteFrame: "blob_idle",
           duration: 4,
         },
         {
-          frame: "blob_twitch_0",
+          spriteFrame: "blob_twitch_0",
           duration: 14,
         }
       ]
@@ -34,7 +34,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "blob_idle",
+          spriteFrame: "blob_idle",
           duration: 1,
         }
       ]
@@ -45,11 +45,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "boomeranger_attack_high_0",
+          spriteFrame: "boomeranger_attack_high_0",
           duration: 30,
         },
         {
-          frame: "boomeranger_walk_1",
+          spriteFrame: "boomeranger_walk_1",
           duration: 999,
         }
       ]
@@ -58,11 +58,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "boomeranger_attack_low_0",
+          spriteFrame: "boomeranger_attack_low_0",
           duration: 30,
         },
         {
-          frame: "boomeranger_attack_low_1",
+          spriteFrame: "boomeranger_attack_low_1",
           duration: 999,
         }
       ]
@@ -71,11 +71,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "boomeranger_walk_0",
+          spriteFrame: "boomeranger_walk_0",
           duration: 10,
         },
         {
-          frame: "boomeranger_walk_1",
+          spriteFrame: "boomeranger_walk_1",
           duration: 10,
         }
       ]
@@ -86,7 +86,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "bubble_default_0",
+          spriteFrame: "bubble_default_0",
           duration: 10,
         }
       ]
@@ -97,11 +97,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "deeler_attack_0",
+          spriteFrame: "deeler_attack_0",
           duration: 6,
         },
         {
-          frame: "deeler_attack_1",
+          spriteFrame: "deeler_attack_1",
           duration: 6,
         }
       ]
@@ -110,11 +110,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "deeler_canopy_0",
+          spriteFrame: "deeler_canopy_0",
           duration: 6,
         },
         {
-          frame: "deeler_canopy_1",
+          spriteFrame: "deeler_canopy_1",
           duration: 6,
         }
       ]
@@ -125,27 +125,27 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "explosion_default_0",
+          spriteFrame: "explosion_default_0",
           duration: 5,
         },
         {
-          frame: "explosion_default_1",
+          spriteFrame: "explosion_default_1",
           duration: 5,
         },
         {
-          frame: "explosion_default_2",
+          spriteFrame: "explosion_default_2",
           duration: 5,
         },
         {
-          frame: "explosion_default_3",
+          spriteFrame: "explosion_default_3",
           duration: 5,
         },
         {
-          frame: "explosion_default_0",
+          spriteFrame: "explosion_default_0",
           duration: 5,
         },
         {
-          frame: "explosion_default_1",
+          spriteFrame: "explosion_default_1",
           duration: 5,
         }
       ]
@@ -156,11 +156,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "fairy_default_0",
+          spriteFrame: "fairy_default_0",
           duration: 6,
         },
         {
-          frame: "fairy_default_1",
+          spriteFrame: "fairy_default_1",
           duration: 6,
         }
       ]
@@ -171,15 +171,15 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "fireball_burn_0",
+          spriteFrame: "fireball_burn_0",
           duration: 4,
         },
         {
-          frame: "fireball_burn_1",
+          spriteFrame: "fireball_burn_1",
           duration: 4,
         },
         {
-          frame: "fireball_burn_2",
+          spriteFrame: "fireball_burn_2",
           duration: 2,
         }
       ]
@@ -190,11 +190,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "hammer_thrower_default_0",
+          spriteFrame: "hammer_thrower_default_0",
           duration: 10,
         },
         {
-          frame: "hammer_thrower_default_1",
+          spriteFrame: "hammer_thrower_default_1",
           duration: 10,
         }
       ]
@@ -203,11 +203,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "hammer_thrower_throw_0",
+          spriteFrame: "hammer_thrower_throw_0",
           duration: 10,
         },
         {
-          frame: "hammer_thrower_throw_1",
+          spriteFrame: "hammer_thrower_throw_1",
           duration: 10,
         }
       ]
@@ -218,7 +218,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "heart_container_idle_0",
+          spriteFrame: "heart_container_idle_0",
           duration: 9999,
         }
       ]
@@ -229,7 +229,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "key_idle_0",
+          spriteFrame: "key_idle_0",
           duration: 9999,
         }
       ]
@@ -240,7 +240,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "lizardpuppy_idle_0",
+          spriteFrame: "lizardpuppy_idle_0",
           duration: 1,
         }
       ]
@@ -249,11 +249,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "lizardpuppy_walk_0",
+          spriteFrame: "lizardpuppy_walk_0",
           duration: 1,
         },
         {
-          frame: "lizardpuppy_idle_0",
+          spriteFrame: "lizardpuppy_idle_0",
           duration: 1,
         }
       ]
@@ -262,7 +262,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "lizardpuppy_stand_0",
+          spriteFrame: "lizardpuppy_stand_0",
           duration: 1,
         }
       ]
@@ -273,11 +273,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "octorok_idle_0",
+          spriteFrame: "octorok_idle_0",
           duration: 10,
         },
         {
-          frame: "octorok_idle_1",
+          spriteFrame: "octorok_idle_1",
           duration: 10,
         }
       ]
@@ -288,19 +288,19 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "proj_hammer_default_0",
+          spriteFrame: "proj_hammer_default_0",
           duration: 6,
         },
         {
-          frame: "proj_hammer_default_1",
+          spriteFrame: "proj_hammer_default_1",
           duration: 6,
         },
         {
-          frame: "proj_hammer_default_2",
+          spriteFrame: "proj_hammer_default_2",
           duration: 6,
         },
         {
-          frame: "proj_hammer_default_3",
+          spriteFrame: "proj_hammer_default_3",
           duration: 6,
         }
       ]
@@ -311,35 +311,35 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "scorpy_example_0",
+          spriteFrame: "scorpy_example_0",
           duration: 1,
         },
         {
-          frame: "scorpy_example_1",
+          spriteFrame: "scorpy_example_1",
           duration: 1,
         },
         {
-          frame: "scorpy_example_2",
+          spriteFrame: "scorpy_example_2",
           duration: 1,
         },
         {
-          frame: "scorpy_example_3",
+          spriteFrame: "scorpy_example_3",
           duration: 1,
         },
         {
-          frame: "scorpy_example_4",
+          spriteFrame: "scorpy_example_4",
           duration: 1,
         },
         {
-          frame: "scorpy_example_5",
+          spriteFrame: "scorpy_example_5",
           duration: 1,
         },
         {
-          frame: "scorpy_example_4",
+          spriteFrame: "scorpy_example_4",
           duration: 1,
         },
         {
-          frame: "scorpy_example_3",
+          spriteFrame: "scorpy_example_3",
           duration: 1,
         }
       ]
@@ -350,19 +350,19 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "skeleton_attack_0",
+          spriteFrame: "skeleton_attack_0",
           duration: 10,
         },
         {
-          frame: "skeleton_attack_1",
+          spriteFrame: "skeleton_attack_1",
           duration: 10,
         },
         {
-          frame: "skeleton_attack_2",
+          spriteFrame: "skeleton_attack_2",
           duration: 20,
         },
         {
-          frame: "skeleton_walk_0",
+          spriteFrame: "skeleton_walk_0",
           duration: 30,
         }
       ]
@@ -371,7 +371,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "skeleton_jump_0",
+          spriteFrame: "skeleton_jump_0",
           duration: 10,
         }
       ]
@@ -380,11 +380,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "skeleton_walk_0",
+          spriteFrame: "skeleton_walk_0",
           duration: 10,
         },
         {
-          frame: "skeleton_walk_1",
+          spriteFrame: "skeleton_walk_1",
           duration: 10,
         }
       ]
@@ -395,11 +395,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "proj_boomerang_default_0",
+          spriteFrame: "proj_boomerang_default_0",
           duration: 6,
         },
         {
-          frame: "proj_boomerang_default_1",
+          spriteFrame: "proj_boomerang_default_1",
           duration: 6,
         }
       ]
@@ -410,7 +410,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "elevator_default_0",
+          spriteFrame: "elevator_default_0",
           duration: 999,
         }
       ]
@@ -421,19 +421,19 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "link_attack_0",
+          spriteFrame: "link_attack_0",
           duration: 5,
         },
         {
-          frame: "link_attack_1",
+          spriteFrame: "link_attack_1",
           duration: 7,
         },
         {
-          frame: "link_attack_0",
+          spriteFrame: "link_attack_0",
           duration: 30,
         },
         {
-          frame: "link_stand_0",
+          spriteFrame: "link_stand_0",
           duration: 999,
         }
       ]
@@ -442,7 +442,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "link_collect_0",
+          spriteFrame: "link_collect_0",
           duration: 9999,
         }
       ]
@@ -451,7 +451,7 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "link_crouch_0",
+          spriteFrame: "link_crouch_0",
           duration: 9999,
         }
       ]
@@ -460,15 +460,15 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "link_crouch_attack_0",
+          spriteFrame: "link_crouch_attack_0",
           duration: 7,
         },
         {
-          frame: "link_crouch_0",
+          spriteFrame: "link_crouch_0",
           duration: 5,
         },
         {
-          frame: "link_crouch_0",
+          spriteFrame: "link_crouch_0",
           duration: 9999,
         }
       ]
@@ -477,7 +477,7 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "link_hurt_0",
+          spriteFrame: "link_hurt_0",
           duration: 9999,
         }
       ]
@@ -486,11 +486,11 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "link_crouch_0",
+          spriteFrame: "link_crouch_0",
           duration: 16,
         },
         {
-          frame: "link_stand_0",
+          spriteFrame: "link_stand_0",
           duration: 9999,
         }
       ]
@@ -499,7 +499,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "link_stand_0",
+          spriteFrame: "link_stand_0",
           duration: 9999,
         }
       ]
@@ -508,15 +508,15 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "link_walk_0",
+          spriteFrame: "link_walk_0",
           duration: 6,
         },
         {
-          frame: "link_walk_1",
+          spriteFrame: "link_walk_1",
           duration: 6,
         },
         {
-          frame: "link_walk_2",
+          spriteFrame: "link_walk_2",
           duration: 6,
         }
       ]
@@ -527,7 +527,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "lock_default_0",
+          spriteFrame: "lock_default_0",
           duration: 999,
         }
       ]
@@ -536,7 +536,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "lock_wall_0",
+          spriteFrame: "lock_wall_0",
           duration: 999,
         }
       ]
@@ -547,11 +547,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owblob_default_0",
+          spriteFrame: "owblob_default_0",
           duration: 6,
         },
         {
-          frame: "owblob_default_1",
+          spriteFrame: "owblob_default_1",
           duration: 6,
         }
       ]
@@ -562,7 +562,7 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owplayer_raft_0",
+          spriteFrame: "owplayer_raft_0",
           duration: 1,
         }
       ]
@@ -571,7 +571,7 @@ export const animationDefs = {
       loop: false,
       frames: [
         {
-          frame: "owplayer_stand_0",
+          spriteFrame: "owplayer_stand_0",
           duration: 9999,
         }
       ]
@@ -580,11 +580,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owplayer_walk_east_0",
+          spriteFrame: "owplayer_walk_east_0",
           duration: 6,
         },
         {
-          frame: "owplayer_walk_east_1",
+          spriteFrame: "owplayer_walk_east_1",
           duration: 6,
         }
       ]
@@ -593,11 +593,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owplayer_walk_north_0",
+          spriteFrame: "owplayer_walk_north_0",
           duration: 6,
         },
         {
-          frame: "owplayer_walk_north_1",
+          spriteFrame: "owplayer_walk_north_1",
           duration: 6,
         }
       ]
@@ -606,11 +606,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owplayer_walk_south_0",
+          spriteFrame: "owplayer_walk_south_0",
           duration: 6,
         },
         {
-          frame: "owplayer_walk_south_1",
+          spriteFrame: "owplayer_walk_south_1",
           duration: 6,
         }
       ]
@@ -621,11 +621,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owmonster_default_0",
+          spriteFrame: "owmonster_default_0",
           duration: 6,
         },
         {
-          frame: "owmonster_default_1",
+          spriteFrame: "owmonster_default_1",
           duration: 6,
         }
       ]
@@ -636,11 +636,11 @@ export const animationDefs = {
       loop: true,
       frames: [
         {
-          frame: "owfairy_default_0",
+          spriteFrame: "owfairy_default_0",
           duration: 6,
         },
         {
-          frame: "owfairy_default_1",
+          spriteFrame: "owfairy_default_1",
           duration: 6,
         }
       ]
