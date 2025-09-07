@@ -33,9 +33,8 @@ export class App {
   }
 
   private rafCallback(timestamp: number): void {
-    this.input.sample()
-    
     const renderBlend = this.fixedTimeStep.tick(timestamp, () => {
+      this.input.sample()
       this.game.tick()
     })
     

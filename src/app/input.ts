@@ -35,7 +35,7 @@ export class Input {
   constructor() {
     document.addEventListener('keydown', (keyboardEvent) => {
       const button = keyboardEventCodeToButton[keyboardEvent.code]
-      if (button !== undefined) {
+      if (button !== undefined && !this.volatileDown.has(button)) {
         this.volatileDown.add(button)
         this.volatileHit.add(button)
       }
@@ -57,6 +57,8 @@ export class Input {
     for (const button of this.volatileHit) {
       this.sampledHit.add(button)
     }
+    // Hits are edge-triggered; clear after sampling so they last one frame
+    this.volatileHit.clear()
   }
   isDown(button: Button) {
     return this.sampledDown.has(button)

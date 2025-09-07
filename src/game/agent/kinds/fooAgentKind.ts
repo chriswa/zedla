@@ -29,14 +29,14 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
   ) {
   }
   private npcData = new Map<EntityId, FooNpcData>()
-  private animationController = new AnimationController('link')
+  private animationController = new AnimationController('blob')
 
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
     this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
-    this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'attack')
+    this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch')
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
-    this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
-    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
+    this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
+    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
   }
 
   tick(entityId: EntityId, components: EntityComponentMap, _roomContext: RoomContext): void {
@@ -55,7 +55,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
       mailbox.eventQueue.length = 0
     }
     // Simple idle/walk animation sample
-    this.animationController.playAnimation(this.ecs, entityId, 'walk')
+    this.animationController.playAnimation(this.ecs, entityId, 'inch')
   }
 
   onDestroy(entityId: EntityId): void {
