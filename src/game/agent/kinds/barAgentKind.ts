@@ -1,6 +1,6 @@
 import { singleton } from "tsyringe";
 
-import type { INpcKind } from "../npcKind";
+import type { IAgentKind } from "../agentKind";
 import { ECS } from "../../ecs/ecs";
 import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
@@ -18,7 +18,7 @@ interface BarSpawnData {
 }
 
 @singleton()
-export class BarNpcKind implements INpcKind<BarSpawnData> {
+export class BarAgentKind implements IAgentKind<BarSpawnData> {
   constructor(
     private ecs: ECS,
   ) {}
@@ -32,7 +32,10 @@ export class BarNpcKind implements INpcKind<BarSpawnData> {
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
   }
 
-  tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
+  tick(_entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
+    // Example: consume and clear mailbox (no reaction yet)
+    const mailbox = _components.MailboxComponent
+    if (mailbox) mailbox.eventQueue.length = 0
   }
 
   onDestroy(entityId: EntityId): void {

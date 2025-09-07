@@ -1,4 +1,4 @@
-import type { NpcKindKey } from "../npc/npcKindRegistry";
+import type { AgentKindKey } from "../agent/agentKindRegistry";
 import type { Rect } from "@/math/rect";
 import type { Vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
@@ -6,6 +6,7 @@ import type { AnimationDef } from "@/types/animationDef";
 import type { ImageSliceDef } from "@/types/imageSliceDef";
 import type { Facing } from "@/types/facing";
 import type { CombatMask } from "@/types/combat";
+import type { EntityMail } from "@/types/entityMail";
 
 import { vec2 } from "@/math/vec2";
 
@@ -47,9 +48,9 @@ export class AnimationComponent {
   ) {}
 }
 
-export class NpcKindComponent {
+export class AgentKindComponent {
   constructor(
-    public kind: NpcKindKey,
+    public kind: AgentKindKey,
   ) {}
 }
 
@@ -69,6 +70,10 @@ export class HurtboxComponent {
   ) {}
 }
 
+export class MailboxComponent {
+  public eventQueue: EntityMail[] = []
+}
+
 export type ComponentKey = keyof typeof componentRegistry
 
 // TODO: auto-generate this object with barrelsby/ts-intern
@@ -79,6 +84,7 @@ export const componentRegistry = {
   FacingComponent,
   HitboxComponent,
   HurtboxComponent,
+  MailboxComponent,
   AnimationComponent,
-  NpcKindComponent,
+  AgentKindComponent,
 } as const

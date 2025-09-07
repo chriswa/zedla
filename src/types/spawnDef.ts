@@ -1,10 +1,10 @@
-import type { NpcKindKey, NpcSpawnData } from "@/game/npc/npcKindRegistry";
+import type { AgentKindKey, AgentSpawnData } from "@/game/agent/agentKindRegistry";
 import type { Vec2 } from "@/math/vec2";
 
 export type RoomEntityDef = {
-  [K in NpcKindKey]: {
+  [K in AgentKindKey]: {
     kind: K
     position: Vec2
-    spawnData: NpcSpawnData[K]
+    spawnData: AgentSpawnData[K]
   }
-}[NpcKindKey]
+}[AgentKindKey]

@@ -1,18 +1,17 @@
 import { Lifecycle, scoped, type Disposable } from 'tsyringe'
 
 import { ECS } from '../ecs'
-import { GameEventBus } from '@/game/event/gameEventBus'
 
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { masksOverlap } from '@/types/combat'
+import type { EntityMail } from '@/types/entityMail'
 import { assertExists } from '@/util/assertExists'
 
 @scoped(Lifecycle.ContainerScoped)
 export class CombatCollisionSystem implements Disposable {
   constructor(
     private ecs: ECS,
-    private gameEventBus: GameEventBus,
   ) {}
 
   tick() {
@@ -39,11 +38,16 @@ export class CombatCollisionSystem implements Disposable {
         const hitCentre = rect.centre(hitWorldRect)
         const attackVec2 = vec2.sub(hitCentre, hurtCentre)
 
-        this.gameEventBus.emit('combat:hit', attackerId, targetId, attackVec2)
+        // Enqueue mailbox event on the target, if present
+        const targetMailbox = targetComponents.MailboxComponent
+        if (targetMailbox) {
+          const mail: EntityMail = { type: 'combat-hit', attackerId, attackVec2 }
+          targetMailbox.eventQueue.push(mail)
+        }
+
       }
     }
   }
 
   dispose() {}
 }
-

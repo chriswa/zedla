@@ -32,8 +32,6 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         vec2.copy(positionComponent.previousOffset, positionComponent.offset)
         
         if (physicsBodyComponent !== undefined) {
-          // Apply gravity
-          // physicsBodyComponent.velocity[1]! += GRAVITY / 60 // Assuming 60 FPS
           
           // Calculate desired movement
           const deltaX = physicsBodyComponent.velocity[0]! / 60

@@ -1,6 +1,6 @@
 import { singleton } from "tsyringe";
 
-import type { INpcKind } from "../npcKind";
+import type { IAgentKind } from "../agentKind";
 import { ECS } from "../../ecs/ecs";
 import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
@@ -10,6 +10,7 @@ import { FacingComponent, HitboxComponent, HurtboxComponent } from "@/game/ecs/c
 import { Facing } from "@/types/facing";
 import { rect } from "@/math/rect";
 import { CombatBit, createCombatMask } from "@/types/combat";
+import type { EntityMail } from "@/types/entityMail";
 
 interface FooNpcData {
   health: number
@@ -22,7 +23,7 @@ interface FooSpawnData {
 }
 
 @singleton()
-export class FooNpcKind implements INpcKind<FooSpawnData> {
+export class FooAgentKind implements IAgentKind<FooSpawnData> {
   constructor(
     private ecs: ECS,
   ) {
@@ -38,15 +39,23 @@ export class FooNpcKind implements INpcKind<FooSpawnData> {
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
   }
 
-  tick(entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
+  tick(entityId: EntityId, components: EntityComponentMap, _roomContext: RoomContext): void {
     const data = assertExists(this.npcData.get(entityId))
-    // Simple behavior: could move based on speed, take damage, etc.
-    data.health = Math.max(0, data.health + 1)
-    this.animationController.playAnimation(this.ecs, entityId, 'walk')
-    if (data.health % 10 === 0) {
-      const facingComponent = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
-      facingComponent.value = facingComponent.value === Facing.LEFT ? Facing.RIGHT : Facing.LEFT
+    // Mailbox: process and clear
+    const mailbox = components.MailboxComponent
+    if (mailbox) {
+      for (const mail of mailbox.eventQueue as EntityMail[]) {
+        if (mail.type === 'combat-hit') {
+          // Example reaction: reduce health and face attacker
+          data.health = Math.max(0, data.health - 1)
+          const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+          facing.value = mail.attackVec2[0]! < 0 ? Facing.RIGHT : Facing.LEFT
+        }
+      }
+      mailbox.eventQueue.length = 0
     }
+    // Simple idle/walk animation sample
+    this.animationController.playAnimation(this.ecs, entityId, 'walk')
   }
 
   onDestroy(entityId: EntityId): void {

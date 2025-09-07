@@ -1,25 +1,25 @@
 import { inject, Lifecycle, scoped, type Disposable } from "tsyringe";
 
-import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent, NpcKindComponent, HitboxComponent } from "../ecs/components";
-import { ECS } from "../ecs/ecs";
+import { AnimationComponent, PositionComponent, SpriteComponent, PhysicsBodyComponent, AgentKindComponent, HitboxComponent, MailboxComponent, FacingComponent } from "../ecs/components";
+import { ECS, type EntityId } from "../ecs/ecs";
 import { AnimationSystem } from "../ecs/systems/animationSystem";
 import { CameraSystem } from "../ecs/systems/cameraSystem";
-import { NpcSystem } from "../ecs/systems/npcSystem";
+import { AgentSystem } from "../ecs/systems/agentSystem";
 import { PhysicsSystem } from "../ecs/systems/physicsSystem";
-import { PlayerSystem } from "../ecs/systems/playerSystem";
 import { RenderSystem } from "../ecs/systems/renderSystem";
 import { CombatCollisionSystem } from "../ecs/systems/combatCollisionSystem";
 import { GameStrategy } from "../gameStrategy";
-import { spawnNpcByKind } from "../npc/npcKindRegistry";
+import { spawnAgentByKind, type AgentKindKey, type AgentSpawnData } from "../agent/agentKindRegistry";
 import { RoomContext } from "../roomContext";
 
 import { rect } from "@/math/rect";
-import { vec2 } from "@/math/vec2";
+import { vec2, type Vec2 } from "@/math/vec2";
 import { animationDefs } from "@/resources/animationDefs";
 import { imageSliceDefs } from "@/resources/imageSliceDefs";
 import { RoomDefToken, type RoomDef } from "@/types/roomDef";
 import { Grid2D } from "@/util/grid2D";
 import { CombatBit, createCombatMask } from "@/types/combat";
+import { Facing } from "@/types/facing";
 
 
 @scoped(Lifecycle.ContainerScoped)
@@ -28,8 +28,7 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     @inject(RoomDefToken) roomDef: RoomDef,
     private ecs: ECS,
     private roomContext: RoomContext,
-    private playerSystem: PlayerSystem,
-    private npcSystem: NpcSystem,
+    private agentSystem: AgentSystem,
     private physicsSystem: PhysicsSystem,
     private cameraSystem: CameraSystem,
     private animationSystem: AnimationSystem,
@@ -43,32 +42,16 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     this.roomContext.physicsGrid = new Grid2D(roomDef.physicsTilemap.tiles, roomDef.physicsTilemap.cols)
     this.roomContext.backgroundGrids = roomDef.backgroundTilemaps.map(bg => new Grid2D(bg.tiles, bg.cols))
     
-    // Spawn NPCs
+    // Spawn Agents
     for (const spawn of roomDef.spawns) {
-      const npcEntityId = ecs.createEntity()
-      ecs.addComponent(npcEntityId, 'PositionComponent', new PositionComponent(spawn.position))
-      ecs.addComponent(npcEntityId, 'NpcKindComponent', new NpcKindComponent(spawn.kind))
-      
-      // Call kind-specific spawn method
-      spawnNpcByKind(npcEntityId, spawn.kind, spawn.spawnData)
+      const _agentEntityId = createAgentEntity(this.ecs, spawn.kind, spawn.position, spawn.spawnData)
     }
 
-    this.createPlayerEntity()
-  }
-
-  private createPlayerEntity() {
-    this.roomContext.playerEntityId = this.ecs.createEntity()
-    const playerEntityId = this.roomContext.playerEntityId
-    this.ecs.addComponent(playerEntityId, 'PositionComponent', new PositionComponent(vec2.create(64, 64)))
-    this.ecs.addComponent(playerEntityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-8, -32, 8, 0), vec2.zero()))
-    this.ecs.addComponent(playerEntityId, 'SpriteComponent', new SpriteComponent(imageSliceDefs.link_walk_0))
-    this.ecs.addComponent(playerEntityId, 'AnimationComponent', new AnimationComponent(animationDefs.link, animationDefs.link.walk))
-    this.ecs.addComponent(playerEntityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -32, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
+    this.roomContext.playerEntityId = createAgentEntity(this.ecs, 'Player', vec2.create(64, 64), {})
   }
 
   tick() {
-    this.playerSystem.tick()
-    this.npcSystem.tick()
+    this.agentSystem.tick()
     this.physicsSystem.tick()
     this.cameraSystem.tick()
     this.combatCollisionSystem.tick()
@@ -79,4 +62,18 @@ export class RoomSimulation extends GameStrategy implements Disposable {
   }
   dispose() {
   }
+}
+
+function createAgentEntity<K extends AgentKindKey>(
+  ecs: ECS,
+  agentKind: K,
+  position: Vec2,
+  spawnData: AgentSpawnData[K],
+): EntityId {
+  const entityId = ecs.createEntity()
+  ecs.addComponent(entityId, 'PositionComponent', new PositionComponent(position))
+  ecs.addComponent(entityId, 'AgentKindComponent', new AgentKindComponent(agentKind))
+  ecs.addComponent(entityId, 'MailboxComponent', new MailboxComponent())
+  spawnAgentByKind(entityId, agentKind, spawnData)
+  return entityId
 }

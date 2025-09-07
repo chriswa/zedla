@@ -16,9 +16,6 @@ export class AnimationController<K extends CharacterKey> {
     this.cachedAnimationDefMap = animationDefs[this.characterKey] as Record<AnimationName<K>, AnimationDef>
   }
 
-  private getAnimationDef(animationName: AnimationName<K>): AnimationDef {
-    return (animationDefs[this.characterKey] as Record<AnimationName<K>, AnimationDef>)[animationName]
-  }
 
   // Adds both SpriteComponent and AnimationComponent, initialized to the first frame
   addSpriteAndAnimationComponents(ecs: ECS, entityId: EntityId, initialAnimationName: AnimationName<K>) {
