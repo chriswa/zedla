@@ -8,7 +8,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 12,
     offsetX: 8,
-    offsetY: -6,
+    offsetY: -12,
   },
   "blob_twitch_1": {
     src: "enemies.png",
@@ -17,7 +17,7 @@ export const spriteFrameDefs = {
     w: 14,
     h: 12,
     offsetX: 7,
-    offsetY: -6,
+    offsetY: -12,
   },
   "blob_idle": {
     src: "enemies.png",
@@ -26,7 +26,7 @@ export const spriteFrameDefs = {
     w: 14,
     h: 13,
     offsetX: 7,
-    offsetY: -7,
+    offsetY: -13,
   },
   "boomeranger_attack_high_0": {
     src: "enemies.png",
@@ -35,7 +35,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -33,
   },
   "boomeranger_walk_1": {
     src: "enemies.png",
@@ -44,7 +44,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "boomeranger_attack_low_0": {
     src: "enemies.png",
@@ -53,7 +53,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "boomeranger_attack_low_1": {
     src: "enemies.png",
@@ -62,7 +62,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 31,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -31,
   },
   "boomeranger_walk_0": {
     src: "enemies.png",
@@ -71,7 +71,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 31,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -31,
   },
   "bubble_default_0": {
     src: "enemies.png",
@@ -80,7 +80,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 8,
     offsetX: 4,
-    offsetY: -4,
+    offsetY: -8,
   },
   "deeler_attack_0": {
     src: "enemies.png",
@@ -89,7 +89,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "deeler_attack_1": {
     src: "enemies.png",
@@ -98,7 +98,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "deeler_canopy_0": {
     src: "enemies.png",
@@ -107,7 +107,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "deeler_canopy_1": {
     src: "enemies.png",
@@ -116,7 +116,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "explosion_default_0": {
     src: "enemies.png",
@@ -125,7 +125,7 @@ export const spriteFrameDefs = {
     w: 10,
     h: 10,
     offsetX: 5,
-    offsetY: -5,
+    offsetY: -10,
   },
   "explosion_default_1": {
     src: "enemies.png",
@@ -134,7 +134,7 @@ export const spriteFrameDefs = {
     w: 10,
     h: 10,
     offsetX: 5,
-    offsetY: -5,
+    offsetY: -10,
   },
   "explosion_default_2": {
     src: "enemies.png",
@@ -143,7 +143,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "explosion_default_3": {
     src: "enemies.png",
@@ -152,7 +152,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "fairy_default_0": {
     src: "enemies.png",
@@ -161,7 +161,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: 4,
-    offsetY: -8,
+    offsetY: -15,
   },
   "fairy_default_1": {
     src: "enemies.png",
@@ -170,7 +170,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: 4,
-    offsetY: -8,
+    offsetY: -15,
   },
   "fireball_burn_0": {
     src: "enemies.png",
@@ -179,7 +179,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 10,
     offsetX: 4,
-    offsetY: -5,
+    offsetY: -10,
   },
   "fireball_burn_1": {
     src: "enemies.png",
@@ -188,7 +188,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 10,
     offsetX: 4,
-    offsetY: -5,
+    offsetY: -10,
   },
   "fireball_burn_2": {
     src: "enemies.png",
@@ -197,7 +197,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 10,
     offsetX: 4,
-    offsetY: -5,
+    offsetY: -10,
   },
   "hammer_thrower_default_0": {
     src: "enemies.png",
@@ -206,7 +206,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "hammer_thrower_default_1": {
     src: "enemies.png",
@@ -215,7 +215,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 31,
     offsetX: 8,
-    offsetY: -15,
+    offsetY: -30,
   },
   "hammer_thrower_throw_0": {
     src: "enemies.png",
@@ -224,7 +224,7 @@ export const spriteFrameDefs = {
     w: 20,
     h: 32,
     offsetX: 12,
-    offsetY: -16,
+    offsetY: -32,
   },
   "hammer_thrower_throw_1": {
     src: "enemies.png",
@@ -233,7 +233,7 @@ export const spriteFrameDefs = {
     w: 20,
     h: 31,
     offsetX: 12,
-    offsetY: -15,
+    offsetY: -30,
   },
   "heart_container_idle_0": {
     src: "enemies.png",
@@ -242,7 +242,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 15,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -15,
   },
   "key_idle_0": {
     src: "enemies.png",
@@ -251,7 +251,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: 4,
-    offsetY: -8,
+    offsetY: -15,
   },
   "lizardpuppy_idle_0": {
     src: "enemies.png",
@@ -260,7 +260,7 @@ export const spriteFrameDefs = {
     w: 22,
     h: 15,
     offsetX: -2,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: 0
   },
   "lizardpuppy_walk_0": {
@@ -270,7 +270,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 15,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: 0
   },
   "lizardpuppy_stand_0": {
@@ -280,7 +280,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 29,
     offsetX: 0,
-    offsetY: -15,
+    offsetY: -29,
     // offsetXFlipped: 0
   },
   "octorok_idle_0": {
@@ -290,7 +290,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "octorok_idle_1": {
     src: "enemies.png",
@@ -299,7 +299,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 8,
-    offsetY: -8,
+    offsetY: -16,
   },
   "proj_hammer_default_0": {
     src: "enemies.png",
@@ -308,7 +308,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 11,
     offsetX: 4,
-    offsetY: -6,
+    offsetY: -11,
   },
   "proj_hammer_default_1": {
     src: "enemies.png",
@@ -317,7 +317,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 11,
     offsetX: 4,
-    offsetY: -6,
+    offsetY: -11,
   },
   "proj_hammer_default_2": {
     src: "enemies.png",
@@ -326,7 +326,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 11,
     offsetX: 4,
-    offsetY: -6,
+    offsetY: -11,
   },
   "proj_hammer_default_3": {
     src: "enemies.png",
@@ -335,7 +335,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 11,
     offsetX: 4,
-    offsetY: -6,
+    offsetY: -11,
   },
   "scorpy_example_0": {
     src: "enemies.png",
@@ -344,7 +344,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 27,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -13,
     // offsetXFlipped: 0
   },
   "scorpy_example_1": {
@@ -354,7 +354,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 27,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -13,
     // offsetXFlipped: 0
   },
   "scorpy_example_2": {
@@ -364,7 +364,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 27,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -13,
     // offsetXFlipped: 0
   },
   "scorpy_example_3": {
@@ -374,7 +374,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 27,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -13,
     // offsetXFlipped: 0
   },
   "scorpy_example_4": {
@@ -384,7 +384,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 25,
     offsetX: 0,
-    offsetY: 2,
+    offsetY: -10,
     // offsetXFlipped: 0
   },
   "scorpy_example_5": {
@@ -394,7 +394,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 25,
     offsetX: 0,
-    offsetY: 2,
+    offsetY: -10,
     // offsetXFlipped: 0
   },
   "skeleton_attack_0": {
@@ -404,7 +404,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "skeleton_attack_1": {
     src: "enemies.png",
@@ -413,7 +413,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "skeleton_attack_2": {
     src: "enemies.png",
@@ -422,7 +422,7 @@ export const spriteFrameDefs = {
     w: 33,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
     // offsetXFlipped: 46
   },
   "skeleton_walk_0": {
@@ -432,7 +432,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "skeleton_jump_0": {
     src: "enemies.png",
@@ -441,7 +441,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 27,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -29,
   },
   "skeleton_walk_1": {
     src: "enemies.png",
@@ -450,7 +450,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -16,
+    offsetY: -32,
   },
   "proj_boomerang_default_0": {
     src: "enemies.png",
@@ -459,7 +459,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 8,
     offsetX: 3,
-    offsetY: -4,
+    offsetY: -8,
   },
   "proj_boomerang_default_1": {
     src: "enemies.png",
@@ -468,7 +468,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 8,
     offsetX: 3,
-    offsetY: -4,
+    offsetY: -8,
   },
   "elevator_default_0": {
     src: "player.png",
@@ -477,7 +477,7 @@ export const spriteFrameDefs = {
     w: 24,
     h: 8,
     offsetX: 12,
-    offsetY: -4,
+    offsetY: -8,
   },
   "link_attack_0": {
     src: "player.png",
@@ -486,7 +486,7 @@ export const spriteFrameDefs = {
     w: 23,
     h: 32,
     offsetX: 15,
-    offsetY: -17,
+    offsetY: -33,
   },
   "link_attack_1": {
     src: "player.png",
@@ -495,7 +495,7 @@ export const spriteFrameDefs = {
     w: 32,
     h: 30,
     offsetX: 8,
-    offsetY: -15,
+    offsetY: -30,
   },
   "link_stand_0": {
     src: "player.png",
@@ -504,7 +504,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -33,
   },
   "link_collect_0": {
     src: "player.png",
@@ -513,7 +513,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -33,
   },
   "link_crouch_0": {
     src: "player.png",
@@ -522,7 +522,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 27,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -30,
   },
   "link_crouch_attack_0": {
     src: "player.png",
@@ -531,7 +531,7 @@ export const spriteFrameDefs = {
     w: 32,
     h: 26,
     offsetX: 8,
-    offsetY: -11,
+    offsetY: -24,
   },
   "link_hurt_0": {
     src: "player.png",
@@ -540,7 +540,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 29,
     offsetX: 8,
-    offsetY: -14,
+    offsetY: -28,
   },
   "link_walk_0": {
     src: "player.png",
@@ -549,7 +549,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -33,
   },
   "link_walk_1": {
     src: "player.png",
@@ -558,7 +558,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 32,
     offsetX: 8,
-    offsetY: -17,
+    offsetY: -33,
   },
   "link_walk_2": {
     src: "player.png",
@@ -567,7 +567,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 31,
     offsetX: 9,
-    offsetY: -17,
+    offsetY: -32,
   },
   "lock_default_0": {
     src: "player.png",
@@ -576,7 +576,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 16,
     offsetX: 4,
-    offsetY: -8,
+    offsetY: -16,
   },
   "lock_wall_0": {
     src: "player.png",
@@ -585,7 +585,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 16,
     offsetX: 4,
-    offsetY: -8,
+    offsetY: -16,
   },
   "owblob_default_0": {
     src: "overworld.png",
@@ -594,7 +594,7 @@ export const spriteFrameDefs = {
     w: 11,
     h: 9,
     offsetX: -3,
-    offsetY: 4,
+    offsetY: 0,
     // offsetXFlipped: -6
   },
   "owblob_default_1": {
@@ -604,7 +604,7 @@ export const spriteFrameDefs = {
     w: 9,
     h: 10,
     offsetX: -4,
-    offsetY: 3,
+    offsetY: -2,
     // offsetXFlipped: -8
   },
   "owplayer_raft_0": {
@@ -614,7 +614,7 @@ export const spriteFrameDefs = {
     w: 16,
     h: 16,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: 0
   },
   "owplayer_stand_0": {
@@ -624,7 +624,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 15,
     offsetX: -5,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: -10
   },
   "owplayer_walk_east_0": {
@@ -634,7 +634,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: -4,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: -10
   },
   "owplayer_walk_east_1": {
@@ -644,7 +644,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 16,
     offsetX: -4,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: -10
   },
   "owplayer_walk_north_0": {
@@ -654,7 +654,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 16,
     offsetX: -5,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: -10
   },
   "owplayer_walk_north_1": {
@@ -664,7 +664,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 16,
     offsetX: -5,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: -10
   },
   "owplayer_walk_south_0": {
@@ -674,7 +674,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 16,
     offsetX: -5,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: -10
   },
   "owplayer_walk_south_1": {
@@ -684,7 +684,7 @@ export const spriteFrameDefs = {
     w: 7,
     h: 16,
     offsetX: -5,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: -10
   },
   "owmonster_default_0": {
@@ -694,7 +694,7 @@ export const spriteFrameDefs = {
     w: 15,
     h: 16,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: 0
   },
   "owmonster_default_1": {
@@ -704,7 +704,7 @@ export const spriteFrameDefs = {
     w: 15,
     h: 16,
     offsetX: 0,
-    offsetY: 0,
+    offsetY: -8,
     // offsetXFlipped: 0
   },
   "owfairy_default_0": {
@@ -714,7 +714,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: -4,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: -8
   },
   "owfairy_default_1": {
@@ -724,7 +724,7 @@ export const spriteFrameDefs = {
     w: 8,
     h: 15,
     offsetX: -4,
-    offsetY: 0,
+    offsetY: -7,
     // offsetXFlipped: -8
   }
 } as const satisfies Record<string, SpriteFrameDef>

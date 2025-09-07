@@ -29,8 +29,8 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
     this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand')
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
-    this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-8, -32, 8, 0), vec2.zero()))
-    this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, -2), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
+    this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
+    this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
   }
 
   tick(entityId: EntityId, components: EntityComponentMap, _room: RoomContext): void {
