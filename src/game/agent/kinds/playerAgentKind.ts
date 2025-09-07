@@ -10,30 +10,27 @@ import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponen
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { createCombatMask, CombatBit } from '@/types/combat'
-import { animationDefs } from '@/resources/animationDefs'
+import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
 import { assertExists } from '@/util/assertExists'
 
-// Movement constants ported from legacy code (converted to px/s and px/s^2)
-// NOTE: Values intentionally halved to match current pixel scale (per user’s tuning).
-const MAX_X_SPEED = 0.1 * 1000 // 100 px/s
-const WALK_ACCEL = 0.00125 * 1_000_000 // 1250 px/s^2
-const WALK_DECEL = 0.0005 * 1_000_000 // 500 px/s^2
-const AIR_ACCEL  = 0.0006 * 1_000_000 // 600 px/s^2
-const GRAVITY_Y  = 0.0020 * 1_000_000 // 2000 px/s^2
-const JUMP_VY    = -0.300 * 1000      // -300 px/s
-const JUMP_HOLD_BOOST = 0.00075 * 1_000_000 // 750 px/s^2
-// Running jump boost reduces upward acceleration proportional to speed (per-second form)
-const RUN_JUMP_BOOST_PER_SPEED = 3.25 // px/s^2 per (px/s)
+const MAX_X_SPEED = 0.1 * 1000
+const WALK_ACCEL = 0.00125 * 1_000_000
+const WALK_DECEL = 0.0005 * 1_000_000
+const AIR_ACCEL  = 0.0006 * 1_000_000
+const GRAVITY_Y  = 0.0020 * 1_000_000
+const JUMP_VY    = -0.300 * 1000
+const JUMP_HOLD_BOOST = 0.00075 * 1_000_000
+const RUN_JUMP_BOOST_PER_SPEED = 3.25
 
-const ZERO_THRESHOLD_SPEED = 0.01 * 1000 // 10 px/s
+const ZERO_THRESHOLD_SPEED = 0.01 * 1000
 const TICK_MS = 1000 / 60
 const JUMP_GRACE_MS = 50
 
 // Sword hurtbox rectangles (local to player origin); centered base shifted left/right
-const SWORD_HURTBOX_BASE = rect.createFromCorners(-8, -20, 8, -2)
-const SWORD_HURTBOX_RIGHT = rect.add(SWORD_HURTBOX_BASE, vec2.create(20, 0))
-const SWORD_HURTBOX_LEFT  = rect.add(SWORD_HURTBOX_BASE, vec2.create(-20, 0))
+const SWORD_HURTBOX_BASE = rect.createCentred(0, -21, 18, 4)
+const SWORD_HURTBOX_RIGHT = rect.add(SWORD_HURTBOX_BASE, vec2.create(15, 0))
+const SWORD_HURTBOX_LEFT  = rect.add(SWORD_HURTBOX_BASE, vec2.create(-15, 0))
 
 interface PlayerSpawnData {
 }
@@ -52,8 +49,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
-    // Player sword hurtbox (disabled by default; enabled during attack frames)
-    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(12, -20, 28, -2), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
+    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
     this.state.set(entityId, { fallMs: 9999 })
   }
 
@@ -65,6 +61,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     const right = this.input.isDown(Button.RIGHT)
     const jumpHit = this.input.wasHitThisTick(Button.JUMP)
     const jumpHeld = this.input.isDown(Button.JUMP)
+    const attackHit = this.input.wasHitThisTick(Button.ATTACK)
 
     // Facing updates anytime
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
@@ -82,6 +79,10 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     if (jumpHit && s.fallMs < JUMP_GRACE_MS) {
       body.velocity[1] = JUMP_VY
       s.fallMs = 9999
+    }
+    // Start attack animation on button press (no FSM yet)
+    if (attackHit) {
+      this.animationController.startAnimation(this.ecs, entityId, 'attack')
     }
 
     // Horizontal acceleration
@@ -118,12 +119,15 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     // Sword hurtbox: enable during specific attack frames and position based on facing
     const anim = assertExists(this.ecs.getComponent(entityId, 'AnimationComponent'))
     const hurt = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
-    const isAttack = anim.animation === animationDefs.link.attack
-    const isCrouchAttack = anim.animation === animationDefs.link['crouch-attack']
-    const active = (isAttack && anim.frameIndex === 1) || (isCrouchAttack && anim.frameIndex === 0)
+    const curFrame = anim.animation.frames[anim.frameIndex]!
+    const active = hasFrameFlag(curFrame.flags, AnimationFrameFlag.SwordSwing)
     hurt.enabled = active
     if (active) {
       hurt.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_LEFT : SWORD_HURTBOX_RIGHT
+    }
+    // If a non-looping animation reached its last frame, return to stand
+    if (!anim.animation.loop && anim.frameIndex >= anim.animation.frames.length - 1) {
+      this.animationController.startAnimation(this.ecs, entityId, 'stand')
     }
 
     // Process and clear mailbox (if present)

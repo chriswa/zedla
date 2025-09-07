@@ -18,6 +18,7 @@ import type { PositionComponent } from "../components";
 const DO_INTERPOLATION: boolean = false
 const RENDER_PHYSICS_BOXES: boolean = true
 const RENDER_COMBAT_BOXES: boolean = true
+const RENDER_ANCHORS: boolean = true
 
 @scoped(Lifecycle.ContainerScoped)
 export class RenderSystem implements Disposable {
@@ -29,7 +30,9 @@ export class RenderSystem implements Disposable {
     private ecs: ECS,
   ) {
   }
+  private frameCounter = 0
   render(renderBlend: number) {
+    this.frameCounter++
     this.canvas.ctx.imageSmoothingEnabled = false
     this.renderTilemaps()
     this.renderSprites(renderBlend)
@@ -48,8 +51,15 @@ export class RenderSystem implements Disposable {
       const positionComponent = assertExists(components.PositionComponent)
       const facing = components.FacingComponent?.value ?? Facing.RIGHT
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
-      const { x, y, w, h } = this.computeSpriteDest(pos, camOffset, spriteComponent.spriteFrameDef)
-      this.drawSprite(spriteComponent.spriteFrameDef, x, y, w, h, facing)
+
+      // Anchor at entity position in screen space
+      const anchorX = this.camera.zoom * (Math.round(pos[0]!) - Math.round(camOffset[0]!))
+      const anchorY = this.camera.zoom * (Math.round(pos[1]!) - Math.round(camOffset[1]!))
+      this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchorX, anchorY, facing)
+
+      if (RENDER_ANCHORS) {
+        this.drawAnchorCross(anchorX, anchorY, this.getDebugColor('white'))
+      }
     }
   }
   private renderTilemaps() {
@@ -99,14 +109,14 @@ export class RenderSystem implements Disposable {
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
 
       const hurt = components.HurtboxComponent
-      if (hurt && hurt.enabled) {
+      if (hurt) {
         const worldRect = rect.add(hurt.rect, pos)
-        this.strokeWorldRect(worldRect, camOffset, 'rgba(255,0,255,0.9)')
+        this.strokeWorldRect(worldRect, camOffset, `rgba(255,0,255,${hurt.enabled ? 0.9 : 0.5})`)
       }
       const hit = components.HitboxComponent
-      if (hit && hit.enabled) {
+      if (hit) {
         const worldRect = rect.add(hit.rect, pos)
-        this.strokeWorldRect(worldRect, camOffset, 'rgba(0,255,255,0.9)')
+        this.strokeWorldRect(worldRect, camOffset, `rgba(0,255,255,${hit.enabled ? 0.9 : 0.5})`)
       }
     }
   }
@@ -130,30 +140,73 @@ export class RenderSystem implements Disposable {
 
   private strokeWorldRect(worldRect: Rect, camOffset: Vec2, color: string) {
     const { x, y, w, h } = this.toScreenRect(worldRect, camOffset)
-    this.canvas.ctx.strokeStyle = color
+    this.canvas.ctx.strokeStyle = this.getDebugColor(color)
     this.canvas.ctx.lineWidth = 1
     this.canvas.ctx.strokeRect(x, y, w, h)
   }
 
-  private computeSpriteDest(pos: Vec2, camOffset: Vec2, frameDef: SpriteFrameDef) {
-    const z = this.camera.zoom
-    const x = z * (Math.round(pos[0]!) - Math.round(camOffset[0]!) - frameDef.offsetX)
-    const y = z * (Math.round(pos[1]!) - Math.round(camOffset[1]!) + frameDef.offsetY)
-    const w = z * frameDef.w
-    const h = z * frameDef.h
-    return { x, y, w, h }
-  }
-
-  private drawSprite(frameDef: { src: string; x: number; y: number; w: number; h: number }, x: number, y: number, w: number, h: number, facing: Facing) {
+  // Draw anchored at (anchorX,anchorY). Use transform only for left-facing.
+  private drawSpriteAnchored(frameDef: SpriteFrameDef, anchorX: number, anchorY: number, facing: Facing) {
     const img = this.imageLoader.get(frameDef.src)
+    const z = this.camera.zoom
+    const dw = z * frameDef.w
+    const dh = z * frameDef.h
+    const dxRight = -z * frameDef.offsetX
+    const dy = z * frameDef.offsetY
+
     if (facing === Facing.LEFT) {
+      // Compute right-facing destination relative to screen, then reflect around anchorX
+      const dx = anchorX + dxRight
+      const dyAbs = anchorY + dy
       this.canvas.ctx.save()
+      // Reflect around vertical line x = anchorX
+      this.canvas.ctx.translate(2 * anchorX, 0)
       this.canvas.ctx.scale(-1, 1)
-      this.canvas.ctx.drawImage(img, frameDef.x, frameDef.y, frameDef.w, frameDef.h, -x - w, y, w, h)
+      this.canvas.ctx.drawImage(
+        img,
+        frameDef.x,
+        frameDef.y,
+        frameDef.w,
+        frameDef.h,
+        dx,
+        dyAbs,
+        dw,
+        dh,
+      )
       this.canvas.ctx.restore()
     } else {
-      this.canvas.ctx.drawImage(img, frameDef.x, frameDef.y, frameDef.w, frameDef.h, x, y, w, h)
+      const dx = anchorX + dxRight
+      const dyAbs = anchorY + dy
+      this.canvas.ctx.drawImage(
+        img,
+        frameDef.x,
+        frameDef.y,
+        frameDef.w,
+        frameDef.h,
+        dx,
+        dyAbs,
+        dw,
+        dh,
+      )
     }
+  }
+
+  // Alternates black on odd ticks; base color on even ticks
+  private getDebugColor(baseColor: string): string {
+    return (this.frameCounter % 4 < 2) ? 'black' : baseColor
+  }
+
+  private drawAnchorCross(x: number, y: number, color: string) {
+    const ctx = this.canvas.ctx
+    ctx.strokeStyle = color
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    const size = 3
+    ctx.moveTo(x - size, y - size)
+    ctx.lineTo(x + size, y + size)
+    ctx.moveTo(x - size, y + size)
+    ctx.lineTo(x + size, y - size)
+    ctx.stroke()
   }
   dispose() {
   }
