@@ -33,6 +33,7 @@ export class RenderSystem implements Disposable {
   private frameCounter = 0
   render(renderBlend: number) {
     this.frameCounter++
+    this.canvas.cls()
     this.canvas.ctx.imageSmoothingEnabled = false
     const cameraOffset = this.getInterpolatedCameraOffset(renderBlend)
     this.renderTilemaps(cameraOffset)

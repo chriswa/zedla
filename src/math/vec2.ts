@@ -102,4 +102,11 @@ export const vec2 = {
       Math.round(v[1]!),
     ]) as Vec2
   },
+
+  // Stringify with fixed precision: Vec2(x.xx,y.yy)
+  toString(v: Vec2, digits = 1): string {
+    const x = v[0]!
+    const y = v[1]!
+    return `Vec2(${x.toFixed(digits)},${y.toFixed(digits)})`
+  },
 }

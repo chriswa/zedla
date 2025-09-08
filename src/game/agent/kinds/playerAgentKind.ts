@@ -13,6 +13,7 @@ import { createCombatMask, CombatBit } from '@/types/combat'
 import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
 import { assertExists } from '@/util/assertExists'
+import { CanvasLog } from '@/dev/canvasLog'
 
 const MAX_X_SPEED = 0.1 * 1000
 const WALK_ACCEL = 0.00125 * 1_000_000
@@ -40,6 +41,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   constructor(
     private ecs: ECS,
     private input: Input,
+    private canvasLog: CanvasLog,
   ) {}
   private animationController = new AnimationController('link')
   private state = new Map<EntityId, { fallMs: number }>()
@@ -132,7 +134,15 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
 
     // Process and clear mailbox (if present)
     const mailbox = components.MailboxComponent
-    if (mailbox) mailbox.eventQueue.length = 0
+    if (mailbox) {
+      for (const mail of mailbox.eventQueue) {
+        if (mail.type === 'combat-hit') {
+          const attackerKind = this.ecs.getComponent(mail.attackerId as EntityId, 'AgentKindComponent')?.kind ?? 'Unknown'
+          this.canvasLog.postEphemeral(`Player hurt by ${String(attackerKind)} ${vec2.toString(mail.attackVec2)}`)
+        }
+      }
+      mailbox.eventQueue.length = 0
+    }
   }
 
   onDestroy(_entityId: EntityId): void {}

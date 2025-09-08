@@ -9,8 +9,10 @@ import { assertExists } from "@/util/assertExists";
 import { FacingComponent, HitboxComponent, HurtboxComponent } from "@/game/ecs/components";
 import { Facing } from "@/types/facing";
 import { rect } from "@/math/rect";
+import { vec2 } from "@/math/vec2";
 import { CombatBit, createCombatMask } from "@/types/combat";
 import type { EntityMail } from "@/types/entityMail";
+import { CanvasLog } from "@/dev/canvasLog";
 
 interface FooNpcData {
   health: number
@@ -26,6 +28,7 @@ interface FooSpawnData {
 export class FooAgentKind implements IAgentKind<FooSpawnData> {
   constructor(
     private ecs: ECS,
+    private canvasLog: CanvasLog,
   ) {
   }
   private npcData = new Map<EntityId, FooNpcData>()
@@ -50,6 +53,8 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
           data.health = Math.max(0, data.health - 1)
           const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
           facing.value = mail.attackVec2[0]! < 0 ? Facing.RIGHT : Facing.LEFT
+          const attackerKind = this.ecs.getComponent(mail.attackerId as EntityId, 'AgentKindComponent')?.kind ?? 'Unknown'
+          this.canvasLog.postEphemeral(`Foo hurt by ${String(attackerKind)} ${vec2.toString(mail.attackVec2)}`)
         }
       }
       mailbox.eventQueue.length = 0
