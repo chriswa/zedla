@@ -52,13 +52,17 @@ export class RenderSystem implements Disposable {
       const facing = components.FacingComponent?.value ?? Facing.RIGHT
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
 
-      // Anchor at entity position in screen space
-      const anchorX = this.camera.zoom * (Math.round(pos[0]!) - Math.round(camOffset[0]!))
-      const anchorY = this.camera.zoom * (Math.round(pos[1]!) - Math.round(camOffset[1]!))
-      this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchorX, anchorY, facing)
+      // Anchor at entity position in screen space units (before zoom)
+      const anchor: Vec2 = vec2.create(
+        Math.round(pos[0]!) - Math.round(camOffset[0]!),
+        Math.round(pos[1]!) - Math.round(camOffset[1]!),
+      )
+      this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchor, facing)
 
       if (RENDER_ANCHORS) {
-        this.drawAnchorCross(anchorX, anchorY, this.getDebugColor('white'))
+        const ax = this.camera.zoom * anchor[0]!
+        const ay = this.camera.zoom * anchor[1]!
+        this.drawAnchorCross(ax, ay, this.getDebugColor('white'))
       }
     }
   }
@@ -146,47 +150,54 @@ export class RenderSystem implements Disposable {
   }
 
   // Draw anchored at (anchorX,anchorY). Use transform only for left-facing.
-  private drawSpriteAnchored(frameDef: SpriteFrameDef, anchorX: number, anchorY: number, facing: Facing) {
+  private drawSpriteAnchored(frameDef: SpriteFrameDef, anchor: Vec2, facing: Facing) {
     const img = this.imageLoader.get(frameDef.src)
     const z = this.camera.zoom
-    const dw = z * frameDef.w
-    const dh = z * frameDef.h
-    const dxRight = -z * frameDef.offsetX
-    const dy = z * frameDef.offsetY
+
+    // Dimensions in screen pixels
+    const drawW = z * frameDef.w
+    const drawH = z * frameDef.h
+
+    // Local offset from the anchor to the sprite's top-left, when facing right
+    const localOffsetX = -z * frameDef.offsetX
+    const localOffsetY =  z * frameDef.offsetY
+
+    // Anchor in screen pixels
+    const anchorPxX = z * anchor[0]!
+    const anchorPxY = z * anchor[1]!
+
+    // Screen-space destination (top-left) for the right-facing orientation
+    const screenX = anchorPxX + localOffsetX
+    const screenY = anchorPxY + localOffsetY
 
     if (facing === Facing.LEFT) {
-      // Compute right-facing destination relative to screen, then reflect around anchorX
-      const dx = anchorX + dxRight
-      const dyAbs = anchorY + dy
-      this.canvas.ctx.save()
-      // Reflect around vertical line x = anchorX
-      this.canvas.ctx.translate(2 * anchorX, 0)
-      this.canvas.ctx.scale(-1, 1)
+      // Draw from pre-flipped spritesheet; adjust source X to mirrored region
+      const flipped = this.imageLoader.getFlippedHorizontally(frameDef.src)
+      const srcX = flipped.width - (frameDef.x + frameDef.w)
+      // Compute the screen top-left so that the anchor remains invariant under mirror about x = anchorX
+      const screenXFlipped = 2 * anchorPxX - (screenX + drawW)
       this.canvas.ctx.drawImage(
-        img,
-        frameDef.x,
+        flipped,
+        srcX,
         frameDef.y,
         frameDef.w,
         frameDef.h,
-        dx,
-        dyAbs,
-        dw,
-        dh,
+        screenXFlipped,
+        screenY,
+        drawW,
+        drawH,
       )
-      this.canvas.ctx.restore()
     } else {
-      const dx = anchorX + dxRight
-      const dyAbs = anchorY + dy
       this.canvas.ctx.drawImage(
         img,
         frameDef.x,
         frameDef.y,
         frameDef.w,
         frameDef.h,
-        dx,
-        dyAbs,
-        dw,
-        dh,
+        screenX,
+        screenY,
+        drawW,
+        drawH,
       )
     }
   }

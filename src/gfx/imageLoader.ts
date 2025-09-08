@@ -5,6 +5,7 @@ import { assertExists } from "@/util/assertExists";
 @singleton()
 export class ImageLoader {
   private images = new Map<string, HTMLImageElement>()
+  private flippedHorizCanvases = new Map<string, HTMLCanvasElement>()
   constructor() {
   }
   async load(filepath: string): Promise<void> {
@@ -16,6 +17,15 @@ export class ImageLoader {
       imgElement.src = `./${filepath}`
       imgElement.onload = (_ev) => {
         this.images.set(filepath, imgElement)
+        // Precompute a horizontally flipped canvas for this image
+        const c = document.createElement('canvas')
+        c.width = imgElement.width
+        c.height = imgElement.height
+        const ctx = c.getContext('2d')!
+        ctx.translate(c.width, 0)
+        ctx.scale(-1, 1)
+        ctx.drawImage(imgElement, 0, 0)
+        this.flippedHorizCanvases.set(filepath, c)
         resolve()
       }
       imgElement.onerror = () => {
@@ -29,5 +39,8 @@ export class ImageLoader {
   }
   get(filepath: string): HTMLImageElement {
     return assertExists(this.images.get(filepath), `image ${filepath} not loaded`)
+  }
+  getFlippedHorizontally(filepath: string): HTMLCanvasElement {
+    return assertExists(this.flippedHorizCanvases.get(filepath), `flipped image ${filepath} not loaded`)
   }
 }
