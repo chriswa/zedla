@@ -44,6 +44,14 @@ export const vec2 = {
     ]) as Vec2
   },
 
+  // Element-wise multiply
+  elementWiseMultiply(a: Vec2, b: Vec2): Vec2 {
+    return new Float32Array([
+      a[0]! * b[0]!,
+      a[1]! * b[1]!,
+    ]) as Vec2
+  },
+
   mulScalar(v: Vec2, scalar: number): Vec2 {
     return new Float32Array([
       v[0]! * scalar,
@@ -85,6 +93,13 @@ export const vec2 = {
     return new Float32Array([
       a[0]! + (b[0]! - a[0]!) * t,
       a[1]! + (b[1]! - a[1]!) * t,
+    ]) as Vec2
+  },
+
+  round(v: Vec2): Vec2 {
+    return new Float32Array([
+      Math.round(v[0]!),
+      Math.round(v[1]!),
     ]) as Vec2
   },
 }

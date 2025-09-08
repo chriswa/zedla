@@ -10,6 +10,7 @@ import { RenderSystem } from "../ecs/systems/renderSystem";
 import { CombatCollisionSystem } from "../ecs/systems/combatCollisionSystem";
 import { GameStrategy } from "../gameStrategy";
 import { spawnAgentByKind, type AgentKindKey, type AgentSpawnData } from "../agent/agentKindRegistry";
+import { CanvasLog } from "@/dev/canvasLog";
 import { RoomContext } from "../roomContext";
 
 import { vec2, type Vec2 } from "@/math/vec2";
@@ -29,6 +30,7 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     private animationSystem: AnimationSystem,
     private combatCollisionSystem: CombatCollisionSystem,
     private renderSystem: RenderSystem,
+    private canvasLog: CanvasLog,
   ) {
     super()
     
@@ -43,6 +45,9 @@ export class RoomSimulation extends GameStrategy implements Disposable {
     }
 
     this.roomContext.playerEntityId = createAgentEntity(this.ecs, 'Player', vec2.create(64, 64), {})
+
+    // Dev: initial hello world ephemeral message
+    this.canvasLog.postEphemeral('Hello World!')
   }
 
   tick() {

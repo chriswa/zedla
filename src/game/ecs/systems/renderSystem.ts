@@ -34,17 +34,17 @@ export class RenderSystem implements Disposable {
   render(renderBlend: number) {
     this.frameCounter++
     this.canvas.ctx.imageSmoothingEnabled = false
-    this.renderTilemaps()
-    this.renderSprites(renderBlend)
+    const cameraOffset = this.getInterpolatedCameraOffset(renderBlend)
+    this.renderTilemaps(cameraOffset)
+    this.renderSprites(cameraOffset, renderBlend)
     if (RENDER_PHYSICS_BOXES) {
-      this.renderPhysicsBoxes(renderBlend)
+      this.renderPhysicsBoxes(cameraOffset, renderBlend)
     }
     if (RENDER_COMBAT_BOXES) {
-      this.renderCombatBoxes(renderBlend)
+      this.renderCombatBoxes(cameraOffset, renderBlend)
     }
   }
-  private renderSprites(renderBlend: number) {
-    const camOffset = this.getInterpolatedCameraOffset(renderBlend)
+  private renderSprites(cameraOffset: Vec2, renderBlend: number) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const spriteComponent = components.SpriteComponent
       if (!spriteComponent) continue
@@ -54,19 +54,18 @@ export class RenderSystem implements Disposable {
 
       // Anchor at entity position in screen space units (before zoom)
       const anchor: Vec2 = vec2.create(
-        Math.round(pos[0]!) - Math.round(camOffset[0]!),
-        Math.round(pos[1]!) - Math.round(camOffset[1]!),
+        Math.round(pos[0]!) - Math.round(cameraOffset[0]!),
+        Math.round(pos[1]!) - Math.round(cameraOffset[1]!),
       )
       this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchor, facing)
 
       if (RENDER_ANCHORS) {
-        const ax = this.camera.zoom * anchor[0]!
-        const ay = this.camera.zoom * anchor[1]!
-        this.drawAnchorCross(ax, ay, this.getDebugColor('white'))
+        const anchorPx = vec2.elementWiseMultiply(anchor, vec2.create(this.camera.zoom, this.camera.zoom))
+        this.drawAnchorCross(anchorPx, this.getDebugColor('white'))
       }
     }
   }
-  private renderTilemaps() {
+  private renderTilemaps(cameraOffset: Vec2) {
     for (const [gridIndex, backgroundTilemapDef] of this.roomContext.roomDef.backgroundTilemaps.entries()) {
       const tileset = backgroundTilemapDef.tileset
       const grid = this.roomContext.backgroundGrids[gridIndex]!
@@ -84,8 +83,8 @@ export class RenderSystem implements Disposable {
             tilesetY * tileset.tileHeight,
             tileset.tileWidth,
             tileset.tileHeight,
-            this.camera.zoom * (tileX * tileset.tileWidth - this.camera.offset[0]!),
-            this.camera.zoom * (tileY * tileset.tileHeight - this.camera.offset[1]!),
+            this.camera.zoom * (tileX * tileset.tileWidth - cameraOffset[0]!),
+            this.camera.zoom * (tileY * tileset.tileHeight - cameraOffset[1]!),
             this.camera.zoom * tileset.tileWidth,
             this.camera.zoom * tileset.tileHeight,
           )
@@ -93,20 +92,18 @@ export class RenderSystem implements Disposable {
       }
     }
   }
-  private renderPhysicsBoxes(renderBlend: number) {
-    const camOffset = this.getInterpolatedCameraOffset(renderBlend)
+  private renderPhysicsBoxes(cameraOffset: Vec2, renderBlend: number) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const physicsBody = components.PhysicsBodyComponent
       const positionComponent = components.PositionComponent
       if (!physicsBody || !positionComponent) continue
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
       const worldRect = rect.add(physicsBody.rect, pos)
-      this.strokeWorldRect(worldRect, camOffset, 'red')
+      this.strokeWorldRect(worldRect, cameraOffset, 'red')
     }
   }
 
-  private renderCombatBoxes(renderBlend: number) {
-    const camOffset = this.getInterpolatedCameraOffset(renderBlend)
+  private renderCombatBoxes(cameraOffset: Vec2, renderBlend: number) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const positionComponent = components.PositionComponent
       if (!positionComponent) continue
@@ -115,22 +112,22 @@ export class RenderSystem implements Disposable {
       const hurt = components.HurtboxComponent
       if (hurt) {
         const worldRect = rect.add(hurt.rect, pos)
-        this.strokeWorldRect(worldRect, camOffset, `rgba(255,0,255,${hurt.enabled ? 0.9 : 0.5})`)
+        this.strokeWorldRect(worldRect, cameraOffset, `rgba(255,0,255,${hurt.enabled ? 0.9 : 0.5})`)
       }
       const hit = components.HitboxComponent
       if (hit) {
         const worldRect = rect.add(hit.rect, pos)
-        this.strokeWorldRect(worldRect, camOffset, `rgba(0,255,255,${hit.enabled ? 0.9 : 0.5})`)
+        this.strokeWorldRect(worldRect, cameraOffset, `rgba(0,255,255,${hit.enabled ? 0.9 : 0.5})`)
       }
     }
   }
 
   private getInterpolatedCameraOffset(renderBlend: number): Vec2 {
-    return DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset
+    return vec2.round(DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset)
   }
 
   private getInterpolatedPosition(positionComponent: PositionComponent, renderBlend: number): Vec2 {
-    return DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset
+    return vec2.round(DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset)
   }
 
   private toScreenRect(worldRect: Rect, camOffset: Vec2) {
@@ -207,12 +204,14 @@ export class RenderSystem implements Disposable {
     return (this.frameCounter % 4 < 2) ? 'black' : baseColor
   }
 
-  private drawAnchorCross(x: number, y: number, color: string) {
+  private drawAnchorCross(anchorPx: Vec2, color: string) {
     const ctx = this.canvas.ctx
     ctx.strokeStyle = color
     ctx.lineWidth = 1
     ctx.beginPath()
     const size = 3
+    const x = anchorPx[0]!
+    const y = anchorPx[1]!
     ctx.moveTo(x - size, y - size)
     ctx.lineTo(x + size, y + size)
     ctx.moveTo(x - size, y + size)
