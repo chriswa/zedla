@@ -53,7 +53,9 @@ export class CanvasLog {
       const maxAgeMs = this.LIFE_MS + this.FADE_MS
       this.ephemerals = this.ephemerals.filter(e => (now - e.timeAddedMs) < maxAgeMs)
 
-      for (const e of this.ephemerals) {
+      // Draw ephemerals newest-first (closer to permanents), stacking upward
+      for (let i = this.ephemerals.length - 1; i >= 0; i--) {
+        const e = this.ephemerals[i]!
         const ageMs = now - e.timeAddedMs
         let color = '#ffff00' // yellow
         if (ageMs > this.LIFE_MS) {
