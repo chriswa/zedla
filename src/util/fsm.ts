@@ -1,5 +1,5 @@
 export interface FSMState {
-  dispose(): void
+  onExit(): void
 }
 
 export class FSM<TBase extends FSMState> {
@@ -8,13 +8,13 @@ export class FSM<TBase extends FSMState> {
   constructor(initialState: TBase) {
     this.activeState = initialState
   }
-  processQueuedState() {
-    if (this.queuedStateFactory !== undefined) {
-      this.activeState.dispose()
-      const newState = this.queuedStateFactory()
-      this.activeState = newState
-      this.queuedStateFactory = undefined
-    }
+  processQueuedState(): boolean {
+    if (this.queuedStateFactory === undefined) return false
+    this.activeState.onExit()
+    const newState = this.queuedStateFactory()
+    this.activeState = newState
+    this.queuedStateFactory = undefined
+    return true
   }
   public get active(): TBase {
     return this.activeState
