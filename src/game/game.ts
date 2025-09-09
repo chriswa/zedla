@@ -21,7 +21,7 @@ export class Game {
   }
 
   boot() {
-    this.fsm.queueStateFactory(() => {
+    this.fsm.queueStrategyFactory(() => {
       // return new RoomGameStrategy(roomDefs.intro1)
       const roomDef = roomDefs.intro1
       const childContainer = container.createChildContainer()
@@ -31,7 +31,7 @@ export class Game {
   }
 
   tick() {
-    this.fsm.processQueuedState()
+    this.fsm.processQueuedStrategy()
     this.fsm.active.tick()
   }
   render(renderBlend: number) {

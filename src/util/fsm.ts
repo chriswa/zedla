@@ -1,25 +1,25 @@
-export interface FSMState {
+export interface FSMStrategy {
   onExit(): void
 }
 
-export class FSM<TBase extends FSMState> {
-  private activeState: TBase
-  private queuedStateFactory: (() => TBase) | undefined
-  constructor(initialState: TBase) {
-    this.activeState = initialState
+export class FSM<TBase extends FSMStrategy> {
+  private activeStrategy: TBase
+  private queuedStrategyFactory: (() => TBase) | undefined
+  constructor(initialStrategy: TBase) {
+    this.activeStrategy = initialStrategy
   }
-  processQueuedState(): boolean {
-    if (this.queuedStateFactory === undefined) return false
-    this.activeState.onExit()
-    const newState = this.queuedStateFactory()
-    this.activeState = newState
-    this.queuedStateFactory = undefined
+  processQueuedStrategy(): boolean {
+    if (this.queuedStrategyFactory === undefined) return false
+    this.activeStrategy.onExit()
+    const newStrategy = this.queuedStrategyFactory()
+    this.activeStrategy = newStrategy
+    this.queuedStrategyFactory = undefined
     return true
   }
   public get active(): TBase {
-    return this.activeState
+    return this.activeStrategy
   }
-  public queueStateFactory(v: () => TBase) {
-    this.queuedStateFactory = v
+  public queueStrategyFactory(v: () => TBase) {
+    this.queuedStrategyFactory = v
   }
 }
