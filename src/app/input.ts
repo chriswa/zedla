@@ -3,7 +3,7 @@ import { singleton } from "tsyringe";
 
 export enum Button {
   // UP,
-  // DOWN,
+  DOWN,
   LEFT,
   RIGHT,
   ATTACK,
@@ -12,7 +12,7 @@ export enum Button {
 
 const keyboardEventCodeToButton: Record<string, Button> = {
   // [KeyCode.CODE_UP]: Button.UP,
-  // [KeyCode.CODE_DOWN]: Button.DOWN,
+  [KeyCode.CODE_DOWN]: Button.DOWN,
   [KeyCode.CODE_LEFT]: Button.LEFT,
   [KeyCode.CODE_RIGHT]: Button.RIGHT,
   [KeyCode.CODE_Z]: Button.JUMP,
@@ -20,6 +20,7 @@ const keyboardEventCodeToButton: Record<string, Button> = {
 
   [KeyCode.CODE_A]: Button.LEFT,
   [KeyCode.CODE_D]: Button.RIGHT,
+  [KeyCode.CODE_S]: Button.DOWN,
   [KeyCode.CODE_SLASH]: Button.JUMP,
   [KeyCode.CODE_QUOTE]: Button.ATTACK,
 }
