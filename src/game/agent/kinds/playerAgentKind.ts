@@ -1,4 +1,4 @@
-import { singleton, inject, delay } from 'tsyringe'
+import { singleton, container } from 'tsyringe'
 
 import type { IAgentKind } from '../agentKind'
 import { ECS } from '../../ecs/ecs'
@@ -8,14 +8,12 @@ import { Input, Button } from '@/app/input'
 import { Facing } from '@/types/facing'
 import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponent } from '@/game/ecs/components'
 import { rect } from '@/math/rect'
-import { vec2, type Vec2 } from '@/math/vec2'
+import { vec2 } from '@/math/vec2'
 import { createCombatMask, CombatBit } from '@/types/combat'
 import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
 import { assertExists } from '@/util/assertExists'
-import { FSM } from '@/util/fsm'
-import { assert } from '@/util/assert'
-import { CanvasLog } from '@/dev/canvasLog'
+import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
 
 const MAX_X_SPEED = 0.1 * 1000
 const WALK_ACCEL = 0.00125 * 1_000_000
@@ -37,22 +35,50 @@ const SWORD_HURTBOX_LEFT  = rect.add(SWORD_HURTBOX_BASE, vec2.create(-15, 0))
 interface PlayerSpawnData {
 }
 
-interface PlayerFsmCtx { fallTicks: number }
+interface PlayerEntityData {
+  fallTicks: number
+}
 
-interface PlayerFsmStrategy {
-  update(entityId: EntityId, ctx: PlayerFsmCtx): (() => PlayerFsmStrategy) | undefined
-  onEnter(entityId: EntityId, ctx: PlayerFsmCtx): void
-  onExit(): void
+@singleton()
+class PlayerEntityDataStore {
+  public map = new Map<EntityId, PlayerEntityData>()
+}
+
+
+type PlayerFsmStrategy = DirectFSMStrategy<EntityId>
+
+// Strategy registry will be populated after class definitions
+
+// Constants for hurt
+const HURT_VX = 0.075 * 1000 // 75 px/s
+const JUMP_HURT_VY = -0.200 * 1000 // -200 px/s upward
+const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
+
+@singleton()
+class PlayerHelper {
+  constructor(private ecs: ECS) {}
+  checkForHurt(entityId: EntityId): boolean {
+    const mailbox = assertExists(this.ecs.getComponent(entityId, 'MailboxComponent'))
+    
+    // Peek at mailbox to determine if we should transition to hurt state
+    for (const mail of mailbox.eventQueue) {
+      if (mail.type === 'combat-hit') {
+        return true
+      }
+    }
+    
+    return false
+  }
 }
 
 @singleton()
 export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   constructor(
     private ecs: ECS,
-    @inject(delay(() => GroundedStrategy)) private groundedStrategy: GroundedStrategy,
+    private playerDataStore: PlayerEntityDataStore,
   ) {}
   private animationController = new AnimationController('link')
-  private perEntity = new Map<EntityId, { ctx: PlayerFsmCtx; fsm: FSM<PlayerFsmStrategy> }>()
+  private fsmByEntityId = new Map<EntityId, DirectFSM<PlayerFsmStrategy, EntityId>>()
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
     this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand')
@@ -61,38 +87,24 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
 
-    const fsm = new FSM<PlayerFsmStrategy>(this.groundedStrategy)
-    const ctx: PlayerFsmCtx = { fallTicks: 9999 }
+    // Initialize player data
+    this.playerDataStore.map.set(entityId, { fallTicks: 9999 })
+    
+    const fsm = new DirectFSM<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
     // immediate enter for initial FSM strategy
-    fsm.active.onEnter(entityId, ctx)
-    this.perEntity.set(entityId, { ctx, fsm })
+    fsm.active.onEnter(entityId)
+    this.fsmByEntityId.set(entityId, fsm)
   }
 
   tick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
-    const { fsm, ctx } = assertExists(this.perEntity.get(entityId))
-    const MAX_TRANSITIONS = 3
-    let transitions = 0
-    for (;;) {
-      const nextFactory = fsm.active.update(entityId, ctx)
-      if (!nextFactory) break
-      const prevName = fsm.active.constructor.name
-      const nextInstance = nextFactory()
-      const nextName = nextInstance.constructor.name
-      fsm.queueStrategyFactory(() => nextInstance)
-      const changed = fsm.processQueuedStrategy()
-      if (changed) {
-        transitions += 1
-        // eslint-disable-next-line no-console
-        console.log(`[PlayerFSM] ${transitions}: ${prevName} -> ${nextName}`)
-        assert(transitions <= MAX_TRANSITIONS, `player FSM exceeded max transitions: ${prevName} -> ${nextName}`)
-        fsm.active.onEnter(entityId, ctx)
-        continue
-      }
-      break
-    }
+    const fsm = assertExists(this.fsmByEntityId.get(entityId))
+    fsm.processTransitions(entityId)
   }
 
-  onDestroy(_entityId: EntityId): void {}
+  onDestroy(entityId: EntityId): void {
+    this.fsmByEntityId.delete(entityId)
+    this.playerDataStore.map.delete(entityId)
+  }
 }
 
 // ------------------ Strategys ------------------
@@ -103,17 +115,16 @@ class GroundedStrategy implements PlayerFsmStrategy {
     private ecs: ECS,
     private input: Input,
     private helper: PlayerHelper,
-    @inject(delay(() => AirborneStrategy)) private airborne: AirborneStrategy,
-    @inject(delay(() => AttackStrategy)) private attack: AttackStrategy,
+    private playerDataStore: PlayerEntityDataStore,
   ) {}
-  onEnter(_entityId: EntityId, ctx: PlayerFsmCtx): void {
+  onEnter(entityId: EntityId): void {
     // reset coyote timer on solid ground
-    ctx.fallTicks = 0
+    const data = assertExists(this.playerDataStore.map.get(entityId))
+    data.fallTicks = 0
   }
-  onExit(): void {}
-  update(entityId: EntityId, ctx: PlayerFsmCtx): (() => PlayerFsmStrategy) | undefined {
-    const hurtNext = this.helper.checkForHurt(entityId)
-    if (hurtNext) return hurtNext
+  onExit(_entityId: EntityId): void {}
+  update(entityId: EntityId): PlayerFsmStrategy | undefined {
+    if (this.helper.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
     // Facing
@@ -137,19 +148,20 @@ class GroundedStrategy implements PlayerFsmStrategy {
     body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
 
     // Jump
-    if (this.input.wasHitThisTick(Button.JUMP) && ctx.fallTicks < JUMP_GRACE_TICKS) {
+    const data = assertExists(this.playerDataStore.map.get(entityId))
+    if (this.input.wasHitThisTick(Button.JUMP) && data.fallTicks < JUMP_GRACE_TICKS) {
       body.velocity[1] = JUMP_VY
-      ctx.fallTicks = 9999
-      return () => this.airborne
+      data.fallTicks = 9999
+      return playerStrategyRegistry.AirborneStrategy
     }
     // Attack
     if (this.input.wasHitThisTick(Button.ATTACK)) {
-      return () => this.attack
+      return playerStrategyRegistry.AttackStrategy
     }
     // If no longer contacting ground, start counting fall ticks and go airborne
     const onGround = body.touchingDown === true
     if (!onGround) {
-      return () => this.airborne
+      return playerStrategyRegistry.AirborneStrategy
     }
     return undefined
   }
@@ -161,14 +173,12 @@ class AirborneStrategy implements PlayerFsmStrategy {
     private ecs: ECS,
     private input: Input,
     private helper: PlayerHelper,
-    @inject(delay(() => GroundedStrategy)) private grounded: GroundedStrategy,
-    @inject(delay(() => AttackStrategy)) private attack: AttackStrategy,
+    private playerDataStore: PlayerEntityDataStore,
   ) {}
-  onEnter(_entityId: EntityId, _ctx: PlayerFsmCtx): void {}
-  onExit(): void {}
-  update(entityId: EntityId, ctx: PlayerFsmCtx): (() => PlayerFsmStrategy) | undefined {
-    const hurtNext = this.helper.checkForHurt(entityId)
-    if (hurtNext) return hurtNext
+  onEnter(_entityId: EntityId): void {}
+  onExit(_entityId: EntityId): void {}
+  update(entityId: EntityId): PlayerFsmStrategy | undefined {
+    if (this.helper.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
     // Facing
@@ -176,7 +186,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
     else if (this.input.isDown(Button.RIGHT) && !this.input.isDown(Button.LEFT)) facing.value = Facing.RIGHT
 
     // Count fall
-    ctx.fallTicks += 1
+    const data = assertExists(this.playerDataStore.map.get(entityId))
+    data.fallTicks += 1
 
     // Horizontal air control
     let ax = 0
@@ -195,11 +206,11 @@ class AirborneStrategy implements PlayerFsmStrategy {
     body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
-      return () => this.attack
+      return playerStrategyRegistry.AttackStrategy
     }
     // Landed?
     if (body.touchingDown === true) {
-      return () => this.grounded
+      return playerStrategyRegistry.GroundedStrategy
     }
     return undefined
   }
@@ -211,21 +222,19 @@ class AttackStrategy implements PlayerFsmStrategy {
     private ecs: ECS,
     private input: Input,
     private helper: PlayerHelper,
-    @inject(delay(() => GroundedStrategy)) private grounded: GroundedStrategy,
   ) {}
   // Snapshot crouch decision on enter by DOWN held and current groundedness
-  onEnter(entityId: EntityId, _ctx: PlayerFsmCtx): void {
+  onEnter(entityId: EntityId): void {
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown === true
     new AnimationController<'link'>('link').startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
   }
-  onExit(): void {
+  onExit(_entityId: EntityId): void {
     // ensure return to stand when exiting early
     // handled by next FSM strategy's onEnter
   }
-  update(entityId: EntityId, _ctx: PlayerFsmCtx): (() => PlayerFsmStrategy) | undefined {
-    const hurtNext = this.helper.checkForHurt(entityId)
-    if (hurtNext) return hurtNext
+  update(entityId: EntityId): PlayerFsmStrategy | undefined {
+    if (this.helper.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const anim = assertExists(this.ecs.getComponent(entityId, 'AnimationComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
     const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
@@ -238,7 +247,7 @@ class AttackStrategy implements PlayerFsmStrategy {
     }
     // Transition out when animation ends
     if (!anim.animation.loop && anim.frameIndex >= anim.animation.frames.length - 1) {
-      return () => this.grounded
+      return playerStrategyRegistry.GroundedStrategy
     }
     return undefined
   }
@@ -246,59 +255,56 @@ class AttackStrategy implements PlayerFsmStrategy {
 
 @singleton()
 class HurtStrategy implements PlayerFsmStrategy {
-  private info = new Map<EntityId, { ticks: number; prevHitboxEnabled: boolean }>()
-  constructor(private ecs: ECS, @inject(delay(() => GroundedStrategy)) private grounded: GroundedStrategy) {}
-  recordHit(entityId: EntityId, attackVec2: Vec2) {
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-    // Knockback away from attacker
-    body.velocity[0] = (attackVec2[0]! >= 0 ? HURT_VX : -HURT_VX)
-    body.velocity[1] = JUMP_HURT_VY
-    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-    const prev = hitbox ? (hitbox as HitboxComponent).enabled : true
-    if (hitbox) (hitbox as HitboxComponent).enabled = false
-    this.info.set(entityId, { ticks: HURT_TICKS, prevHitboxEnabled: prev })
-  }
-  onEnter(entityId: EntityId, _ctx: PlayerFsmCtx): void {
+  private info = new Map<EntityId, { ticks: number }>()
+  constructor(private ecs: ECS) {}
+  onEnter(entityId: EntityId): void {
+    // Process combat-hit mail from mailbox
+    const mailbox = assertExists(this.ecs.getComponent(entityId, 'MailboxComponent'))
+    for (const mail of mailbox.eventQueue) {
+      if (mail.type === 'combat-hit') {
+        const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+        // Knockback away from attacker
+        body.velocity[0] = (mail.attackVec2[0]! >= 0 ? HURT_VX : -HURT_VX)
+        body.velocity[1] = JUMP_HURT_VY
+        this.info.set(entityId, { ticks: HURT_TICKS })
+        break // Only process the first combat hit
+      }
+    }
+    mailbox.eventQueue.length = 0
+    
+    // Disable hitbox during hurt state
+    const hitbox = assertExists(this.ecs.getComponent(entityId, 'HitboxComponent'))
+    hitbox.enabled = false
+    
     // Set hurt animation
     const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
     if (anim) new AnimationController<'link'>('link').startAnimation(this.ecs, entityId, 'hurt')
   }
-  onExit(): void {}
-  update(entityId: EntityId, _ctx: PlayerFsmCtx): (() => PlayerFsmStrategy) | undefined {
-    const rec = this.info.get(entityId)
-    if (!rec) return () => this.grounded
+  onExit(entityId: EntityId): void {
+    // Re-enable hitbox when leaving hurt state
+    const hitbox = assertExists(this.ecs.getComponent(entityId, 'HitboxComponent'))
+    hitbox.enabled = true
+    
+    // Clean up map entry
+    this.info.delete(entityId)
+  }
+  update(entityId: EntityId): PlayerFsmStrategy | undefined {
+    const rec = assertExists(this.info.get(entityId))
+    
     rec.ticks -= 1
     if (rec.ticks <= 0) {
-      const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-      if (hitbox && rec) (hitbox as HitboxComponent).enabled = rec.prevHitboxEnabled
-      this.info.delete(entityId)
-      return () => this.grounded
+      // Check ground contact to determine next state
+      const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+      return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
+    
     return undefined
   }
 }
 
-// Constants for hurt
-const HURT_VX = 0.075 * 1000 // 75 px/s
-const JUMP_HURT_VY = -0.200 * 1000 // -200 px/s upward
-const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
-
-@singleton()
-class PlayerHelper {
-  constructor(private ecs: ECS, private canvasLog: CanvasLog, @inject(delay(() => HurtStrategy)) private hurtStrategy: HurtStrategy) {}
-  checkForHurt(entityId: EntityId): (() => PlayerFsmStrategy) | undefined {
-    const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
-    if (!mailbox || mailbox.eventQueue.length === 0) return undefined
-    for (const mail of mailbox.eventQueue) {
-      if (mail.type === 'combat-hit') {
-        const attackerKind = this.ecs.getComponent(mail.attackerId as EntityId, 'AgentKindComponent')?.kind ?? 'Unknown'
-        this.canvasLog.postEphemeral(`Player hurt by ${String(attackerKind)} ${vec2.toString(mail.attackVec2)}`)
-        this.hurtStrategy.recordHit(entityId, mail.attackVec2)
-        mailbox.eventQueue.length = 0
-        return () => this.hurtStrategy
-      }
-    }
-    mailbox.eventQueue.length = 0
-    return undefined
-  }
-}
+const playerStrategyRegistry = {
+  GroundedStrategy: container.resolve(GroundedStrategy),
+  AirborneStrategy: container.resolve(AirborneStrategy),
+  AttackStrategy: container.resolve(AttackStrategy),
+  HurtStrategy: container.resolve(HurtStrategy),
+} as const
