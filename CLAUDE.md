@@ -60,3 +60,4 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - Vite for bundling with SWC for fast compilation
 - ESLint with comprehensive rule sets including import validation
 - Leave a single newline at the end of each file
+- run `pnpm typecheck` when unsure about code correctness, but don't try to build or run the project
