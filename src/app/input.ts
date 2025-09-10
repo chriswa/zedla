@@ -67,4 +67,16 @@ export class Input {
   wasHitThisTick(button: Button) {
     return this.sampledHit.has(button)
   }
+
+  getHorizontalInputDirection(): -1 | 0 | 1 {
+    const leftValue = this.isDown(Button.LEFT) ? -1 : 0
+    const rightValue = this.isDown(Button.RIGHT) ? 1 : 0
+    return (leftValue + rightValue) as -1 | 0 | 1
+  }
+
+  getVerticalInputDirection(): -1 | 0 | 1 {
+    const upValue = 0 // Button.UP not currently defined
+    const downValue = this.isDown(Button.DOWN) ? 1 : 0
+    return (upValue + downValue) as -1 | 0 | 1
+  }
 }

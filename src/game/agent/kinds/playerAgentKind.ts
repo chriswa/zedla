@@ -5,10 +5,11 @@ import { ECS } from '../../ecs/ecs'
 import type { EntityId, EntityComponentMap } from '../../ecs/ecs'
 import type { RoomContext } from '../../roomContext'
 import { Input, Button } from '@/app/input'
-import { Facing } from '@/types/facing'
+import { Facing, directionToFacing } from '@/types/facing'
 import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponent } from '@/game/ecs/components'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
+import { clamp } from '@/util/math'
 import { createCombatMask, CombatBit } from '@/types/combat'
 import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
@@ -16,12 +17,12 @@ import { assertExists } from '@/util/assertExists'
 import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
 
 const MAX_X_SPEED = 0.1 * 1000
-const WALK_ACCEL = 0.00125 * 1_000_000
-const WALK_DECEL = 0.0005 * 1_000_000
-const AIR_ACCEL  = 0.0006 * 1_000_000
-const GRAVITY_Y  = 0.0020 * 1_000_000
+const WALK_ACCEL = (0.00125 * 1_000_000) / 60
+const WALK_DECEL = (0.0005 * 1_000_000) / 60
+const AIR_ACCEL  = (0.0006 * 1_000_000) / 60
+const GRAVITY_Y  = (0.0020 * 1_000_000) / 60
 const JUMP_VY    = -0.300 * 1000
-const JUMP_HOLD_BOOST = 0.00075 * 1_000_000
+const JUMP_HOLD_BOOST = (0.00075 * 1_000_000) / 60
 const RUN_JUMP_BOOST_PER_SPEED = 3.25
 
 const ZERO_THRESHOLD_SPEED = 0.01 * 1000
@@ -127,25 +128,29 @@ class GroundedStrategy implements PlayerFsmStrategy {
     if (this.helper.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
-    // Facing
-    if (this.input.isDown(Button.LEFT) && !this.input.isDown(Button.RIGHT)) facing.value = Facing.LEFT
-    else if (this.input.isDown(Button.RIGHT) && !this.input.isDown(Button.LEFT)) facing.value = Facing.RIGHT
+    // Facing and horizontal movement
+    const inputDirection = this.input.getHorizontalInputDirection()
+    const inputFacing = directionToFacing(inputDirection)
+    if (inputFacing) facing.value = inputFacing
 
-    // Horizontal
-    let ax = 0
-    if (this.input.isDown(Button.LEFT) && !this.input.isDown(Button.RIGHT)) ax = -WALK_ACCEL
-    else if (this.input.isDown(Button.RIGHT) && !this.input.isDown(Button.LEFT)) ax = WALK_ACCEL
-    else {
-      if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) body.velocity[0] = 0
-      else ax = -WALK_DECEL * Math.sign(body.velocity[0]!)
+    // Create acceleration vector starting with gravity
+    const acceleration = vec2.create(0, GRAVITY_Y)
+    
+    // Apply horizontal acceleration based on input
+    if (inputDirection !== 0) {
+      acceleration[0] = inputDirection * WALK_ACCEL
+    } else {
+      if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
+        body.velocity[0] = 0
+        acceleration[0] = 0
+      } else {
+        acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
+      }
     }
-    // Vertical accel (gravity minimal since grounded; keep GRAVITY_Y to hug ground)
-    let ay = GRAVITY_Y
-
-    // Integrate
-    body.velocity[0]! += ax / 60
-    body.velocity[1]! += ay / 60
-    body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
+    
+    // Apply acceleration and clamp velocity
+    body.velocity = vec2.add(body.velocity, acceleration)
+    body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
 
     // Jump
     const data = assertExists(this.playerDataStore.map.get(entityId))
@@ -181,29 +186,30 @@ class AirborneStrategy implements PlayerFsmStrategy {
     if (this.helper.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
-    // Facing
-    if (this.input.isDown(Button.LEFT) && !this.input.isDown(Button.RIGHT)) facing.value = Facing.LEFT
-    else if (this.input.isDown(Button.RIGHT) && !this.input.isDown(Button.LEFT)) facing.value = Facing.RIGHT
+    // Facing and horizontal air control
+    const inputDirection = this.input.getHorizontalInputDirection()
+    const inputFacing = directionToFacing(inputDirection)
+    if (inputFacing) facing.value = inputFacing
 
     // Count fall
     const data = assertExists(this.playerDataStore.map.get(entityId))
     data.fallTicks += 1
 
-    // Horizontal air control
-    let ax = 0
-    if (this.input.isDown(Button.LEFT) && !this.input.isDown(Button.RIGHT)) ax = -AIR_ACCEL
-    else if (this.input.isDown(Button.RIGHT) && !this.input.isDown(Button.LEFT)) ax = AIR_ACCEL
+    // Create acceleration vector starting with gravity
+    const acceleration = vec2.create(
+      inputDirection * AIR_ACCEL,
+      GRAVITY_Y
+    )
 
-    // Vertical accel (gravity + jump modifiers)
-    let ay = GRAVITY_Y
+    // Apply jump modifiers to vertical acceleration
     if (body.velocity[1]! < 0) {
-      ay -= RUN_JUMP_BOOST_PER_SPEED * Math.abs(body.velocity[0]!)
-      if (this.input.isDown(Button.JUMP)) ay -= JUMP_HOLD_BOOST
+      acceleration[1]! -= RUN_JUMP_BOOST_PER_SPEED * Math.abs(body.velocity[0]!)
+      if (this.input.isDown(Button.JUMP)) acceleration[1]! -= JUMP_HOLD_BOOST
     }
 
-    body.velocity[0]! += ax / 60
-    body.velocity[1]! += ay / 60
-    body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
+    // Apply acceleration and clamp velocity
+    body.velocity = vec2.add(body.velocity, acceleration)
+    body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
