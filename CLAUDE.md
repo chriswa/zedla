@@ -34,6 +34,17 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - **Strategy Pattern**: GameStrategy base class for different game modes
 - **Container Scoping**: Child containers for room-specific dependencies using `RoomDefToken`
 
+### Additional Style Notes
+
+- prefer descriptive over concise names.
+- When proposing new approaches, always check if similar patterns exist in the codebase first
+- Prefer extending or replacing existing patterns over introducing new ones
+- Prioritize readability and separation of concerns over strict DRYness
+- Accept some code duplication if it makes the intent clearer
+- Prefer single source of truth - derive secondary values rather than duplicating logic
+- prefer DRYness, but readability and separation of concerns over strict DRYness
+- prefer explicit naming that makes the source and purpose clear.
+
 ### Module Organization
 
 - `src/app/` - Application bootstrap and input handling
@@ -41,7 +52,6 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - `src/util/` - Utility functions, FSM, type helpers, assertions
 - `src/types/` - Type definitions for game resources
 - `src/resources/` - Game asset definitions (tilesets, animations, image slices)
-- `src/gfx/` - Graphics and image loading systems
 
 ### Development Notes
 
@@ -49,3 +59,4 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - TypeScript strict mode enabled
 - Vite for bundling with SWC for fast compilation
 - ESLint with comprehensive rule sets including import validation
+- Leave a single newline at the end of each file
