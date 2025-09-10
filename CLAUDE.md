@@ -4,12 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `npm run dev` - Start development server with Vite
-- `npm run build` - Build for production (runs TypeScript compilation then Vite build)
 - `npm run typecheck` - Type check without emitting files (`tsc --noEmit`)
 - `npm run lint` - Run ESLint on codebase
 - `npm run lint:fix` - Run ESLint with auto-fix
-- `npm run format` - Format code with Prettier
 
 ## Architecture Overview
 
