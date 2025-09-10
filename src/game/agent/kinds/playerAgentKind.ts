@@ -107,7 +107,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   }
 }
 
-// ------------------ Strategys ------------------
+// ------------------ Strategies ------------------
 
 @singleton()
 class GroundedStrategy implements PlayerFsmStrategy {
