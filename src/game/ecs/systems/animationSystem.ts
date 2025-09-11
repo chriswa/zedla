@@ -27,6 +27,10 @@ export class AnimationSystem implements ITickingSystem, Disposable {
           else if (animationComponent.animation.loop) {
             animationComponent.frameIndex = 0
           }
+          else {
+            // Non-looping animation has reached the end
+            animationComponent.hasCompleted = true
+          }
           const frameKey = animationComponent.animation.frames[animationComponent.frameIndex]!.spriteFrame
           spriteComponent.spriteFrameDef = spriteFrameDefs[frameKey]
         }

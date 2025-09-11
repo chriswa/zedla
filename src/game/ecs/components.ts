@@ -42,6 +42,7 @@ export class FacingComponent {
 export class AnimationComponent {
   public frameIndex = 0
   public ticksElapsedThisFrame = 0
+  public hasCompleted = false
   constructor(
     public character: typeof animationDefs[keyof typeof animationDefs],
     public animation: AnimationDef,

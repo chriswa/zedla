@@ -52,7 +52,7 @@ type PlayerFsmStrategy = DirectFSMStrategy<EntityId>
 
 // Constants for hurt
 const HURT_VX = 0.075 * 1000 // 75 px/s
-const JUMP_HURT_VY = -0.200 * 1000 // -200 px/s upward
+const HURT_VY = -0.200 * 1000 // -200 px/s upward
 const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
 
 @singleton()
@@ -124,6 +124,15 @@ class GroundedStrategy implements PlayerFsmStrategy {
     // reset coyote timer on solid ground
     const data = assertExists(this.playerDataStore.map.get(entityId))
     data.fallTicks = 0
+    
+    // Preserve the end of attack animation if we're transitioning from AttackStrategy
+    const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
+    if (anim) {
+      const curFrame = anim.animation.frames[anim.frameIndex]!
+      if (!hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
+        this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
+      }
+    }
   }
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
@@ -182,7 +191,16 @@ class AirborneStrategy implements PlayerFsmStrategy {
     private playerUtilities: PlayerUtilities,
     private playerDataStore: PlayerEntityDataStore,
   ) {}
-  onEnter(_entityId: EntityId): void {}
+  onEnter(entityId: EntityId): void {
+    // Preserve the end of attack animation if we're transitioning from AttackStrategy
+    const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
+    if (anim) {
+      const curFrame = anim.animation.frames[anim.frameIndex]!
+      if (!hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
+        this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'jump')
+      }
+    }
+  }
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
@@ -216,8 +234,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
     }
-    // Landed?
-    if (body.touchingDown === true) {
+    // Landed? Only transition to grounded if we're moving downward (or stopped vertically)
+    if (body.touchingDown === true && body.velocity[1]! >= 0) {
       return playerStrategyRegistry.GroundedStrategy
     }
     return undefined
@@ -246,6 +264,13 @@ class AttackStrategy implements PlayerFsmStrategy {
     const anim = assertExists(this.ecs.getComponent(entityId, 'AnimationComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
     const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
+    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    
+    // Stop horizontal movement during attack (unless airborne)
+    if (body.touchingDown) {
+      body.velocity[0] = 0
+    }
+    
     // Enable sword per frame bits and set rect per facing
     const curFrame = anim.animation.frames[anim.frameIndex]!
     const active = hasFrameFlag(curFrame.flags, AnimationFrameFlag.SwordSwing)
@@ -253,9 +278,9 @@ class AttackStrategy implements PlayerFsmStrategy {
     if (active) {
       hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_LEFT : SWORD_HURTBOX_RIGHT
     }
-    // Transition out when animation ends
-    if (!anim.animation.loop && anim.frameIndex >= anim.animation.frames.length - 1) {
-      return playerStrategyRegistry.GroundedStrategy
+    // Transition out when animation can be interrupted or is complete
+    if (anim.hasCompleted || hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
+      return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
     return undefined
   }
@@ -274,9 +299,10 @@ class HurtStrategy implements PlayerFsmStrategy {
     for (const mail of mailbox.eventQueue) {
       if (mail.type === 'combat-hit') {
         const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-        // Knockback away from attacker
-        body.velocity[0] = (mail.attackVec2[0]! >= 0 ? HURT_VX : -HURT_VX)
-        body.velocity[1] = JUMP_HURT_VY
+        const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+        // Knockback opposite to player's facing direction
+        body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_VX : HURT_VX
+        body.velocity[1] = HURT_VY
         this.info.set(entityId, { ticks: HURT_TICKS })
         break // Only process the first combat hit
       }

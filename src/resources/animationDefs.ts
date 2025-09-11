@@ -433,19 +433,21 @@ export const animationDefs = {
         {
           spriteFrame: "link_attack_0",
           duration: 30,
+          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         },
         {
           spriteFrame: "link_stand_0",
-          duration: 999,
+          duration: 0,
+          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         }
       ]
     },
     "collect": {
-      loop: true,
+      loop: false,
       frames: [
         {
           spriteFrame: "link_collect_0",
-          duration: 9999,
+          duration: 0,
         }
       ]
     },
@@ -454,7 +456,7 @@ export const animationDefs = {
       frames: [
         {
           spriteFrame: "link_crouch_0",
-          duration: 9999,
+          duration: 0,
         }
       ]
     },
@@ -472,7 +474,8 @@ export const animationDefs = {
         },
         {
           spriteFrame: "link_crouch_0",
-          duration: 9999,
+          duration: 0,
+          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         }
       ]
     },
@@ -481,7 +484,7 @@ export const animationDefs = {
       frames: [
         {
           spriteFrame: "link_hurt_0",
-          duration: 9999,
+          duration: 0,
         }
       ]
     },
@@ -494,16 +497,16 @@ export const animationDefs = {
         },
         {
           spriteFrame: "link_stand_0",
-          duration: 9999,
+          duration: 0,
         }
       ]
     },
     "stand": {
-      loop: true,
+      loop: false,
       frames: [
         {
           spriteFrame: "link_stand_0",
-          duration: 9999,
+          duration: 0,
         }
       ]
     },

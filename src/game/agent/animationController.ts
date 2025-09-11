@@ -30,6 +30,7 @@ export class AnimationController<K extends CharacterKey> {
     const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
     animationComponent.frameIndex = 0
     animationComponent.ticksElapsedThisFrame = 0
+    animationComponent.hasCompleted = false
     animationComponent.animation = this.cachedAnimationDefMap[animationName]
 
     const firstFrameKey = animationComponent.animation.frames[0]!.spriteFrame

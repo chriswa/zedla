@@ -5,6 +5,7 @@ export enum AnimationFrameFlag {
   CameraShake = 1 << 1,
   IFrames = 1 << 2,
   Footstep = 1 << 3,
+  CanInterrupt = 1 << 4,
 }
 
 export type AnimationFrameBits = Brand<number, 'AnimationFrameBits'>
