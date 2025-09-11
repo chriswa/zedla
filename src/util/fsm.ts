@@ -54,7 +54,7 @@ export class DirectFSM<TStrategy extends DirectFSMStrategy<TContext>, TContext> 
       
       transitions += 1
       // eslint-disable-next-line no-console
-      console.log(`[DirectFSM] ${transitions}: ${prevName} -> ${nextName}`)
+      // console.log(`[DirectFSM] ${transitions}: ${prevName} -> ${nextName}`)
       if (transitions > maxTransitions) {
         throw new Error(`DirectFSM exceeded max transitions: ${prevName} -> ${nextName}`)
       }

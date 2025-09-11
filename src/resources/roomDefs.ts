@@ -59,7 +59,7 @@ export const roomDefs = {
     //   { "area": "intro1_down", "hitbox": { "x1": 512, "y1": 448, "x2": 704, "y2": 480 } }
     // ],
     spawns: [
-      { kind: 'Foo', position: vec2.create(150, 100), spawnData: { health: 100, speed: 50 } },
+      { kind: 'Foo', position: vec2.create(100, 100), spawnData: { health: 100, speed: 50 } },
       { kind: 'Bar', position: vec2.create(200, 150), spawnData: { name: 'Guard', patrolDistance: 64 } },
     ],
   },

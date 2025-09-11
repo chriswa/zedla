@@ -16,21 +16,28 @@ import { assertExists } from '@/util/assertExists'
 import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
 import { CanvasLog } from '@/dev/canvasLog'
 
-function setAcceleration(body: PhysicsBodyComponent, acceleration: Vec2): void {
-  body.acceleration[0] = acceleration[0]!
-  body.acceleration[1] = acceleration[1]!
-}
-
 // Physics constants
 const GRAVITY = 0.00400
 const WALK_ACCEL = 0.00250
 const WALK_DECEL = 0.00100
 const AIR_ACCEL = 0.00120
+const MAX_X_SPEED = 0.20000
 const JUMP_IMPULSE = 0.60000
 const JUMP_HOLD_BOOST = 0.00150
-const JUMP_X_BOOST = 0.00065 / (0.20000 - AIR_ACCEL * 1000/60)
+const JUMP_X_BOOST = 0.00065 / (MAX_X_SPEED - AIR_ACCEL * 1000/60)
 const HURT_IMPULSE_X = 0.15000
 const HURT_IMPULSE_Y = 0.40000
+
+function applyAccelerationToVelocity(body: PhysicsBodyComponent, acceleration: Vec2): void {
+  const dt = 1000 / 60
+  
+  // Update velocity from acceleration
+  body.velocity[0]! += acceleration[0]! * dt
+  body.velocity[1]! += acceleration[1]! * dt
+  
+  // Clamp horizontal velocity to max speed
+  body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
+}
 
 const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
 
@@ -148,20 +155,41 @@ class GroundedStrategy implements PlayerFsmStrategy {
     const inputFacing = directionToFacing(inputDirection)
     if (inputFacing) facing.value = inputFacing
 
-    // Apply horizontal acceleration based on input
-    const acceleration = vec2.clone(GRAVITY_VEC2)
-    if (inputDirection !== 0) {
-      acceleration[0] = inputDirection * WALK_ACCEL
-    } else {
+    // Check for crouching first
+    const isCrouching = this.input.isDown(Button.DOWN)
+    if (isCrouching) {
+      // Crouching: decelerate and play crouch animation
+      const acceleration = vec2.clone(GRAVITY_VEC2)
       if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
         body.velocity[0] = 0
         acceleration[0] = 0
       } else {
         acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
       }
+      applyAccelerationToVelocity(body, acceleration)
+      this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'crouch')
+    } else {
+      // Not crouching: normal movement and animations
+      const acceleration = vec2.clone(GRAVITY_VEC2)
+      if (inputDirection !== 0) {
+        acceleration[0] = inputDirection * WALK_ACCEL
+        applyAccelerationToVelocity(body, acceleration)
+        this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'walk')
+      } else {
+        if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
+          body.velocity[0] = 0
+          acceleration[0] = 0
+        } else {
+          acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
+        }
+        applyAccelerationToVelocity(body, acceleration)
+        
+        // Play stand animation if velocity is low (like legacy)
+        if (Math.abs(body.velocity[0]!) < 0.5) {
+          this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
+        }
+      }
     }
-    
-    setAcceleration(body, acceleration)
 
     // Jump
     const data = assertExists(this.playerDataStore.map.get(entityId))
@@ -223,7 +251,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
       if (this.input.isDown(Button.JUMP)) acceleration[1]! -= JUMP_HOLD_BOOST
     }
 
-    setAcceleration(body, acceleration)
+    applyAccelerationToVelocity(body, acceleration)
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
@@ -265,7 +293,7 @@ class AttackStrategy implements PlayerFsmStrategy {
     }
     
     // Apply gravity (attacks can happen in air)
-    setAcceleration(body, GRAVITY_VEC2)
+    applyAccelerationToVelocity(body, GRAVITY_VEC2)
     
     // Enable sword per frame bits and set rect per facing
     const active = this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
@@ -325,7 +353,7 @@ class HurtStrategy implements PlayerFsmStrategy {
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     
     // Apply gravity during hurt state
-    setAcceleration(body, GRAVITY_VEC2)
+    applyAccelerationToVelocity(body, GRAVITY_VEC2)
     
     rec.ticks -= 1
     if (rec.ticks <= 0) {

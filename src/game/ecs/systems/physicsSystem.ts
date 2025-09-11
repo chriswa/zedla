@@ -33,17 +33,8 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         
         if (physicsBodyComponent !== undefined) {
           
+          // Calculate desired movement from velocity
           const dt = 1000 / 60
-          
-          // Step 1: Update velocity from acceleration
-          physicsBodyComponent.velocity[0]! += physicsBodyComponent.acceleration[0]! * dt
-          physicsBodyComponent.velocity[1]! += physicsBodyComponent.acceleration[1]! * dt
-          
-          // Clamp horizontal velocity to max speed
-          const maxSpeed = 0.20000
-          physicsBodyComponent.velocity[0] = Math.max(-maxSpeed, Math.min(maxSpeed, physicsBodyComponent.velocity[0]!))
-          
-          // Step 2: Calculate position change from velocity
           const deltaX = physicsBodyComponent.velocity[0]! * dt * 0.5  // Halve for pixel scale
           const deltaY = physicsBodyComponent.velocity[1]! * dt * 0.5  // Halve for pixel scale
           
