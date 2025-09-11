@@ -25,7 +25,7 @@ function setAcceleration(body: PhysicsBodyComponent, acceleration: Vec2): void {
 const GRAVITY = 0.00400
 const JUMP_IMPULSE = 0.60000
 const JUMP_HOLD_BOOST = 0.00150
-const JUMP_X_BOOST = 0.00065
+const JUMP_X_BOOST = 0.00065 / 0.20000  // Legacy divided by MAX_X_SPEED
 const WALK_ACCEL = 0.00250
 const WALK_DECEL = 0.00100
 const AIR_ACCEL = 0.00120
@@ -297,7 +297,7 @@ class HurtStrategy implements PlayerFsmStrategy {
         const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
         // Knockback opposite to player's facing direction
         body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_IMPULSE_X : HURT_IMPULSE_X
-        body.velocity[1] = HURT_IMPULSE_Y
+        body.velocity[1] = -HURT_IMPULSE_Y
         this.info.set(entityId, { ticks: HURT_TICKS })
         break // Only process the first combat hit
       }
