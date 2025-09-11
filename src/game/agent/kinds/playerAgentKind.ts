@@ -47,9 +47,13 @@ const ZERO_THRESHOLD_SPEED = 0.01 * 1000
 const JUMP_GRACE_TICKS = 3
 
 // Sword hurtbox rectangles (local to player origin); centered base shifted left/right
-const SWORD_HURTBOX_BASE = rect.createCentred(0, -21, 18, 4)
-const SWORD_HURTBOX_RIGHT = rect.add(SWORD_HURTBOX_BASE, vec2.create(15, 0))
-const SWORD_HURTBOX_LEFT  = rect.add(SWORD_HURTBOX_BASE, vec2.create(-15, 0))
+const SWORD_HURTBOX_STANDING_BASE = rect.createCentred(0, -21, 18, 4)
+const SWORD_HURTBOX_STANDING_RIGHT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(15, 0))
+const SWORD_HURTBOX_STANDING_LEFT  = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(-15, 0))
+
+const SWORD_CROUCH_OFFSET_Y = 13
+const SWORD_HURTBOX_CROUCHING_RIGHT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(15, SWORD_CROUCH_OFFSET_Y))
+const SWORD_HURTBOX_CROUCHING_LEFT  = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(-15, SWORD_CROUCH_OFFSET_Y))
 
 interface PlayerSpawnData {
 }
@@ -100,7 +104,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
-    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
+    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_STANDING_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
 
     // Initialize player data
     this.playerDataStore.map.set(entityId, { fallTicks: 9999 })
@@ -140,10 +144,8 @@ class GroundedStrategy implements PlayerFsmStrategy {
     const data = assertExists(this.playerDataStore.map.get(entityId))
     data.fallTicks = 0
     
-    // Preserve the end of attack animation if we're transitioning from AttackStrategy
-    if (!this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
-      this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
-    }
+    // Start with stand animation when entering grounded state
+    this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'stand')
   }
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
@@ -155,6 +157,8 @@ class GroundedStrategy implements PlayerFsmStrategy {
     const inputFacing = directionToFacing(inputDirection)
     if (inputFacing) facing.value = inputFacing
 
+    // No animation preservation - just use simple logic like legacy code
+    
     // Check for crouching first
     const isCrouching = this.input.isDown(Button.DOWN)
     if (isCrouching) {
@@ -186,7 +190,7 @@ class GroundedStrategy implements PlayerFsmStrategy {
         
         // Play stand animation if velocity is low (like legacy)
         if (Math.abs(body.velocity[0]!) < 0.5) {
-          this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
+          this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'stand')
         }
       }
     }
@@ -220,10 +224,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
     private playerDataStore: PlayerEntityDataStore,
   ) {}
   onEnter(entityId: EntityId): void {
-    // Preserve the end of attack animation if we're transitioning from AttackStrategy
-    if (!this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
-      this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'jump')
-    }
+    // Start with jump animation when entering airborne state
+    this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'jump')
   }
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
@@ -266,6 +268,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
 
 @singleton()
 class AttackStrategy implements PlayerFsmStrategy {
+  private attackData = new Map<EntityId, { isCrouching: boolean, startedAirborne: boolean }>()
+  
   constructor(
     private ecs: ECS,
     private input: Input,
@@ -275,11 +279,20 @@ class AttackStrategy implements PlayerFsmStrategy {
   onEnter(entityId: EntityId): void {
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown === true
+    const startedAirborne = !body.touchingDown
+    
+    // Store attack data for this entity
+    this.attackData.set(entityId, { isCrouching, startedAirborne })
+    
     this.playerUtilities.animationController.startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
   }
-  onExit(_entityId: EntityId): void {
-    // ensure return to stand when exiting early
-    // handled by next FSM strategy's onEnter
+  onExit(entityId: EntityId): void {
+    // Disable hurtbox when leaving attack state
+    const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
+    hurtBox.enabled = false
+    
+    // Clean up attack data
+    this.attackData.delete(entityId)
   }
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
@@ -297,12 +310,23 @@ class AttackStrategy implements PlayerFsmStrategy {
     
     // Enable sword per frame bits and set rect per facing
     const active = this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
+    const attackData = assertExists(this.attackData.get(entityId))
+    
     hurtBox.enabled = active
     if (active) {
-      hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_LEFT : SWORD_HURTBOX_RIGHT
+      if (attackData.isCrouching) {
+        hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_CROUCHING_LEFT : SWORD_HURTBOX_CROUCHING_RIGHT
+      } else {
+        hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_STANDING_LEFT : SWORD_HURTBOX_STANDING_RIGHT
+      }
     }
-    // Transition out when animation can be interrupted or is complete
-    if (this.playerUtilities.animationController.isCompleted(this.ecs, entityId) || this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
+    // Check if we just landed (was airborne attack, now touching ground)
+    const justLanded = attackData.startedAirborne && body.touchingDown && body.velocity[1]! >= 0
+    
+    // Transition out when animation can be interrupted, is complete, or just landed
+    if (this.playerUtilities.animationController.isCompleted(this.ecs, entityId) || 
+        this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt) ||
+        justLanded) {
       return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
     return undefined

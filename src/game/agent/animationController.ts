@@ -55,4 +55,5 @@ export class AnimationController<K extends CharacterKey> {
     const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
     return animationComponent.hasCompleted
   }
+
 }

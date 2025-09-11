@@ -15,14 +15,14 @@ const keyboardEventCodeToButton: Record<string, Button> = {
   [KeyCode.CODE_DOWN]: Button.DOWN,
   [KeyCode.CODE_LEFT]: Button.LEFT,
   [KeyCode.CODE_RIGHT]: Button.RIGHT,
-  [KeyCode.CODE_Z]: Button.JUMP,
-  [KeyCode.CODE_X]: Button.ATTACK,
+  [KeyCode.CODE_Z]: Button.ATTACK,
+  [KeyCode.CODE_X]: Button.JUMP,
 
   [KeyCode.CODE_A]: Button.LEFT,
   [KeyCode.CODE_D]: Button.RIGHT,
   [KeyCode.CODE_S]: Button.DOWN,
   [KeyCode.CODE_SLASH]: Button.JUMP,
-  [KeyCode.CODE_QUOTE]: Button.ATTACK,
+  [KeyCode.CODE_PERIOD]: Button.ATTACK,
 }
 
 @singleton()
