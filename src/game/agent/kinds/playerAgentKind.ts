@@ -23,12 +23,12 @@ function setAcceleration(body: PhysicsBodyComponent, acceleration: Vec2): void {
 
 // Physics constants
 const GRAVITY = 0.00400
-const JUMP_IMPULSE = 0.60000
-const JUMP_HOLD_BOOST = 0.00150
-const JUMP_X_BOOST = 0.00065 / 0.20000  // Legacy divided by MAX_X_SPEED
 const WALK_ACCEL = 0.00250
 const WALK_DECEL = 0.00100
 const AIR_ACCEL = 0.00120
+const JUMP_IMPULSE = 0.60000
+const JUMP_HOLD_BOOST = 0.00150
+const JUMP_X_BOOST = 0.00065 / (0.20000 - AIR_ACCEL * 1000/60)
 const HURT_IMPULSE_X = 0.15000
 const HURT_IMPULSE_Y = 0.40000
 
