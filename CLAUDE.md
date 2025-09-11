@@ -41,6 +41,7 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - Prefer single source of truth - derive secondary values rather than duplicating logic
 - prefer DRYness, but readability and separation of concerns over strict DRYness
 - prefer explicit naming that makes the source and purpose clear.
+- don't add unnecessary comments. readable code is self-documenting. comments are helpful when document surprises
 
 ### Module Organization
 

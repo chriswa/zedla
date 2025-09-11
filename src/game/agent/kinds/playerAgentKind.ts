@@ -8,22 +8,53 @@ import { Input, Button } from '@/app/input'
 import { Facing, directionToFacing } from '@/types/facing'
 import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponent } from '@/game/ecs/components'
 import { rect } from '@/math/rect'
-import { vec2 } from '@/math/vec2'
+import { vec2, type Vec2 } from '@/math/vec2'
 import { clamp } from '@/util/math'
 import { createCombatMask, CombatBit } from '@/types/combat'
 import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
 import { assertExists } from '@/util/assertExists'
 import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
+import { CanvasLog } from '@/dev/canvasLog'
 
-const MAX_X_SPEED = 0.1 * 1000
-const WALK_ACCEL = (0.00125 * 1_000_000) / 60
-const WALK_DECEL = (0.0005 * 1_000_000) / 60
-const AIR_ACCEL  = (0.0006 * 1_000_000) / 60
-const GRAVITY_Y  = (0.0020 * 1_000_000) / 60
-const JUMP_VY    = -0.300 * 1000
-const JUMP_HOLD_BOOST = (0.00075 * 1_000_000) / 60
-const RUN_JUMP_BOOST_PER_SPEED = 3.25
+function applyPhysicsIntegration(body: PhysicsBodyComponent, acceleration: Vec2): void {
+  // const dt = 1/60
+  
+  // Add the position term as extra velocity for immediate response
+  // body.velocity[0]! += 0.5 * acceleration[0]! * dt * dt
+  // body.velocity[1]! += 0.5 * acceleration[1]! * dt * dt
+
+  body.velocity[0]! += acceleration[0]!
+  body.velocity[1]! += acceleration[1]!
+  
+  // Clamp horizontal velocity to max speed
+  body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
+}
+
+const FACTOR_X = 1_000_000
+
+const GRAVITY = 0.00400 * FACTOR_X
+const JUMP_IMPULSE = 0.60000 * FACTOR_X
+const JUMP_HOLD_BOOST = 0.00150 * FACTOR_X
+const JUMP_X_BOOST = 0.00065 * FACTOR_X
+const WALK_ACCEL = 0.00250 * FACTOR_X
+const WALK_DECEL = 0.00100 * FACTOR_X
+const AIR_ACCEL = 0.00120 * FACTOR_X
+const MAX_X_SPEED = 0.20000 * FACTOR_X
+const HURT_IMPULSE_X = 0.15000 * FACTOR_X
+const HURT_IMPULSE_Y = 0.40000 * FACTOR_X
+const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
+
+const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
+
+
+// const MAX_X_SPEED = 0.1 * 1000
+// const WALK_ACCEL = (0.00125 * 1_000_000) / 60
+// const WALK_DECEL = (0.0005 * 1_000_000) / 60
+// const AIR_ACCEL  = (0.0006 * 1_000_000) / 60
+// const JUMP_VY    = -0.300 * 1000
+// const JUMP_HOLD_BOOST = (0.00075 * 1_000_000) / 60
+// const RUN_JUMP_BOOST_PER_SPEED = 3.25 / 60
 
 const ZERO_THRESHOLD_SPEED = 0.01 * 1000
 const JUMP_GRACE_TICKS = 3
@@ -47,13 +78,6 @@ class PlayerEntityDataStore {
 
 
 type PlayerFsmStrategy = DirectFSMStrategy<EntityId>
-
-// Strategy registry will be populated after class definitions
-
-// Constants for hurt
-const HURT_VX = 0.075 * 1000 // 75 px/s
-const HURT_VY = -0.200 * 1000 // -200 px/s upward
-const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
 
 @singleton()
 class PlayerUtilities {
@@ -80,6 +104,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     private ecs: ECS,
     private playerDataStore: PlayerEntityDataStore,
     private playerUtilities: PlayerUtilities,
+    private canvasLog: CanvasLog,
   ) {}
   private fsmByEntityId = new Map<EntityId, DirectFSM<PlayerFsmStrategy, EntityId>>()
 
@@ -102,6 +127,9 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   tick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
     const fsm = assertExists(this.fsmByEntityId.get(entityId))
     fsm.processTransitions(entityId)
+
+    const physics = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    this.canvasLog.upsertPermanent('playerPhysics', `p.v = ${vec2.toString(physics.velocity)}`, 3)
   }
 
   onDestroy(entityId: EntityId): void {
@@ -126,12 +154,8 @@ class GroundedStrategy implements PlayerFsmStrategy {
     data.fallTicks = 0
     
     // Preserve the end of attack animation if we're transitioning from AttackStrategy
-    const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
-    if (anim) {
-      const curFrame = anim.animation.frames[anim.frameIndex]!
-      if (!hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
-        this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
-      }
+    if (!this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
+      this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'stand')
     }
   }
   onExit(_entityId: EntityId): void {}
@@ -144,10 +168,8 @@ class GroundedStrategy implements PlayerFsmStrategy {
     const inputFacing = directionToFacing(inputDirection)
     if (inputFacing) facing.value = inputFacing
 
-    // Create acceleration vector starting with gravity
-    const acceleration = vec2.create(0, GRAVITY_Y)
-    
     // Apply horizontal acceleration based on input
+    const acceleration = vec2.clone(GRAVITY_VEC2)
     if (inputDirection !== 0) {
       acceleration[0] = inputDirection * WALK_ACCEL
     } else {
@@ -159,14 +181,12 @@ class GroundedStrategy implements PlayerFsmStrategy {
       }
     }
     
-    // Apply acceleration and clamp velocity
-    body.velocity = vec2.add(body.velocity, acceleration)
-    body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
+    applyPhysicsIntegration(body, acceleration)
 
     // Jump
     const data = assertExists(this.playerDataStore.map.get(entityId))
     if (this.input.wasHitThisTick(Button.JUMP) && data.fallTicks < JUMP_GRACE_TICKS) {
-      body.velocity[1] = JUMP_VY
+      body.velocity[1] = JUMP_IMPULSE
       data.fallTicks = 9999
       return playerStrategyRegistry.AirborneStrategy
     }
@@ -193,12 +213,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
   ) {}
   onEnter(entityId: EntityId): void {
     // Preserve the end of attack animation if we're transitioning from AttackStrategy
-    const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
-    if (anim) {
-      const curFrame = anim.animation.frames[anim.frameIndex]!
-      if (!hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
-        this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'jump')
-      }
+    if (!this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
+      this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'jump')
     }
   }
   onExit(_entityId: EntityId): void {}
@@ -218,18 +234,16 @@ class AirborneStrategy implements PlayerFsmStrategy {
     // Create acceleration vector starting with gravity
     const acceleration = vec2.create(
       inputDirection * AIR_ACCEL,
-      GRAVITY_Y
+      GRAVITY
     )
 
     // Apply jump modifiers to vertical acceleration
     if (body.velocity[1]! < 0) {
-      acceleration[1]! -= RUN_JUMP_BOOST_PER_SPEED * Math.abs(body.velocity[0]!)
+      acceleration[1]! -= JUMP_X_BOOST * Math.abs(body.velocity[0]!)
       if (this.input.isDown(Button.JUMP)) acceleration[1]! -= JUMP_HOLD_BOOST
     }
 
-    // Apply acceleration and clamp velocity
-    body.velocity = vec2.add(body.velocity, acceleration)
-    body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
+    applyPhysicsIntegration(body, acceleration)
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
@@ -261,25 +275,26 @@ class AttackStrategy implements PlayerFsmStrategy {
   }
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
-    const anim = assertExists(this.ecs.getComponent(entityId, 'AnimationComponent'))
     const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
     const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     
-    // Stop horizontal movement during attack (unless airborne)
+    // Stop horizontal movement during attack only when grounded
     if (body.touchingDown) {
       body.velocity[0] = 0
     }
     
+    // Apply gravity (attacks can happen in air)
+    applyPhysicsIntegration(body, GRAVITY_VEC2)
+    
     // Enable sword per frame bits and set rect per facing
-    const curFrame = anim.animation.frames[anim.frameIndex]!
-    const active = hasFrameFlag(curFrame.flags, AnimationFrameFlag.SwordSwing)
+    const active = this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
     hurtBox.enabled = active
     if (active) {
       hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_LEFT : SWORD_HURTBOX_RIGHT
     }
     // Transition out when animation can be interrupted or is complete
-    if (anim.hasCompleted || hasFrameFlag(curFrame.flags, AnimationFrameFlag.CanInterrupt)) {
+    if (this.playerUtilities.animationController.isCompleted(this.ecs, entityId) || this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt)) {
       return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
     return undefined
@@ -301,8 +316,8 @@ class HurtStrategy implements PlayerFsmStrategy {
         const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
         const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
         // Knockback opposite to player's facing direction
-        body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_VX : HURT_VX
-        body.velocity[1] = HURT_VY
+        body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_IMPULSE_X : HURT_IMPULSE_X
+        body.velocity[1] = HURT_IMPULSE_Y
         this.info.set(entityId, { ticks: HURT_TICKS })
         break // Only process the first combat hit
       }
@@ -327,11 +342,14 @@ class HurtStrategy implements PlayerFsmStrategy {
   }
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     const rec = assertExists(this.info.get(entityId))
+    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    
+    // Apply gravity during hurt state
+    applyPhysicsIntegration(body, GRAVITY_VEC2)
     
     rec.ticks -= 1
     if (rec.ticks <= 0) {
       // Check ground contact to determine next state
-      const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
       return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
     

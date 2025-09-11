@@ -5,6 +5,7 @@ import { ECS } from "../ecs/ecs";
 import type { EntityId } from "../ecs/ecs";
 import type { AnimationDef } from "@/types/animationDef";
 import { assertExists } from "@/util/assertExists";
+import { hasFrameFlag, type AnimationFrameFlag } from "@/types/animationFlags";
 
 type CharacterKey = keyof typeof animationDefs
 type AnimationName<K extends CharacterKey> = keyof typeof animationDefs[K]
@@ -42,5 +43,16 @@ export class AnimationController<K extends CharacterKey> {
     if (animationComponent.animation !== this.cachedAnimationDefMap[animationName]) {
       this.startAnimation(ecs, entityId, animationName)
     }
+  }
+
+  hasCurrentFrameFlag(ecs: ECS, entityId: EntityId, flag: AnimationFrameFlag): boolean {
+    const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
+    const curFrame = animationComponent.animation.frames[animationComponent.frameIndex]!
+    return hasFrameFlag(curFrame.flags, flag)
+  }
+
+  isCompleted(ecs: ECS, entityId: EntityId): boolean {
+    const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
+    return animationComponent.hasCompleted
   }
 }
