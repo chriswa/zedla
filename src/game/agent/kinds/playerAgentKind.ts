@@ -9,52 +9,32 @@ import { Facing, directionToFacing } from '@/types/facing'
 import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponent } from '@/game/ecs/components'
 import { rect } from '@/math/rect'
 import { vec2, type Vec2 } from '@/math/vec2'
-import { clamp } from '@/util/math'
 import { createCombatMask, CombatBit } from '@/types/combat'
-import { hasFrameFlag, AnimationFrameFlag } from '@/types/animationFlags'
+import { AnimationFrameFlag } from '@/types/animationFlags'
 import { AnimationController } from '../animationController'
 import { assertExists } from '@/util/assertExists'
 import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
 import { CanvasLog } from '@/dev/canvasLog'
 
-function applyPhysicsIntegration(body: PhysicsBodyComponent, acceleration: Vec2): void {
-  // const dt = 1/60
-  
-  // Add the position term as extra velocity for immediate response
-  // body.velocity[0]! += 0.5 * acceleration[0]! * dt * dt
-  // body.velocity[1]! += 0.5 * acceleration[1]! * dt * dt
-
-  body.velocity[0]! += acceleration[0]!
-  body.velocity[1]! += acceleration[1]!
-  
-  // Clamp horizontal velocity to max speed
-  body.velocity[0] = clamp(body.velocity[0]!, -MAX_X_SPEED, MAX_X_SPEED)
+function setAcceleration(body: PhysicsBodyComponent, acceleration: Vec2): void {
+  body.acceleration[0] = acceleration[0]!
+  body.acceleration[1] = acceleration[1]!
 }
 
-const FACTOR_X = 1_000_000
-
-const GRAVITY = 0.00400 * FACTOR_X
-const JUMP_IMPULSE = 0.60000 * FACTOR_X
-const JUMP_HOLD_BOOST = 0.00150 * FACTOR_X
-const JUMP_X_BOOST = 0.00065 * FACTOR_X
-const WALK_ACCEL = 0.00250 * FACTOR_X
-const WALK_DECEL = 0.00100 * FACTOR_X
-const AIR_ACCEL = 0.00120 * FACTOR_X
-const MAX_X_SPEED = 0.20000 * FACTOR_X
-const HURT_IMPULSE_X = 0.15000 * FACTOR_X
-const HURT_IMPULSE_Y = 0.40000 * FACTOR_X
-const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
+// Physics constants
+const GRAVITY = 0.00400
+const JUMP_IMPULSE = 0.60000
+const JUMP_HOLD_BOOST = 0.00150
+const JUMP_X_BOOST = 0.00065
+const WALK_ACCEL = 0.00250
+const WALK_DECEL = 0.00100
+const AIR_ACCEL = 0.00120
+const HURT_IMPULSE_X = 0.15000
+const HURT_IMPULSE_Y = 0.40000
 
 const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
 
-
-// const MAX_X_SPEED = 0.1 * 1000
-// const WALK_ACCEL = (0.00125 * 1_000_000) / 60
-// const WALK_DECEL = (0.0005 * 1_000_000) / 60
-// const AIR_ACCEL  = (0.0006 * 1_000_000) / 60
-// const JUMP_VY    = -0.300 * 1000
-// const JUMP_HOLD_BOOST = (0.00075 * 1_000_000) / 60
-// const RUN_JUMP_BOOST_PER_SPEED = 3.25 / 60
+const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
 
 const ZERO_THRESHOLD_SPEED = 0.01 * 1000
 const JUMP_GRACE_TICKS = 3
@@ -181,12 +161,12 @@ class GroundedStrategy implements PlayerFsmStrategy {
       }
     }
     
-    applyPhysicsIntegration(body, acceleration)
+    setAcceleration(body, acceleration)
 
     // Jump
     const data = assertExists(this.playerDataStore.map.get(entityId))
     if (this.input.wasHitThisTick(Button.JUMP) && data.fallTicks < JUMP_GRACE_TICKS) {
-      body.velocity[1] = JUMP_IMPULSE
+      body.velocity[1] = -JUMP_IMPULSE
       data.fallTicks = 9999
       return playerStrategyRegistry.AirborneStrategy
     }
@@ -243,7 +223,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
       if (this.input.isDown(Button.JUMP)) acceleration[1]! -= JUMP_HOLD_BOOST
     }
 
-    applyPhysicsIntegration(body, acceleration)
+    setAcceleration(body, acceleration)
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
@@ -285,7 +265,7 @@ class AttackStrategy implements PlayerFsmStrategy {
     }
     
     // Apply gravity (attacks can happen in air)
-    applyPhysicsIntegration(body, GRAVITY_VEC2)
+    setAcceleration(body, GRAVITY_VEC2)
     
     // Enable sword per frame bits and set rect per facing
     const active = this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
@@ -345,7 +325,7 @@ class HurtStrategy implements PlayerFsmStrategy {
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     
     // Apply gravity during hurt state
-    applyPhysicsIntegration(body, GRAVITY_VEC2)
+    setAcceleration(body, GRAVITY_VEC2)
     
     rec.ticks -= 1
     if (rec.ticks <= 0) {

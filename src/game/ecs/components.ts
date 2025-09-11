@@ -27,6 +27,7 @@ export class PhysicsBodyComponent {
   constructor(
     public rect: Rect,
     public velocity: Vec2,
+    public acceleration: Vec2 = vec2.zero(),
   ) {}
 }
 export class SpriteComponent {

@@ -33,9 +33,20 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         
         if (physicsBodyComponent !== undefined) {
           
-          // Calculate desired movement
-          const deltaX = physicsBodyComponent.velocity[0]! / 60
-          const deltaY = physicsBodyComponent.velocity[1]! / 60
+          // Legacy-style Verlet integration with dt in milliseconds (like legacy)
+          const dt = 1000 / 60
+          
+          // Calculate desired movement: deltaPos = velocity * dt + 0.5 * acceleration * dt²
+          const deltaX = (physicsBodyComponent.velocity[0]! * dt + 0.5 * physicsBodyComponent.acceleration[0]! * dt * dt) * 0.5  // Halve for pixel scale
+          const deltaY = (physicsBodyComponent.velocity[1]! * dt + 0.5 * physicsBodyComponent.acceleration[1]! * dt * dt) * 0.5  // Halve for pixel scale
+          
+          // Update velocity: velocity += acceleration * dt
+          physicsBodyComponent.velocity[0]! += physicsBodyComponent.acceleration[0]! * dt
+          physicsBodyComponent.velocity[1]! += physicsBodyComponent.acceleration[1]! * dt
+          
+          // Clamp horizontal velocity to max speed (like legacy code)
+          const maxSpeed = 0.20000  // MAX_X_SPEED from legacy
+          physicsBodyComponent.velocity[0] = Math.max(-maxSpeed, Math.min(maxSpeed, physicsBodyComponent.velocity[0]!))
           
           // Get world-space collision rect
           const worldRect = rect.add(physicsBodyComponent.rect, positionComponent.offset)
