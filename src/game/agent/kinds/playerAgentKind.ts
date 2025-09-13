@@ -157,27 +157,23 @@ class GroundedStrategy implements PlayerFsmStrategy {
     const inputFacing = directionToFacing(inputDirection)
     if (inputFacing) facing.value = inputFacing
 
-    // No animation preservation - just use simple logic like legacy code
-    
+    const acceleration = vec2.clone(GRAVITY_VEC2)
+
     // Check for crouching first
     const isCrouching = this.input.isDown(Button.DOWN)
     if (isCrouching) {
       // Crouching: decelerate and play crouch animation
-      const acceleration = vec2.clone(GRAVITY_VEC2)
       if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
         body.velocity[0] = 0
         acceleration[0] = 0
       } else {
         acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
       }
-      applyAccelerationToVelocity(body, acceleration)
       this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'crouch')
     } else {
       // Not crouching: normal movement and animations
-      const acceleration = vec2.clone(GRAVITY_VEC2)
       if (inputDirection !== 0) {
         acceleration[0] = inputDirection * WALK_ACCEL
-        applyAccelerationToVelocity(body, acceleration)
         this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'walk')
       } else {
         if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
@@ -186,13 +182,13 @@ class GroundedStrategy implements PlayerFsmStrategy {
         } else {
           acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
         }
-        applyAccelerationToVelocity(body, acceleration)
         
         // Play stand animation if velocity is low (like legacy)
         if (Math.abs(body.velocity[0]!) < 0.5) {
           this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'stand')
         }
       }
+      applyAccelerationToVelocity(body, acceleration)
     }
 
     // Jump
