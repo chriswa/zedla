@@ -2,7 +2,7 @@ import { singleton, type Disposable } from "tsyringe";
 
 import { spawnAgentByKind, type AgentKindKey, type AgentSpawnData } from "../agent/agentKindRegistry";
 import { PositionComponent, AgentKindComponent, MailboxComponent } from "../ecs/components";
-import { ECS, type EntityId } from "../ecs/ecs";
+import { ECS, type EntityId, type ShardId } from "../ecs/ecs";
 import { AgentSystem } from "../ecs/systems/agentSystem";
 import { AnimationSystem } from "../ecs/systems/animationSystem";
 import { CameraSystem } from "../ecs/systems/cameraSystem";
@@ -32,7 +32,8 @@ export class RoomSimulation implements Disposable {
   }
 
   createRoomContext(roomDef: RoomDef): RoomContext {
-    const roomContext = new RoomContext()
+    const shardId = this.ecs.allocateShardId()
+    const roomContext = new RoomContext(shardId)
 
     // Initialize RoomContext grids
     roomContext.roomDef = roomDef
@@ -41,10 +42,10 @@ export class RoomSimulation implements Disposable {
 
     // Spawn Agents
     for (const spawn of roomDef.spawns) {
-      createAgentEntity(this.ecs, spawn.kind, spawn.position, spawn.spawnData)
+      createAgentEntity(this.ecs, shardId, spawn.kind, spawn.position, spawn.spawnData)
     }
 
-    roomContext.playerEntityId = createAgentEntity(this.ecs, 'Player', vec2.create(64, 64), {})
+    roomContext.playerEntityId = createAgentEntity(this.ecs, shardId, 'Player', vec2.create(64, 64), {})
 
     // Dev: initial hello world ephemeral message
     this.canvasLog.postEphemeral('Hello World!')
@@ -68,11 +69,12 @@ export class RoomSimulation implements Disposable {
 
 function createAgentEntity<K extends AgentKindKey>(
   ecs: ECS,
+  shardId: ShardId,
   agentKind: K,
   position: Vec2,
   spawnData: AgentSpawnData[K],
 ): EntityId {
-  const entityId = ecs.createEntity()
+  const entityId = ecs.createEntity(shardId)
   ecs.addComponent(entityId, 'PositionComponent', new PositionComponent(position))
   ecs.addComponent(entityId, 'AgentKindComponent', new AgentKindComponent(agentKind))
   ecs.addComponent(entityId, 'MailboxComponent', new MailboxComponent())

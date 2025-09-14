@@ -14,8 +14,8 @@ export class AnimationSystem implements ITickingSystem, Disposable {
     private ecs: ECS,
   ) {
   }
-  tick(_roomContext: RoomContext) {
-    for (const [_entityId, components] of this.ecs.entities.entries()) {
+  tick(roomContext: RoomContext) {
+    for (const [_entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
       const animationComponent = components.AnimationComponent
       if (animationComponent !== undefined) {
         const spriteComponent = assertExists(components.SpriteComponent)

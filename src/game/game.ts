@@ -1,8 +1,8 @@
 import { singleton } from "tsyringe"
 
 import { GameStrategy } from "./gameStrategy"
-import { RoomSimulationStrategy } from "./room/roomSimulationStrategy"
 import { RoomSimulation } from "./room/roomSimulation"
+import { RoomSimulationStrategy } from "./room/roomSimulationStrategy"
 
 import { roomDefs } from "@/resources/roomDefs"
 import { FSM } from "@/util/fsm"

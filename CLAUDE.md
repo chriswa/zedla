@@ -27,9 +27,9 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - **Readability is Critical**: Use verbose variable names, function names, and class names to prioritize readability. 
 - **Dependency Injection**: Uses tsyringe with `@singleton()` decorators
 - **FSM (Finite State Machine)**: Custom FSM implementation (`src/util/fsm.ts`) for state/strategy management (Prefer using the term "FSM strategy" instead of FSM state to avoid confusion with the overloaded word'state'. )
-- **ECS Architecture**: Entity-component-system pattern for game entities
+- **ECS Architecture**: Entity-component-system pattern with shard-based isolation for different simulations
 - **Strategy Pattern**: GameStrategy base class for different game modes
-- **Container Scoping**: Child containers for room-specific dependencies using `RoomDefToken`
+- **Shard-Based Entity Management**: Each room/simulation gets its own shard for entity isolation while maintaining globally unique EntityIDs
 
 ### Additional Style Notes
 
