@@ -55,7 +55,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
           const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
           facing.value = mail.attackVec2[0]! < 0 ? Facing.RIGHT : Facing.LEFT
           const attackerKind = this.ecs.getComponent(mail.attackerId, 'AgentKindComponent')?.kind ?? 'Unknown'
-          this.canvasLog.postEphemeral(`Foo hurt by ${String(attackerKind)} ${vec2.toString(mail.attackVec2)}`)
+          this.canvasLog.postEphemeral(`Foo hurt by ${attackerKind} ${vec2.toString(mail.attackVec2)}`)
         }
       }
       mailbox.eventQueue.length = 0

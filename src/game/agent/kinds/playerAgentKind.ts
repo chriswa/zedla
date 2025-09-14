@@ -57,6 +57,7 @@ const SWORD_CROUCH_OFFSET_Y = 13
 const SWORD_HURTBOX_CROUCHING_RIGHT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(15, SWORD_CROUCH_OFFSET_Y))
 const SWORD_HURTBOX_CROUCHING_LEFT  = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(-15, SWORD_CROUCH_OFFSET_Y))
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface PlayerSpawnData {
 }
 

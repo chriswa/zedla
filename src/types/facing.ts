@@ -13,7 +13,8 @@ export function directionToFacing(direction: -1 | 0 | 1): Facing | undefined {
     case -1: return Facing.LEFT
     case 1: return Facing.RIGHT
     case 0: return undefined
-    default: throw new Error(`Invalid direction: ${direction}. Must be -1, 0, or 1.`)
+    default: {
+      throw new Error('Invalid direction. Must be -1, 0, or 1.')
+    }
   }
 }
-
