@@ -5,6 +5,7 @@ import promise from 'eslint-plugin-promise'
 import unicorn from 'eslint-plugin-unicorn'
 import regexp from 'eslint-plugin-regexp'
 import globals from 'globals'
+import stylistic from '@stylistic/eslint-plugin'
 
 export default tseslint.config(
   // 1) Ignore build artifacts
@@ -17,11 +18,19 @@ export default tseslint.config(
       parserOptions: { project: ['./tsconfig.json'] }, // enables type-aware rules
       globals: globals.browser,
     },
-    plugins: { import: importPlugin, promise, unicorn, regexp },
+    plugins: { import: importPlugin, promise, unicorn, regexp, stylistic },
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
+      // Stylistic formatting (preserves manual wrapping; no Prettier)
+      stylistic.configs.customize({
+        indent: 2,
+        quotes: 'single',
+        semi: false,
+        jsx: true,
+        commaDangle: 'always-multiline',
+      }),
     ],
     rules: {
       // --- Core correctness
@@ -106,9 +115,22 @@ export default tseslint.config(
       'regexp/no-dupe-characters-character-class': 'error',
       'regexp/no-empty-alternative': 'error',
 
-      // pretty
-      semi: ['error', 'never'],
-      'no-extra-semi': 'error',
+      // Stylistic: prefer single quotes, no semicolons, trailing commas only on multiline
+      '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
+      '@stylistic/semi': ['error', 'never'],
+      '@stylistic/comma-dangle': ['error', 'always-multiline'],
+      '@stylistic/indent': ['error', 2, { SwitchCase: 1 }],
+
+      // Do not force multi-line wrapping; let authors decide
+      '@stylistic/array-bracket-newline': 'off',
+      '@stylistic/array-element-newline': 'off',
+      '@stylistic/object-curly-newline': 'off',
+      '@stylistic/object-property-newline': 'off',
+      '@stylistic/function-paren-newline': 'off',
+      '@stylistic/function-call-argument-newline': 'off',
+      '@stylistic/implicit-arrow-linebreak': 'off',
+      '@stylistic/operator-linebreak': 'off',
+      '@stylistic/multiline-ternary': 'off',
     },
   },
 
