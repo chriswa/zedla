@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "preinstall": "npx only-allow pnpm && npx -y check-node-version --node \">=22\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . -w"
