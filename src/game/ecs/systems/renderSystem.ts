@@ -44,7 +44,7 @@ export class RenderSystem implements Disposable {
     }
   }
   private renderSprites(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
-    for (const [_entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const spriteComponent = components.SpriteComponent
       if (!spriteComponent) continue
       const positionComponent = assertExists(components.PositionComponent)
@@ -92,7 +92,7 @@ export class RenderSystem implements Disposable {
     }
   }
   private renderPhysicsBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
-    for (const [_entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const physicsBody = components.PhysicsBodyComponent
       const positionComponent = components.PositionComponent
       if (!physicsBody || !positionComponent) continue
@@ -103,7 +103,7 @@ export class RenderSystem implements Disposable {
   }
 
   private renderCombatBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
-    for (const [_entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const positionComponent = components.PositionComponent
       if (!positionComponent) continue
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)

@@ -23,7 +23,7 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
     // Store previous positions before updating current positions
     vec2.copy(roomContext.camera.previousOffset, roomContext.camera.offset)
 
-    for (const [_entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const positionComponent = components.PositionComponent
       const physicsBodyComponent = components.PhysicsBodyComponent
 

@@ -10,7 +10,7 @@ import { assert } from "@/util/assert"
 import { assertExists } from "@/util/assertExists"
 
 export type EntityId = Brand<number, 'EntityId'>
-export type ShardId = Brand<number, 'ShardId'>
+export type SceneId = Brand<number, 'SceneId'>
 
 export type EntityComponentMap = {
   [K in keyof typeof componentRegistry]?: InstanceType<typeof componentRegistry[K]>
@@ -24,40 +24,40 @@ export class ECS {
   }
 
   private nextEntityId = 0 as EntityId
-  private nextShardId = 0 as ShardId
+  private nextSceneId = 0 as SceneId
 
   // Dual-map structure
   private globalEntities = new Map<EntityId, EntityComponentMap>()  // Global lookup
-  private shards = new Map<ShardId, Set<EntityId>>()                // Shard -> EntityIds
+  private scenes = new Map<SceneId, Set<EntityId>>()                // Scene -> EntityIds
 
   // Legacy getter for backward compatibility during transition
   get entities() {
     return this.globalEntities as ReadonlyMap<EntityId, EntityComponentMap>
   }
 
-  // Public method for RoomContext to get unique shard
-  allocateShardId(): ShardId {
-    return this.nextShardId++ as ShardId
+  // Public method for RoomContext to get unique scene
+  allocateSceneId(): SceneId {
+    return this.nextSceneId++ as SceneId
   }
 
-  // Methods that require ShardId (entity lifecycle)
-  createEntity(shardId: ShardId): EntityId {
+  // Methods that require SceneId (entity lifecycle)
+  createEntity(sceneId: SceneId): EntityId {
     const entityId = this.nextEntityId++ as EntityId
 
     // Update both maps
     this.globalEntities.set(entityId, {})
-    this.getOrCreateShard(shardId).add(entityId)
+    this.getOrCreateScene(sceneId).add(entityId)
 
     this.gameEventBus.emit('ecs:entity_added', entityId)
     return entityId
   }
 
-  // Shard-specific iteration (requires ShardId)
-  getEntitiesInShard(shardId: ShardId): ReadonlyMap<EntityId, EntityComponentMap> {
-    const shardEntityIds = this.shards.get(shardId) ?? new Set<EntityId>()
+  // Scene-specific iteration (requires SceneId)
+  getEntitiesInScene(sceneId: SceneId): ReadonlyMap<EntityId, EntityComponentMap> {
+    const sceneEntityIds = this.scenes.get(sceneId) ?? new Set<EntityId>()
     const result = new Map<EntityId, EntityComponentMap>()
 
-    for (const entityId of shardEntityIds) {
+    for (const entityId of sceneEntityIds) {
       const components = this.globalEntities.get(entityId)
       if (components) {
         result.set(entityId, components)
@@ -67,7 +67,7 @@ export class ECS {
     return result as ReadonlyMap<EntityId, EntityComponentMap>
   }
 
-  // Global operations (no ShardId needed - EntityId is globally unique)
+  // Global operations (no SceneId needed - EntityId is globally unique)
   addComponent<K extends keyof typeof componentRegistry>(
     entityId: EntityId,
     componentKey: K,
@@ -108,17 +108,17 @@ export class ECS {
 
     // Remove from both maps
     this.globalEntities.delete(entityId)
-    for (const shardEntities of this.shards.values()) {
-      shardEntities.delete(entityId) // Safe to call on all shards
+    for (const sceneEntities of this.scenes.values()) {
+      sceneEntities.delete(entityId) // Safe to call on all scenes
     }
 
     this.gameEventBus.emit('ecs:entity_removed', entityId)
   }
 
-  private getOrCreateShard(shardId: ShardId): Set<EntityId> {
-    if (!this.shards.has(shardId)) {
-      this.shards.set(shardId, new Set())
+  private getOrCreateScene(sceneId: SceneId): Set<EntityId> {
+    if (!this.scenes.has(sceneId)) {
+      this.scenes.set(sceneId, new Set())
     }
-    return this.shards.get(shardId)!
+    return this.scenes.get(sceneId)!
   }
 }

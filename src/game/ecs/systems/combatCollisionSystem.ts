@@ -18,13 +18,13 @@ export class CombatCollisionSystem implements Disposable {
 
   tick(roomContext: RoomContext) {
     // Iterate all entities with hurtboxes against all entities with hitboxes
-    for (const [attackerId, attackerComponents] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [attackerId, attackerComponents] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const hurt = attackerComponents.HurtboxComponent
       if (!hurt?.enabled) continue
       const attackerPos = assertExists(attackerComponents.PositionComponent).offset
       const hurtWorldRect = rect.add(hurt.rect, attackerPos)
 
-      for (const [targetId, targetComponents] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+      for (const [targetId, targetComponents] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
         if (targetId === attackerId) continue
         const hit = targetComponents.HitboxComponent
         if (!hit?.enabled) continue

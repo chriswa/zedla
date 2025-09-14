@@ -30,7 +30,7 @@ export class AgentSystem implements ITickingSystem, Disposable {
   }
 
   tick(roomContext: RoomContext) {
-    for (const [entityId, components] of this.ecs.getEntitiesInShard(roomContext.shardId).entries()) {
+    for (const [entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const agentKindComponent = components.AgentKindComponent
       if (agentKindComponent) {
         const agentKind = agentKindRegistry[agentKindComponent.kind]
