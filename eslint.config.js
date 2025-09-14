@@ -4,7 +4,6 @@ import importPlugin from 'eslint-plugin-import'
 import promise from 'eslint-plugin-promise'
 import unicorn from 'eslint-plugin-unicorn'
 import regexp from 'eslint-plugin-regexp'
-import prettier from 'eslint-config-prettier'
 import globals from 'globals'
 
 export default tseslint.config(
@@ -124,7 +123,4 @@ export default tseslint.config(
     files: ['vite.config.*', 'eslint.config.*', 'vitest.config.*'],
     languageOptions: { globals: { ...globals.node, ...globals.es2021 } },
   },
-
-  // 5) Last: disable formatting conflicts
-  prettier,
 )
