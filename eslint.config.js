@@ -60,6 +60,7 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-useless-constructor': 'off',
       '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/prefer-literal-enum-member': ['error', { allowBitwiseExpressions: true }],
 
       // --- Imports hygiene
       'import/first': 'error',

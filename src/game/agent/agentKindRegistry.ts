@@ -1,10 +1,11 @@
 import { container } from 'tsyringe'
 
-import type { EntityId } from '../ecs/ecs'
 
 import { BarAgentKind } from './kinds/barAgentKind'
 import { FooAgentKind } from './kinds/fooAgentKind'
 import { PlayerAgentKind } from './kinds/playerAgentKind'
+
+import type { EntityId } from '../ecs/ecs'
 
 export const agentKindRegistry = {
   Foo: container.resolve(FooAgentKind),

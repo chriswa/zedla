@@ -8,7 +8,7 @@ interface EphemeralMsg { text: string; timeAddedMs: number }
 @singleton()
 export class CanvasLog {
   private permanents = new Map<string, PermanentMsg>()
-  private ephemerals: EphemeralMsg[] = []
+  private ephemerals: Array<EphemeralMsg> = []
 
   // Timing in milliseconds: 3s solid + 1s fade
   private readonly LIFE_MS = 3000

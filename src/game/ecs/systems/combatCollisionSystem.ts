@@ -1,31 +1,33 @@
-import { Lifecycle, scoped, type Disposable } from 'tsyringe'
+import { singleton, type Disposable } from 'tsyringe'
 
 import { ECS } from '../ecs'
 
+import type { EntityMail } from '@/types/entityMail'
+
+import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { masksOverlap } from '@/types/combat'
-import type { EntityMail } from '@/types/entityMail'
 import { assertExists } from '@/util/assertExists'
 
-@scoped(Lifecycle.ContainerScoped)
+@singleton()
 export class CombatCollisionSystem implements Disposable {
   constructor(
     private ecs: ECS,
   ) {}
 
-  tick() {
+  tick(_roomContext: RoomContext) {
     // Iterate all entities with hurtboxes against all entities with hitboxes
     for (const [attackerId, attackerComponents] of this.ecs.entities.entries()) {
       const hurt = attackerComponents.HurtboxComponent
-      if (!hurt || !hurt.enabled) continue
+      if (!hurt?.enabled) continue
       const attackerPos = assertExists(attackerComponents.PositionComponent).offset
       const hurtWorldRect = rect.add(hurt.rect, attackerPos)
 
       for (const [targetId, targetComponents] of this.ecs.entities.entries()) {
         if (targetId === attackerId) continue
         const hit = targetComponents.HitboxComponent
-        if (!hit || !hit.enabled) continue
+        if (!hit?.enabled) continue
         // mask test
         if (!masksOverlap(hurt.mask, hit.mask)) continue
 

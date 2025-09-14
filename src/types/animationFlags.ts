@@ -17,6 +17,6 @@ export function createAnimationFrameBits(...flags: Array<AnimationFrameFlag>): A
 }
 
 export function hasFrameFlag(mask: AnimationFrameBits | undefined, flag: AnimationFrameFlag): boolean {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
   return mask !== undefined && (((mask as unknown as number) & flag) !== 0)
 }

@@ -1,32 +1,24 @@
-import { Lifecycle, scoped } from "tsyringe";
-
-import { RoomContext } from "../roomContext";
+import { singleton } from "tsyringe";
 
 import type { Rect } from "@/math/rect";
 
 import { rect } from "@/math/rect";
 import { vec2 } from "@/math/vec2";
+import { Grid2D } from "@/util/grid2D";
 
-@scoped(Lifecycle.ContainerScoped)
+@singleton()
 export class TileCollisionService {
-  constructor(
-    private roomContext: RoomContext,
-  ) {
+  constructor() {
   }
 
-  private get tileSize(): number {
-    return this.roomContext.roomDef.physicsTilemap.tileSize
+  private isSolid(physicsGrid: Grid2D, tileX: number, tileY: number): boolean {
+    return physicsGrid.get(tileX, tileY) !== 0
   }
 
-  private isSolid(tileX: number, tileY: number): boolean {
-    return this.roomContext.physicsGrid.get(tileX, tileY) !== 0
-  }
-
-  sweepX(worldRect: Rect, deltaX: number): number {
+  sweepX(physicsGrid: Grid2D, tileSize: number, worldRect: Rect, deltaX: number): number {
     if (deltaX === 0) return deltaX
 
     const step = deltaX > 0 ? 1 : -1
-    const tileSize = this.tileSize
     let currentDelta = 0
 
     while (Math.abs(currentDelta) < Math.abs(deltaX)) {
@@ -40,7 +32,7 @@ export class TileCollisionService {
 
       // Test collision along the leading edge
       for (let tileY = topY; tileY <= bottomY; tileY++) {
-        if (this.isSolid(leadingX, tileY)) {
+        if (this.isSolid(physicsGrid, leadingX, tileY)) {
           return currentDelta
         }
       }
@@ -51,11 +43,10 @@ export class TileCollisionService {
     return deltaX
   }
 
-  sweepY(worldRect: Rect, deltaY: number): number {
+  sweepY(physicsGrid: Grid2D, tileSize: number, worldRect: Rect, deltaY: number): number {
     if (deltaY === 0) return deltaY
 
     const step = deltaY > 0 ? 1 : -1
-    const tileSize = this.tileSize
     let currentDelta = 0
 
     while (Math.abs(currentDelta) < Math.abs(deltaY)) {
@@ -69,7 +60,7 @@ export class TileCollisionService {
 
       // Test collision along the leading edge
       for (let tileX = leftX; tileX <= rightX; tileX++) {
-        if (this.isSolid(tileX, leadingY)) {
+        if (this.isSolid(physicsGrid, tileX, leadingY)) {
           return currentDelta
         }
       }

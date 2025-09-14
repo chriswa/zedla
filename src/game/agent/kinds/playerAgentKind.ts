@@ -1,20 +1,22 @@
 import { singleton, container } from 'tsyringe'
 
-import type { IAgentKind } from '../agentKind'
 import { ECS } from '../../ecs/ecs'
+import { AnimationController } from '../animationController'
+
 import type { EntityId, EntityComponentMap } from '../../ecs/ecs'
 import type { RoomContext } from '../../roomContext'
+import type { IAgentKind } from '../agentKind'
+
 import { Input, Button } from '@/app/input'
-import { Facing, directionToFacing } from '@/types/facing'
+import { CanvasLog } from '@/dev/canvasLog'
 import { PhysicsBodyComponent, HitboxComponent, FacingComponent, HurtboxComponent } from '@/game/ecs/components'
 import { rect } from '@/math/rect'
 import { vec2, type Vec2 } from '@/math/vec2'
-import { createCombatMask, CombatBit } from '@/types/combat'
 import { AnimationFrameFlag } from '@/types/animationFlags'
-import { AnimationController } from '../animationController'
+import { createCombatMask, CombatBit } from '@/types/combat'
+import { Facing, directionToFacing } from '@/types/facing'
 import { assertExists } from '@/util/assertExists'
 import { DirectFSM, type DirectFSMStrategy } from '@/util/fsm'
-import { CanvasLog } from '@/dev/canvasLog'
 
 // Physics constants
 const GRAVITY = 0.00400
@@ -203,7 +205,7 @@ class GroundedStrategy implements PlayerFsmStrategy {
       return playerStrategyRegistry.AttackStrategy
     }
     // If no longer contacting ground, start counting fall ticks and go airborne
-    const onGround = body.touchingDown === true
+    const onGround = body.touchingDown
     if (!onGround) {
       return playerStrategyRegistry.AirborneStrategy
     }
@@ -255,7 +257,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
       return playerStrategyRegistry.AttackStrategy
     }
     // Landed? Only transition to grounded if we're moving downward (or stopped vertically)
-    if (body.touchingDown === true && body.velocity[1]! >= 0) {
+    if (body.touchingDown && body.velocity[1]! >= 0) {
       return playerStrategyRegistry.GroundedStrategy
     }
     return undefined
@@ -274,7 +276,7 @@ class AttackStrategy implements PlayerFsmStrategy {
   // Snapshot crouch decision on enter by DOWN held and current groundedness
   onEnter(entityId: EntityId): void {
     const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-    const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown === true
+    const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown
     const startedAirborne = !body.touchingDown
     
     // Store attack data for this entity

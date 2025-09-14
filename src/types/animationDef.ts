@@ -1,5 +1,5 @@
-import type { spriteFrameDefs } from "@/resources/spriteFrameDefs"
 import type { AnimationFrameBits } from "./animationFlags"
+import type { spriteFrameDefs } from "@/resources/spriteFrameDefs"
 
 export interface AnimationFrameDef {
   spriteFrame: keyof typeof spriteFrameDefs

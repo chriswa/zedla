@@ -27,7 +27,6 @@
     "useDefineForClassFields": false,
 
     /* extra stuff from chatgpt */
-    "resolveJsonModule": true /* for `import data from './foo.json'` */,
     "isolatedModules": true /* Prevents surprises between tsc --noEmit and the Vite build */,
     "noUncheckedIndexedAccess": true /* arr[5] => number | undefined */,
     "exactOptionalPropertyTypes": true /* Treats a?: T as “property may be missing” (not “present and maybe undefined”). */,

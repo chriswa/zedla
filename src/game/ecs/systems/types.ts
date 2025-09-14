@@ -1,3 +1,5 @@
+import type { RoomContext } from "../../roomContext"
+
 export interface ITickingSystem {
-  tick(): void
+  tick(roomContext: RoomContext): void
 }

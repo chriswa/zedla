@@ -1,10 +1,10 @@
-import { container, singleton } from "tsyringe"
+import { singleton } from "tsyringe"
 
 import { GameStrategy } from "./gameStrategy"
+import { RoomSimulationStrategy } from "./room/roomSimulationStrategy"
 import { RoomSimulation } from "./room/roomSimulation"
 
 import { roomDefs } from "@/resources/roomDefs"
-import { RoomDefToken, type RoomDef } from "@/types/roomDef"
 import { FSM } from "@/util/fsm"
 
 
@@ -16,17 +16,15 @@ export class Game {
   public fsm = new FSM<GameStrategy>(new NoOpGameStrategy())
 
   constructor(
-    // public input: Input,
+    private roomSimulation: RoomSimulation,
   ) {
   }
 
   boot() {
     this.fsm.queueStrategyFactory(() => {
-      // return new RoomGameStrategy(roomDefs.intro1)
       const roomDef = roomDefs.intro1
-      const childContainer = container.createChildContainer()
-      childContainer.registerInstance<RoomDef>(RoomDefToken, roomDef)
-      return childContainer.resolve(RoomSimulation)
+      const roomContext = this.roomSimulation.createRoomContext(roomDef)
+      return new RoomSimulationStrategy(this.roomSimulation, roomContext)
     })
   }
 

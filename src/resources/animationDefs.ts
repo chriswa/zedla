@@ -1,4 +1,5 @@
 import type { AnimationDef } from "@/types/animationDef"
+
 import { createAnimationFrameBits, AnimationFrameFlag } from "@/types/animationFlags"
 
 // export const animations: Record<string, Record<string, Animation>> = {

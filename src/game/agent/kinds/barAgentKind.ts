@@ -1,9 +1,11 @@
 import { singleton } from "tsyringe";
 
-import type { IAgentKind } from "../agentKind";
 import { ECS } from "../../ecs/ecs";
+
 import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
+import type { IAgentKind } from "../agentKind";
+
 import { FacingComponent } from "@/game/ecs/components";
 import { Facing } from "@/types/facing";
 

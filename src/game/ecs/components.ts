@@ -3,10 +3,10 @@ import type { Rect } from "@/math/rect";
 import type { Vec2 } from "@/math/vec2";
 import type { animationDefs } from "@/resources/animationDefs";
 import type { AnimationDef } from "@/types/animationDef";
-import type { SpriteFrameDef } from "@/types/spriteFrameDef";
-import type { Facing } from "@/types/facing";
 import type { CombatMask } from "@/types/combat";
 import type { EntityMail } from "@/types/entityMail";
+import type { Facing } from "@/types/facing";
+import type { SpriteFrameDef } from "@/types/spriteFrameDef";
 
 import { vec2 } from "@/math/vec2";
 
@@ -56,7 +56,7 @@ export class AgentKindComponent {
 }
 
 export class HitboxComponent {
-  public enabled: boolean = true
+  public enabled = true
   constructor(
     public rect: Rect,
     public mask: CombatMask,
@@ -67,12 +67,12 @@ export class HurtboxComponent {
   constructor(
     public rect: Rect,
     public mask: CombatMask,
-    public enabled: boolean = true,
+    public enabled = true,
   ) {}
 }
 
 export class MailboxComponent {
-  public eventQueue: EntityMail[] = []
+  public eventQueue: Array<EntityMail> = []
 }
 
 export type ComponentKey = keyof typeof componentRegistry

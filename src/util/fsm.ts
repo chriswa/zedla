@@ -37,7 +37,7 @@ export class DirectFSM<TStrategy extends DirectFSMStrategy<TContext>, TContext> 
     this.activeStrategy = initialStrategy
   }
   
-  processTransitions(context: TContext, maxTransitions: number = 3): void {
+  processTransitions(context: TContext, maxTransitions = 3): void {
     let transitions = 0
     
     for (;;) {
@@ -53,7 +53,7 @@ export class DirectFSM<TStrategy extends DirectFSMStrategy<TContext>, TContext> 
       this.activeStrategy = nextStrategy
       
       transitions += 1
-      // eslint-disable-next-line no-console
+       
       // console.log(`[DirectFSM] ${transitions}: ${prevName} -> ${nextName}`)
       if (transitions > maxTransitions) {
         throw new Error(`DirectFSM exceeded max transitions: ${prevName} -> ${nextName}`)

@@ -1,11 +1,12 @@
+import { AnimationComponent, SpriteComponent } from "../ecs/components";
+
+import type { ECS , EntityId } from "../ecs/ecs";
+import type { AnimationDef } from "@/types/animationDef";
+
 import { animationDefs } from "@/resources/animationDefs";
 import { spriteFrameDefs } from "@/resources/spriteFrameDefs";
-import { AnimationComponent, SpriteComponent } from "../ecs/components";
-import { ECS } from "../ecs/ecs";
-import type { EntityId } from "../ecs/ecs";
-import type { AnimationDef } from "@/types/animationDef";
-import { assertExists } from "@/util/assertExists";
 import { hasFrameFlag, type AnimationFrameFlag } from "@/types/animationFlags";
+import { assertExists } from "@/util/assertExists";
 
 type CharacterKey = keyof typeof animationDefs
 type AnimationName<K extends CharacterKey> = keyof typeof animationDefs[K]

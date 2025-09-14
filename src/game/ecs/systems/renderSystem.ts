@@ -1,51 +1,49 @@
-import { Lifecycle, scoped, type Disposable } from "tsyringe";
+import { singleton, type Disposable } from "tsyringe";
 
 import { ECS } from "../ecs";
 
 
+import type { PositionComponent } from "../components";
+import type { Rect } from "@/math/rect";
+import type { SpriteFrameDef } from "@/types/spriteFrameDef";
+
 import { RoomContext } from "@/game/roomContext";
-import { Camera } from "@/gfx/camera";
 import { Canvas } from "@/gfx/canvas";
 import { ImageLoader } from "@/gfx/imageLoader";
 import { rect } from "@/math/rect";
-import type { Rect } from "@/math/rect";
 import { vec2, type Vec2 } from "@/math/vec2";
-import type { SpriteFrameDef } from "@/types/spriteFrameDef";
-import { assertExists } from "@/util/assertExists";
 import { Facing } from "@/types/facing";
-import type { PositionComponent } from "../components";
+import { assertExists } from "@/util/assertExists";
 
-const DO_INTERPOLATION: boolean = false
-const RENDER_PHYSICS_BOXES: boolean = true
-const RENDER_COMBAT_BOXES: boolean = true
-const RENDER_ANCHORS: boolean = true
+const DO_INTERPOLATION = false as boolean
+const RENDER_PHYSICS_BOXES = true as boolean
+const RENDER_COMBAT_BOXES = true as boolean
+const RENDER_ANCHORS = true as boolean
 
-@scoped(Lifecycle.ContainerScoped)
+@singleton()
 export class RenderSystem implements Disposable {
   constructor(
-    private roomContext: RoomContext,
     private canvas: Canvas,
     private imageLoader: ImageLoader,
-    private camera: Camera,
     private ecs: ECS,
   ) {
   }
   private frameCounter = 0
-  render(renderBlend: number) {
+  render(renderBlend: number, roomContext: RoomContext) {
     this.frameCounter++
     this.canvas.cls()
     this.canvas.ctx.imageSmoothingEnabled = false
-    const cameraOffset = this.getInterpolatedCameraOffset(renderBlend)
-    this.renderTilemaps(cameraOffset)
-    this.renderSprites(cameraOffset, renderBlend)
+    const cameraOffset = this.getInterpolatedCameraOffset(renderBlend, roomContext)
+    this.renderTilemaps(cameraOffset, roomContext)
+    this.renderSprites(cameraOffset, renderBlend, roomContext)
     if (RENDER_PHYSICS_BOXES) {
-      this.renderPhysicsBoxes(cameraOffset, renderBlend)
+      this.renderPhysicsBoxes(cameraOffset, renderBlend, roomContext)
     }
     if (RENDER_COMBAT_BOXES) {
-      this.renderCombatBoxes(cameraOffset, renderBlend)
+      this.renderCombatBoxes(cameraOffset, renderBlend, roomContext)
     }
   }
-  private renderSprites(cameraOffset: Vec2, renderBlend: number) {
+  private renderSprites(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const spriteComponent = components.SpriteComponent
       if (!spriteComponent) continue
@@ -58,18 +56,18 @@ export class RenderSystem implements Disposable {
         Math.round(pos[0]!) - Math.round(cameraOffset[0]!),
         Math.round(pos[1]!) - Math.round(cameraOffset[1]!),
       )
-      this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchor, facing)
+      this.drawSpriteAnchored(spriteComponent.spriteFrameDef, anchor, facing, roomContext)
 
       if (RENDER_ANCHORS) {
-        const anchorPx = vec2.elementWiseMultiply(anchor, vec2.create(this.camera.zoom, this.camera.zoom))
+        const anchorPx = vec2.elementWiseMultiply(anchor, vec2.create(roomContext.camera.zoom, roomContext.camera.zoom))
         this.drawAnchorCross(anchorPx, this.getDebugColor('white'))
       }
     }
   }
-  private renderTilemaps(cameraOffset: Vec2) {
-    for (const [gridIndex, backgroundTilemapDef] of this.roomContext.roomDef.backgroundTilemaps.entries()) {
+  private renderTilemaps(cameraOffset: Vec2, roomContext: RoomContext) {
+    for (const [gridIndex, backgroundTilemapDef] of roomContext.roomDef.backgroundTilemaps.entries()) {
       const tileset = backgroundTilemapDef.tileset
-      const grid = this.roomContext.backgroundGrids[gridIndex]!
+      const grid = roomContext.backgroundGrids[gridIndex]!
       
       for (let tileY = 0; tileY < grid.rows; tileY++) {
         for (let tileX = 0; tileX < grid.cols; tileX++) {
@@ -84,27 +82,27 @@ export class RenderSystem implements Disposable {
             tilesetY * tileset.tileHeight,
             tileset.tileWidth,
             tileset.tileHeight,
-            this.camera.zoom * (tileX * tileset.tileWidth - cameraOffset[0]!),
-            this.camera.zoom * (tileY * tileset.tileHeight - cameraOffset[1]!),
-            this.camera.zoom * tileset.tileWidth,
-            this.camera.zoom * tileset.tileHeight,
+            roomContext.camera.zoom * (tileX * tileset.tileWidth - cameraOffset[0]!),
+            roomContext.camera.zoom * (tileY * tileset.tileHeight - cameraOffset[1]!),
+            roomContext.camera.zoom * tileset.tileWidth,
+            roomContext.camera.zoom * tileset.tileHeight,
           )
         }
       }
     }
   }
-  private renderPhysicsBoxes(cameraOffset: Vec2, renderBlend: number) {
+  private renderPhysicsBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const physicsBody = components.PhysicsBodyComponent
       const positionComponent = components.PositionComponent
       if (!physicsBody || !positionComponent) continue
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
       const worldRect = rect.add(physicsBody.rect, pos)
-      this.strokeWorldRect(worldRect, cameraOffset, 'red')
+      this.strokeWorldRect(worldRect, cameraOffset, 'red', roomContext)
     }
   }
 
-  private renderCombatBoxes(cameraOffset: Vec2, renderBlend: number) {
+  private renderCombatBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.entities.entries()) {
       const positionComponent = components.PositionComponent
       if (!positionComponent) continue
@@ -113,26 +111,26 @@ export class RenderSystem implements Disposable {
       const hurt = components.HurtboxComponent
       if (hurt) {
         const worldRect = rect.add(hurt.rect, pos)
-        this.strokeWorldRect(worldRect, cameraOffset, `rgba(255,0,255,${hurt.enabled ? 0.9 : 0.5})`)
+        this.strokeWorldRect(worldRect, cameraOffset, `rgba(255,0,255,${hurt.enabled ? 0.9 : 0.5})`, roomContext)
       }
       const hit = components.HitboxComponent
       if (hit) {
         const worldRect = rect.add(hit.rect, pos)
-        this.strokeWorldRect(worldRect, cameraOffset, `rgba(0,255,255,${hit.enabled ? 0.9 : 0.5})`)
+        this.strokeWorldRect(worldRect, cameraOffset, `rgba(0,255,255,${hit.enabled ? 0.9 : 0.5})`, roomContext)
       }
     }
   }
 
-  private getInterpolatedCameraOffset(renderBlend: number): Vec2 {
-    return vec2.round(DO_INTERPOLATION ? vec2.lerp(this.camera.previousOffset, this.camera.offset, renderBlend) : this.camera.offset)
+  private getInterpolatedCameraOffset(renderBlend: number, roomContext: RoomContext): Vec2 {
+    return vec2.round(DO_INTERPOLATION ? vec2.lerp(roomContext.camera.previousOffset, roomContext.camera.offset, renderBlend) : roomContext.camera.offset)
   }
 
   private getInterpolatedPosition(positionComponent: PositionComponent, renderBlend: number): Vec2 {
     return vec2.round(DO_INTERPOLATION ? vec2.lerp(positionComponent.previousOffset, positionComponent.offset, renderBlend) : positionComponent.offset)
   }
 
-  private toScreenRect(worldRect: Rect, camOffset: Vec2) {
-    const z = this.camera.zoom
+  private toScreenRect(worldRect: Rect, camOffset: Vec2, roomContext: RoomContext) {
+    const z = roomContext.camera.zoom
     const x = z * (worldRect[0]! - camOffset[0]!)
     const y = z * (worldRect[1]! - camOffset[1]!)
     const w = z * (worldRect[2]! - worldRect[0]!)
@@ -140,17 +138,17 @@ export class RenderSystem implements Disposable {
     return { x, y, w, h }
   }
 
-  private strokeWorldRect(worldRect: Rect, camOffset: Vec2, color: string) {
-    const { x, y, w, h } = this.toScreenRect(worldRect, camOffset)
+  private strokeWorldRect(worldRect: Rect, camOffset: Vec2, color: string, roomContext: RoomContext) {
+    const { x, y, w, h } = this.toScreenRect(worldRect, camOffset, roomContext)
     this.canvas.ctx.strokeStyle = this.getDebugColor(color)
     this.canvas.ctx.lineWidth = 1
     this.canvas.ctx.strokeRect(x, y, w, h)
   }
 
   // Draw anchored at (anchorX,anchorY). Use transform only for left-facing.
-  private drawSpriteAnchored(frameDef: SpriteFrameDef, anchor: Vec2, facing: Facing) {
+  private drawSpriteAnchored(frameDef: SpriteFrameDef, anchor: Vec2, facing: Facing, roomContext: RoomContext) {
     const img = this.imageLoader.get(frameDef.src)
-    const z = this.camera.zoom
+    const z = roomContext.camera.zoom
 
     // Dimensions in screen pixels
     const drawW = z * frameDef.w

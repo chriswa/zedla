@@ -2,12 +2,12 @@ import { singleton } from 'tsyringe'
 
 import { Input } from './input'
 
+import { CanvasLog } from '@/dev/canvasLog'
 import { Game } from '@/game/game'
 import { ImageLoader } from '@/gfx/imageLoader'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
 import { FixedTimeStep } from '@/util/fixedTimeStep'
-import { CanvasLog } from '@/dev/canvasLog'
 
 @singleton()
 export class App {

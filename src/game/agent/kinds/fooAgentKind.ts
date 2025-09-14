@@ -1,18 +1,19 @@
 import { singleton } from "tsyringe";
 
-import type { IAgentKind } from "../agentKind";
 import { ECS } from "../../ecs/ecs";
+import { AnimationController } from "../animationController";
+
 import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
 import type { RoomContext } from "../../roomContext";
-import { AnimationController } from "../animationController";
-import { assertExists } from "@/util/assertExists";
+import type { IAgentKind } from "../agentKind";
+
+import { CanvasLog } from "@/dev/canvasLog";
 import { FacingComponent, HitboxComponent, HurtboxComponent } from "@/game/ecs/components";
-import { Facing } from "@/types/facing";
 import { rect } from "@/math/rect";
 import { vec2 } from "@/math/vec2";
 import { CombatBit, createCombatMask } from "@/types/combat";
-import type { EntityMail } from "@/types/entityMail";
-import { CanvasLog } from "@/dev/canvasLog";
+import { Facing } from "@/types/facing";
+import { assertExists } from "@/util/assertExists";
 
 interface FooNpcData {
   health: number
@@ -47,13 +48,13 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
     // Mailbox: process and clear
     const mailbox = components.MailboxComponent
     if (mailbox) {
-      for (const mail of mailbox.eventQueue as EntityMail[]) {
+      for (const mail of mailbox.eventQueue) {
         if (mail.type === 'combat-hit') {
           // Example reaction: reduce health and face attacker
           data.health = Math.max(0, data.health - 1)
           const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
           facing.value = mail.attackVec2[0]! < 0 ? Facing.RIGHT : Facing.LEFT
-          const attackerKind = this.ecs.getComponent(mail.attackerId as EntityId, 'AgentKindComponent')?.kind ?? 'Unknown'
+          const attackerKind = this.ecs.getComponent(mail.attackerId, 'AgentKindComponent')?.kind ?? 'Unknown'
           this.canvasLog.postEphemeral(`Foo hurt by ${String(attackerKind)} ${vec2.toString(mail.attackVec2)}`)
         }
       }
