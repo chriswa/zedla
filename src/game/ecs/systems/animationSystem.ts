@@ -3,10 +3,10 @@ import { ITickingSystem } from '@/game/ecs/systems/types'
 import { RoomContext } from '@/game/roomContext'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { assertExists } from '@/util/assertExists'
-import { Disposable, singleton } from 'tsyringe'
+import { singleton } from 'tsyringe'
 
 @singleton()
-export class AnimationSystem implements ITickingSystem, Disposable {
+export class AnimationSystem implements ITickingSystem {
   constructor(
     private ecs: ECS,
   ) {
@@ -35,8 +35,5 @@ export class AnimationSystem implements ITickingSystem, Disposable {
         }
       }
     }
-  }
-
-  dispose() {
   }
 }

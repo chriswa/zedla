@@ -18,15 +18,15 @@ export class App {
     private canvasLog: CanvasLog,
   ) {}
 
-  // TODO: FSM with game selection (e.g. new game (choose difficulty) or continue) (this FSM is separate from Game's FSM)
+  // TODO: Fsm with game selection (e.g. new game (choose difficulty) or continue) (this Fsm is separate from Game's Fsm)
 
   async boot() {
-    await this.loadAllResources()
+    await this.loadAllMediaAssets()
     requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
     this.game.boot()
   }
 
-  async loadAllResources() {
+  async loadAllMediaAssets() {
     await this.imageLoader.loadAll([
       ...Object.values(spriteFrameDefs).map((f) => f.src),
       ...Object.values(tilesetDefs).map((f) => f.src),
@@ -34,21 +34,21 @@ export class App {
   }
 
   private rafCallback(timestamp: number): void {
-    // Update RAF delta permanent log
     if (this._lastRafTs !== undefined) {
       const dt = timestamp - this._lastRafTs
       this.canvasLog.upsertPermanent('raf-dt', `RAF dt: ${dt.toFixed(1)} ms`, 0)
     }
     this._lastRafTs = timestamp
 
+    // tick the fixed step logic 0 or more times depending on elapsed time
     const renderBlend = this.fixedTimeStep.tick(timestamp, () => {
       this.input.sample()
       this.game.tick()
     })
 
     this.game.render(renderBlend)
-    // Overlay dev canvas logs after world rendering
     this.canvasLog.render()
+
     requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
   }
 }

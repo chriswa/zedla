@@ -1,3 +1,4 @@
+import { ITickingSystem } from './types'
 import { ECS } from '@/game/ecs/ecs'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
@@ -5,10 +6,10 @@ import { vec2 } from '@/math/vec2'
 import { masksOverlap } from '@/types/combat'
 import { EntityMail } from '@/types/entityMail'
 import { assertExists } from '@/util/assertExists'
-import { Disposable, singleton } from 'tsyringe'
+import { singleton } from 'tsyringe'
 
 @singleton()
-export class CombatCollisionSystem implements Disposable {
+export class CombatCollisionSystem implements ITickingSystem {
   constructor(
     private ecs: ECS,
   ) {}
@@ -46,6 +47,4 @@ export class CombatCollisionSystem implements Disposable {
       }
     }
   }
-
-  dispose() {}
 }

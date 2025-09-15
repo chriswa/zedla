@@ -8,15 +8,15 @@ import { Vec2, vec2 } from '@/math/vec2'
 import { Facing } from '@/types/facing'
 import { SpriteFrameDef } from '@/types/spriteFrameDef'
 import { assertExists } from '@/util/assertExists'
-import { Disposable, singleton } from 'tsyringe'
+import { singleton } from 'tsyringe'
 
-const DO_INTERPOLATION = false as boolean
-const RENDER_PHYSICS_BOXES = true as boolean
-const RENDER_COMBAT_BOXES = true as boolean
-const RENDER_ANCHORS = true as boolean
+const DO_INTERPOLATION = true as boolean
+const RENDER_PHYSICS_BOXES = false as boolean
+const RENDER_COMBAT_BOXES = false as boolean
+const RENDER_ANCHORS = false as boolean
 
 @singleton()
-export class RenderSystem implements Disposable {
+export class RenderSystem {
   constructor(
     private canvas: Canvas,
     private imageLoader: ImageLoader,
@@ -216,8 +216,5 @@ export class RenderSystem implements Disposable {
     ctx.moveTo(x - size, y + size)
     ctx.lineTo(x + size, y - size)
     ctx.stroke()
-  }
-
-  dispose() {
   }
 }

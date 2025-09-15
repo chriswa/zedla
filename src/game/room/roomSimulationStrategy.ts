@@ -1,8 +1,8 @@
-import { GameStrategy } from '@/game/gameStrategy'
+import { GameFsmStrategy } from '@/game/gameFsmStrategy'
 import { RoomSimulation } from '@/game/room/roomSimulation'
 import { RoomContext } from '@/game/roomContext'
 
-export class RoomSimulationStrategy extends GameStrategy {
+export class RoomSimulationStrategy extends GameFsmStrategy {
   constructor(
     private roomSimulation: RoomSimulation,
     private roomContext: RoomContext,

@@ -11,7 +11,7 @@ import { AnimationFrameFlag } from '@/types/animationFlags'
 import { CombatBit, createCombatMask } from '@/types/combat'
 import { directionToFacing, Facing } from '@/types/facing'
 import { assertExists } from '@/util/assertExists'
-import { DirectFSM, DirectFSMStrategy } from '@/util/fsm'
+import { DirectFsm, DirectFsmStrategy } from '@/util/fsm'
 import { container, singleton } from 'tsyringe'
 
 // Physics constants
@@ -66,7 +66,7 @@ class PlayerEntityDataStore {
   public map = new Map<EntityId, PlayerEntityData>()
 }
 
-type PlayerFsmStrategy = DirectFSMStrategy<EntityId>
+type PlayerFsmStrategy = DirectFsmStrategy<EntityId>
 
 @singleton()
 class PlayerUtilities {
@@ -96,7 +96,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     private canvasLog: CanvasLog,
   ) {}
 
-  private fsmByEntityId = new Map<EntityId, DirectFSM<PlayerFsmStrategy, EntityId>>()
+  private fsmByEntityId = new Map<EntityId, DirectFsm<PlayerFsmStrategy, EntityId>>()
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
     this.playerUtilities.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand')
@@ -108,8 +108,8 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     // Initialize player data
     this.playerDataStore.map.set(entityId, { fallTicks: 9999 })
 
-    const fsm = new DirectFSM<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
-    // immediate enter for initial FSM strategy
+    const fsm = new DirectFsm<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
+    // immediate enter for initial Fsm strategy
     fsm.active.onEnter(entityId)
     this.fsmByEntityId.set(entityId, fsm)
   }

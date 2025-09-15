@@ -1,8 +1,8 @@
-export interface FSMStrategy {
+export interface FsmStrategy {
   onExit(): void
 }
 
-export class FSM<TBase extends FSMStrategy> {
+export class Fsm<TBase extends FsmStrategy> {
   private activeStrategy: TBase
   private queuedStrategyFactory: (() => TBase) | undefined
   constructor(initialStrategy: TBase) {
@@ -27,13 +27,13 @@ export class FSM<TBase extends FSMStrategy> {
   }
 }
 
-export interface DirectFSMStrategy<TContext> {
-  update(context: TContext): DirectFSMStrategy<TContext> | undefined
+export interface DirectFsmStrategy<TContext> {
+  update(context: TContext): DirectFsmStrategy<TContext> | undefined
   onEnter(context: TContext): void
   onExit(context: TContext): void
 }
 
-export class DirectFSM<TStrategy extends DirectFSMStrategy<TContext>, TContext> {
+export class DirectFsm<TStrategy extends DirectFsmStrategy<TContext>, TContext> {
   private activeStrategy: TStrategy
 
   constructor(initialStrategy: TStrategy) {
@@ -57,9 +57,9 @@ export class DirectFSM<TStrategy extends DirectFSMStrategy<TContext>, TContext> 
 
       transitions += 1
 
-      // console.log(`[DirectFSM] ${transitions}: ${prevName} -> ${nextName}`)
+      // console.log(`[DirectFsm] ${transitions}: ${prevName} -> ${nextName}`)
       if (transitions > maxTransitions) {
-        throw new Error(`DirectFSM exceeded max transitions: ${prevName} -> ${nextName}`)
+        throw new Error(`DirectFsm exceeded max transitions: ${prevName} -> ${nextName}`)
       }
 
       this.activeStrategy.onEnter(context)

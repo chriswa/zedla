@@ -4,12 +4,12 @@ import { ITickingSystem } from '@/game/ecs/systems/types'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
-import { Disposable, singleton } from 'tsyringe'
+import { singleton } from 'tsyringe'
 
 export const GRAVITY = 100
 
 @singleton()
-export class PhysicsSystem implements ITickingSystem, Disposable {
+export class PhysicsSystem implements ITickingSystem {
   constructor(
     private ecs: ECS,
     private tileCollisionService: TileCollisionService,
@@ -63,10 +63,5 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         }
       }
     }
-
-    // TODO: Add camera logic here (following player, bounds checking, etc.)
-  }
-
-  dispose() {
   }
 }
