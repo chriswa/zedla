@@ -30,6 +30,7 @@ export class PhysicsBodyComponent {
 export class SpriteComponent {
   constructor(
     public spriteFrameDef: SpriteFrameDef,
+    public zIndex: number,
   ) {}
 }
 export class FacingComponent {

@@ -99,7 +99,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   private fsmByEntityId = new Map<EntityId, DirectFsm<PlayerFsmStrategy, EntityId>>()
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
-    this.playerUtilities.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand')
+    this.playerUtilities.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))

@@ -16,10 +16,10 @@ export class AnimationController<K extends CharacterKey> {
   }
 
   // Adds both SpriteComponent and AnimationComponent, initialized to the first frame
-  addSpriteAndAnimationComponents(ecs: ECS, entityId: EntityId, initialAnimationName: AnimationName<K>) {
+  addSpriteAndAnimationComponents(ecs: ECS, entityId: EntityId, initialAnimationName: AnimationName<K>, zIndex: number) {
     const animDef = this.cachedAnimationDefMap[initialAnimationName]
     const firstFrameKey = animDef.frames[0]!.spriteFrame
-    ecs.addComponent(entityId, 'SpriteComponent', new SpriteComponent(spriteFrameDefs[firstFrameKey]))
+    ecs.addComponent(entityId, 'SpriteComponent', new SpriteComponent(spriteFrameDefs[firstFrameKey], zIndex))
     ecs.addComponent(entityId, 'AnimationComponent', new AnimationComponent(animationDefs[this.characterKey], animDef))
   }
 

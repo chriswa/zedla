@@ -34,7 +34,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
 
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
     this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
-    this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch')
+    this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch', 0)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))

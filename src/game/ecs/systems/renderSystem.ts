@@ -41,9 +41,16 @@ export class RenderSystem {
   }
 
   private renderSprites(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
-    for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
-      const spriteComponent = components.SpriteComponent
-      if (!spriteComponent) continue
+    const entitiesWithSprites = Array.from(this.ecs.getEntitiesInScene(roomContext.sceneId).entries())
+      .filter(([_entityId, components]) => components.SpriteComponent)
+      .sort(([_entityIdA, componentsA], [_entityIdB, componentsB]) => {
+        const spriteA = componentsA.SpriteComponent!
+        const spriteB = componentsB.SpriteComponent!
+        return spriteA.zIndex - spriteB.zIndex
+      })
+
+    for (const [_entityId, components] of entitiesWithSprites) {
+      const spriteComponent = components.SpriteComponent!
       const positionComponent = assertExists(components.PositionComponent)
       const facing = components.FacingComponent?.value ?? Facing.RIGHT
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
@@ -67,8 +74,17 @@ export class RenderSystem {
       const tileset = backgroundTilemapDef.tileset
       const grid = roomContext.backgroundGrids[gridIndex]!
 
-      for (let tileY = 0; tileY < grid.rows; tileY++) {
-        for (let tileX = 0; tileX < grid.cols; tileX++) {
+      const { minTileX, maxTileX, minTileY, maxTileY } = this.calculateVisibleTileBounds(
+        cameraOffset,
+        roomContext.camera.zoom,
+        tileset.tileWidth,
+        tileset.tileHeight,
+        grid.cols,
+        grid.rows,
+      )
+
+      for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
+        for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
           const tileIndex = grid.get(tileX, tileY)
           // if (tileIndex === 0) continue // Skip empty tiles
 
@@ -201,6 +217,30 @@ export class RenderSystem {
   // Alternates black on odd ticks; base color on even ticks
   private getDebugColor(baseColor: string): string {
     return (this.frameCounter % 4 < 2) ? 'black' : baseColor
+  }
+
+  private calculateVisibleTileBounds(
+    cameraOffset: Vec2,
+    cameraZoom: number,
+    tileWidth: number,
+    tileHeight: number,
+    gridCols: number,
+    gridRows: number,
+  ) {
+    const canvasWidth = this.canvas.el.width / (window.devicePixelRatio || 1)
+    const canvasHeight = this.canvas.el.height / (window.devicePixelRatio || 1)
+
+    const worldViewportLeft = cameraOffset[0]!
+    const worldViewportTop = cameraOffset[1]!
+    const worldViewportRight = worldViewportLeft + canvasWidth / cameraZoom
+    const worldViewportBottom = worldViewportTop + canvasHeight / cameraZoom
+
+    const minTileX = Math.max(0, Math.floor(worldViewportLeft / tileWidth))
+    const maxTileX = Math.min(gridCols - 1, Math.floor(worldViewportRight / tileWidth))
+    const minTileY = Math.max(0, Math.floor(worldViewportTop / tileHeight))
+    const maxTileY = Math.min(gridRows - 1, Math.floor(worldViewportBottom / tileHeight))
+
+    return { minTileX, maxTileX, minTileY, maxTileY }
   }
 
   private drawAnchorCross(anchorPx: Vec2, color: string) {
