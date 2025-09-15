@@ -11,7 +11,6 @@ import { RenderSystem } from '@/game/ecs/systems/renderSystem'
 import { RoomContext } from '@/game/roomContext'
 import { Vec2, vec2 } from '@/math/vec2'
 import { RoomDef } from '@/types/roomDef'
-import { Grid2D } from '@/util/grid2D'
 import { Disposable, singleton } from 'tsyringe'
 
 @singleton()
@@ -30,19 +29,15 @@ export class RoomSimulation implements Disposable {
 
   createRoomContext(roomDef: RoomDef): RoomContext {
     const sceneId = this.ecs.allocateSceneId()
-    const roomContext = new RoomContext(sceneId)
+    const roomContext = new RoomContext(sceneId, roomDef)
 
-    // Initialize RoomContext grids
-    roomContext.roomDef = roomDef
-    roomContext.physicsGrid = new Grid2D(roomDef.physicsTilemap.tiles, roomDef.physicsTilemap.cols)
-    roomContext.backgroundGrids = roomDef.backgroundTilemaps.map((bg) => new Grid2D(bg.tiles, bg.cols))
+    const playerEntityId = createAgentEntity(this.ecs, sceneId, 'Player', vec2.create(64, 64), {})
+    roomContext.setPlayerEntityId(playerEntityId)
 
     // Spawn Agents
     for (const spawn of roomDef.spawns) {
       createAgentEntity(this.ecs, sceneId, spawn.kind, spawn.position, spawn.spawnData)
     }
-
-    roomContext.playerEntityId = createAgentEntity(this.ecs, sceneId, 'Player', vec2.create(64, 64), {})
 
     // Dev: initial hello world ephemeral message
     this.canvasLog.postEphemeral('Hello World!')
