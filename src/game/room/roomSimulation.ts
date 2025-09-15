@@ -1,21 +1,18 @@
-import { singleton, type Disposable } from "tsyringe";
-
-import { spawnAgentByKind, type AgentKindKey, type AgentSpawnData } from "../agent/agentKindRegistry";
-import { PositionComponent, AgentKindComponent, MailboxComponent } from "../ecs/components";
-import { ECS, type EntityId, type SceneId } from "../ecs/ecs";
-import { AgentSystem } from "../ecs/systems/agentSystem";
-import { AnimationSystem } from "../ecs/systems/animationSystem";
-import { CameraSystem } from "../ecs/systems/cameraSystem";
-import { CombatCollisionSystem } from "../ecs/systems/combatCollisionSystem";
-import { PhysicsSystem } from "../ecs/systems/physicsSystem";
-import { RenderSystem } from "../ecs/systems/renderSystem";
-import { RoomContext } from "../roomContext";
-
-import { CanvasLog } from "@/dev/canvasLog";
-import { vec2, type Vec2 } from "@/math/vec2";
-import { type RoomDef } from "@/types/roomDef";
-import { Grid2D } from "@/util/grid2D";
-
+import { CanvasLog } from '@/dev/canvasLog'
+import { AgentKindKey, AgentSpawnData, spawnAgentByKind } from '@/game/agent/agentKindRegistry'
+import { AgentKindComponent, MailboxComponent, PositionComponent } from '@/game/ecs/components'
+import { ECS, EntityId, SceneId } from '@/game/ecs/ecs'
+import { AgentSystem } from '@/game/ecs/systems/agentSystem'
+import { AnimationSystem } from '@/game/ecs/systems/animationSystem'
+import { CameraSystem } from '@/game/ecs/systems/cameraSystem'
+import { CombatCollisionSystem } from '@/game/ecs/systems/combatCollisionSystem'
+import { PhysicsSystem } from '@/game/ecs/systems/physicsSystem'
+import { RenderSystem } from '@/game/ecs/systems/renderSystem'
+import { RoomContext } from '@/game/roomContext'
+import { Vec2, vec2 } from '@/math/vec2'
+import { RoomDef } from '@/types/roomDef'
+import { Grid2D } from '@/util/grid2D'
+import { Disposable, singleton } from 'tsyringe'
 
 @singleton()
 export class RoomSimulation implements Disposable {
@@ -38,7 +35,7 @@ export class RoomSimulation implements Disposable {
     // Initialize RoomContext grids
     roomContext.roomDef = roomDef
     roomContext.physicsGrid = new Grid2D(roomDef.physicsTilemap.tiles, roomDef.physicsTilemap.cols)
-    roomContext.backgroundGrids = roomDef.backgroundTilemaps.map(bg => new Grid2D(bg.tiles, bg.cols))
+    roomContext.backgroundGrids = roomDef.backgroundTilemaps.map((bg) => new Grid2D(bg.tiles, bg.cols))
 
     // Spawn Agents
     for (const spawn of roomDef.spawns) {
@@ -60,9 +57,11 @@ export class RoomSimulation implements Disposable {
     this.combatCollisionSystem.tick(roomContext)
     this.animationSystem.tick(roomContext)
   }
+
   render(renderBlend: number, roomContext: RoomContext) {
     this.renderSystem.render(renderBlend, roomContext)
   }
+
   dispose() {
   }
 }

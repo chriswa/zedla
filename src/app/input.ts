@@ -1,5 +1,5 @@
 import * as KeyCode from 'keycode-js'
-import { singleton } from "tsyringe";
+import { singleton } from 'tsyringe'
 
 export enum Button {
   // UP,
@@ -49,6 +49,7 @@ export class Input {
     })
     // TODO: capture tab focus lost/gained and reset all state!
   }
+
   sample() {
     this.sampledDown.clear()
     for (const button of this.volatileDown) {
@@ -61,9 +62,11 @@ export class Input {
     // Hits are edge-triggered; clear after sampling so they last one frame
     this.volatileHit.clear()
   }
+
   isDown(button: Button) {
     return this.sampledDown.has(button)
   }
+
   wasHitThisTick(button: Button) {
     return this.sampledHit.has(button)
   }

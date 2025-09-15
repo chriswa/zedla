@@ -1,7 +1,6 @@
-import { GameStrategy } from "../gameStrategy";
-
-import type { RoomContext } from "../roomContext";
-import type { RoomSimulation } from "./roomSimulation";
+import { GameStrategy } from '@/game/gameStrategy'
+import { RoomSimulation } from '@/game/room/roomSimulation'
+import { RoomContext } from '@/game/roomContext'
 
 export class RoomSimulationStrategy extends GameStrategy {
   constructor(

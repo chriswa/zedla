@@ -1,10 +1,7 @@
-import { singleton } from "tsyringe";
-
-import type { Rect } from "@/math/rect";
-
-import { rect } from "@/math/rect";
-import { vec2 } from "@/math/vec2";
-import { Grid2D } from "@/util/grid2D";
+import { Rect, rect } from '@/math/rect'
+import { vec2 } from '@/math/vec2'
+import { Grid2D } from '@/util/grid2D'
+import { singleton } from 'tsyringe'
 
 @singleton()
 export class TileCollisionService {

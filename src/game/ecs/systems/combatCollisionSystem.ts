@@ -1,14 +1,11 @@
-import { singleton, type Disposable } from 'tsyringe'
-
-import { ECS } from '../ecs'
-
-import type { EntityMail } from '@/types/entityMail'
-
+import { ECS } from '@/game/ecs/ecs'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { masksOverlap } from '@/types/combat'
+import { EntityMail } from '@/types/entityMail'
 import { assertExists } from '@/util/assertExists'
+import { Disposable, singleton } from 'tsyringe'
 
 @singleton()
 export class CombatCollisionSystem implements Disposable {
@@ -46,7 +43,6 @@ export class CombatCollisionSystem implements Disposable {
           const mail: EntityMail = { type: 'combat-hit', attackerId, attackVec2 }
           targetMailbox.eventQueue.push(mail)
         }
-
       }
     }
   }

@@ -7,4 +7,3 @@ export interface SpriteFrameDef {
   offsetX: number
   offsetY: number
 }
-

@@ -1,8 +1,8 @@
-import type { SpriteFrameDef } from "@/types/spriteFrameDef"
+import { SpriteFrameDef } from '@/types/spriteFrameDef'
 
 export const spriteFrameDefs = {
-  "blob_twitch_0": {
-    src: "enemies.png",
+  blob_twitch_0: {
+    src: 'enemies.png',
     x: 92,
     y: 247,
     w: 16,
@@ -10,8 +10,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -12,
   },
-  "blob_twitch_1": {
-    src: "enemies.png",
+  blob_twitch_1: {
+    src: 'enemies.png',
     x: 46,
     y: 247,
     w: 14,
@@ -19,8 +19,8 @@ export const spriteFrameDefs = {
     offsetX: 7,
     offsetY: -12,
   },
-  "blob_idle": {
-    src: "enemies.png",
+  blob_idle: {
+    src: 'enemies.png',
     x: 0,
     y: 247,
     w: 14,
@@ -28,8 +28,8 @@ export const spriteFrameDefs = {
     offsetX: 7,
     offsetY: -13,
   },
-  "boomeranger_attack_high_0": {
-    src: "enemies.png",
+  boomeranger_attack_high_0: {
+    src: 'enemies.png',
     x: 56,
     y: 80,
     w: 16,
@@ -37,8 +37,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -33,
   },
-  "boomeranger_walk_1": {
-    src: "enemies.png",
+  boomeranger_walk_1: {
+    src: 'enemies.png',
     x: 103,
     y: 32,
     w: 16,
@@ -46,8 +46,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "boomeranger_attack_low_0": {
-    src: "enemies.png",
+  boomeranger_attack_low_0: {
+    src: 'enemies.png',
     x: 72,
     y: 80,
     w: 16,
@@ -55,8 +55,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "boomeranger_attack_low_1": {
-    src: "enemies.png",
+  boomeranger_attack_low_1: {
+    src: 'enemies.png',
     x: 197,
     y: 0,
     w: 16,
@@ -64,8 +64,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -31,
   },
-  "boomeranger_walk_0": {
-    src: "enemies.png",
+  boomeranger_walk_0: {
+    src: 'enemies.png',
     x: 159,
     y: 144,
     w: 16,
@@ -73,8 +73,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -31,
   },
-  "bubble_default_0": {
-    src: "enemies.png",
+  bubble_default_0: {
+    src: 'enemies.png',
     x: 248,
     y: 247,
     w: 8,
@@ -82,8 +82,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -8,
   },
-  "deeler_attack_0": {
-    src: "enemies.png",
+  deeler_attack_0: {
+    src: 'enemies.png',
     x: 144,
     y: 207,
     w: 16,
@@ -91,8 +91,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "deeler_attack_1": {
-    src: "enemies.png",
+  deeler_attack_1: {
+    src: 'enemies.png',
     x: 128,
     y: 207,
     w: 16,
@@ -100,8 +100,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "deeler_canopy_0": {
-    src: "enemies.png",
+  deeler_canopy_0: {
+    src: 'enemies.png',
     x: 112,
     y: 207,
     w: 16,
@@ -109,8 +109,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "deeler_canopy_1": {
-    src: "enemies.png",
+  deeler_canopy_1: {
+    src: 'enemies.png',
     x: 96,
     y: 207,
     w: 16,
@@ -118,8 +118,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "explosion_default_0": {
-    src: "enemies.png",
+  explosion_default_0: {
+    src: 'enemies.png',
     x: 196,
     y: 247,
     w: 10,
@@ -127,8 +127,8 @@ export const spriteFrameDefs = {
     offsetX: 5,
     offsetY: -10,
   },
-  "explosion_default_1": {
-    src: "enemies.png",
+  explosion_default_1: {
+    src: 'enemies.png',
     x: 206,
     y: 247,
     w: 10,
@@ -136,8 +136,8 @@ export const spriteFrameDefs = {
     offsetX: 5,
     offsetY: -10,
   },
-  "explosion_default_2": {
-    src: "enemies.png",
+  explosion_default_2: {
+    src: 'enemies.png',
     x: 237,
     y: 176,
     w: 16,
@@ -145,8 +145,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "explosion_default_3": {
-    src: "enemies.png",
+  explosion_default_3: {
+    src: 'enemies.png',
     x: 237,
     y: 160,
     w: 16,
@@ -154,8 +154,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "fairy_default_0": {
-    src: "enemies.png",
+  fairy_default_0: {
+    src: 'enemies.png',
     x: 262,
     y: 30,
     w: 8,
@@ -163,8 +163,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -15,
   },
-  "fairy_default_1": {
-    src: "enemies.png",
+  fairy_default_1: {
+    src: 'enemies.png',
     x: 255,
     y: 45,
     w: 8,
@@ -172,8 +172,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -15,
   },
-  "fireball_burn_0": {
-    src: "enemies.png",
+  fireball_burn_0: {
+    src: 'enemies.png',
     x: 237,
     y: 222,
     w: 8,
@@ -181,8 +181,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -10,
   },
-  "fireball_burn_1": {
-    src: "enemies.png",
+  fireball_burn_1: {
+    src: 'enemies.png',
     x: 245,
     y: 222,
     w: 8,
@@ -190,8 +190,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -10,
   },
-  "fireball_burn_2": {
-    src: "enemies.png",
+  fireball_burn_2: {
+    src: 'enemies.png',
     x: 188,
     y: 247,
     w: 8,
@@ -199,8 +199,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -10,
   },
-  "hammer_thrower_default_0": {
-    src: "enemies.png",
+  hammer_thrower_default_0: {
+    src: 'enemies.png',
     x: 32,
     y: 112,
     w: 16,
@@ -208,8 +208,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "hammer_thrower_default_1": {
-    src: "enemies.png",
+  hammer_thrower_default_1: {
+    src: 'enemies.png',
     x: 197,
     y: 124,
     w: 16,
@@ -217,8 +217,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -30,
   },
-  "hammer_thrower_throw_0": {
-    src: "enemies.png",
+  hammer_thrower_throw_0: {
+    src: 'enemies.png',
     x: 48,
     y: 112,
     w: 20,
@@ -226,8 +226,8 @@ export const spriteFrameDefs = {
     offsetX: 12,
     offsetY: -32,
   },
-  "hammer_thrower_throw_1": {
-    src: "enemies.png",
+  hammer_thrower_throw_1: {
+    src: 'enemies.png',
     x: 0,
     y: 176,
     w: 20,
@@ -235,8 +235,8 @@ export const spriteFrameDefs = {
     offsetX: 12,
     offsetY: -30,
   },
-  "heart_container_idle_0": {
-    src: "enemies.png",
+  heart_container_idle_0: {
+    src: 'enemies.png',
     x: 255,
     y: 60,
     w: 16,
@@ -244,8 +244,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -15,
   },
-  "key_idle_0": {
-    src: "enemies.png",
+  key_idle_0: {
+    src: 'enemies.png',
     x: 263,
     y: 45,
     w: 8,
@@ -253,8 +253,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -15,
   },
-  "lizardpuppy_idle_0": {
-    src: "enemies.png",
+  lizardpuppy_idle_0: {
+    src: 'enemies.png',
     x: 73,
     y: 65,
     w: 22,
@@ -263,8 +263,8 @@ export const spriteFrameDefs = {
     offsetY: -7,
     // offsetXFlipped: 0
   },
-  "lizardpuppy_walk_0": {
-    src: "enemies.png",
+  lizardpuppy_walk_0: {
+    src: 'enemies.png',
     x: 0,
     y: 232,
     w: 24,
@@ -273,8 +273,8 @@ export const spriteFrameDefs = {
     offsetY: -7,
     // offsetXFlipped: 0
   },
-  "lizardpuppy_stand_0": {
-    src: "enemies.png",
+  lizardpuppy_stand_0: {
+    src: 'enemies.png',
     x: 134,
     y: 176,
     w: 16,
@@ -283,8 +283,8 @@ export const spriteFrameDefs = {
     offsetY: -29,
     // offsetXFlipped: 0
   },
-  "octorok_idle_0": {
-    src: "enemies.png",
+  octorok_idle_0: {
+    src: 'enemies.png',
     x: 208,
     y: 207,
     w: 16,
@@ -292,8 +292,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "octorok_idle_1": {
-    src: "enemies.png",
+  octorok_idle_1: {
+    src: 'enemies.png',
     x: 192,
     y: 207,
     w: 16,
@@ -301,8 +301,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -16,
   },
-  "proj_hammer_default_0": {
-    src: "enemies.png",
+  proj_hammer_default_0: {
+    src: 'enemies.png',
     x: 116,
     y: 247,
     w: 8,
@@ -310,8 +310,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -11,
   },
-  "proj_hammer_default_1": {
-    src: "enemies.png",
+  proj_hammer_default_1: {
+    src: 'enemies.png',
     x: 108,
     y: 247,
     w: 8,
@@ -319,8 +319,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -11,
   },
-  "proj_hammer_default_2": {
-    src: "enemies.png",
+  proj_hammer_default_2: {
+    src: 'enemies.png',
     x: 124,
     y: 247,
     w: 8,
@@ -328,8 +328,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -11,
   },
-  "proj_hammer_default_3": {
-    src: "enemies.png",
+  proj_hammer_default_3: {
+    src: 'enemies.png',
     x: 132,
     y: 247,
     w: 8,
@@ -337,8 +337,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -11,
   },
-  "scorpy_example_0": {
-    src: "enemies.png",
+  scorpy_example_0: {
+    src: 'enemies.png',
     x: 182,
     y: 176,
     w: 24,
@@ -347,8 +347,8 @@ export const spriteFrameDefs = {
     offsetY: -13,
     // offsetXFlipped: 0
   },
-  "scorpy_example_1": {
-    src: "enemies.png",
+  scorpy_example_1: {
+    src: 'enemies.png',
     x: 213,
     y: 0,
     w: 24,
@@ -357,8 +357,8 @@ export const spriteFrameDefs = {
     offsetY: -13,
     // offsetXFlipped: 0
   },
-  "scorpy_example_2": {
-    src: "enemies.png",
+  scorpy_example_2: {
+    src: 'enemies.png',
     x: 213,
     y: 27,
     w: 24,
@@ -367,8 +367,8 @@ export const spriteFrameDefs = {
     offsetY: -13,
     // offsetXFlipped: 0
   },
-  "scorpy_example_3": {
-    src: "enemies.png",
+  scorpy_example_3: {
+    src: 'enemies.png',
     x: 213,
     y: 54,
     w: 24,
@@ -377,8 +377,8 @@ export const spriteFrameDefs = {
     offsetY: -13,
     // offsetXFlipped: 0
   },
-  "scorpy_example_4": {
-    src: "enemies.png",
+  scorpy_example_4: {
+    src: 'enemies.png',
     x: 213,
     y: 158,
     w: 24,
@@ -387,8 +387,8 @@ export const spriteFrameDefs = {
     offsetY: -10,
     // offsetXFlipped: 0
   },
-  "scorpy_example_5": {
-    src: "enemies.png",
+  scorpy_example_5: {
+    src: 'enemies.png',
     x: 0,
     y: 207,
     w: 24,
@@ -397,8 +397,8 @@ export const spriteFrameDefs = {
     offsetY: -10,
     // offsetXFlipped: 0
   },
-  "skeleton_attack_0": {
-    src: "enemies.png",
+  skeleton_attack_0: {
+    src: 'enemies.png',
     x: 94,
     y: 144,
     w: 16,
@@ -406,8 +406,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "skeleton_attack_1": {
-    src: "enemies.png",
+  skeleton_attack_1: {
+    src: 'enemies.png',
     x: 110,
     y: 144,
     w: 16,
@@ -415,8 +415,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "skeleton_attack_2": {
-    src: "enemies.png",
+  skeleton_attack_2: {
+    src: 'enemies.png',
     x: 126,
     y: 144,
     w: 33,
@@ -425,8 +425,8 @@ export const spriteFrameDefs = {
     offsetY: -32,
     // offsetXFlipped: 46
   },
-  "skeleton_walk_0": {
-    src: "enemies.png",
+  skeleton_walk_0: {
+    src: 'enemies.png',
     x: 62,
     y: 144,
     w: 16,
@@ -434,8 +434,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "skeleton_jump_0": {
-    src: "enemies.png",
+  skeleton_jump_0: {
+    src: 'enemies.png',
     x: 213,
     y: 81,
     w: 16,
@@ -443,8 +443,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -29,
   },
-  "skeleton_walk_1": {
-    src: "enemies.png",
+  skeleton_walk_1: {
+    src: 'enemies.png',
     x: 78,
     y: 144,
     w: 16,
@@ -452,8 +452,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -32,
   },
-  "proj_boomerang_default_0": {
-    src: "enemies.png",
+  proj_boomerang_default_0: {
+    src: 'enemies.png',
     x: 190,
     y: 120,
     w: 7,
@@ -461,8 +461,8 @@ export const spriteFrameDefs = {
     offsetX: 3,
     offsetY: -8,
   },
-  "proj_boomerang_default_1": {
-    src: "enemies.png",
+  proj_boomerang_default_1: {
+    src: 'enemies.png',
     x: 96,
     y: 223,
     w: 7,
@@ -470,8 +470,8 @@ export const spriteFrameDefs = {
     offsetX: 3,
     offsetY: -8,
   },
-  "elevator_default_0": {
-    src: "player.png",
+  elevator_default_0: {
+    src: 'player.png',
     x: 56,
     y: 64,
     w: 24,
@@ -479,8 +479,8 @@ export const spriteFrameDefs = {
     offsetX: 12,
     offsetY: -8,
   },
-  "link_attack_0": {
-    src: "player.png",
+  link_attack_0: {
+    src: 'player.png',
     x: 16,
     y: 32,
     w: 23,
@@ -488,8 +488,8 @@ export const spriteFrameDefs = {
     offsetX: 15,
     offsetY: -33,
   },
-  "link_attack_1": {
-    src: "player.png",
+  link_attack_1: {
+    src: 'player.png',
     x: 64,
     y: 0,
     w: 32,
@@ -497,8 +497,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -30,
   },
-  "link_stand_0": {
-    src: "player.png",
+  link_stand_0: {
+    src: 'player.png',
     x: 32,
     y: 0,
     w: 16,
@@ -506,8 +506,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -33,
   },
-  "link_collect_0": {
-    src: "player.png",
+  link_collect_0: {
+    src: 'player.png',
     x: 0,
     y: 0,
     w: 16,
@@ -515,8 +515,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -33,
   },
-  "link_crouch_0": {
-    src: "player.png",
+  link_crouch_0: {
+    src: 'player.png',
     x: 0,
     y: 64,
     w: 16,
@@ -524,8 +524,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -30,
   },
-  "link_crouch_attack_0": {
-    src: "player.png",
+  link_crouch_attack_0: {
+    src: 'player.png',
     x: 16,
     y: 64,
     w: 32,
@@ -533,8 +533,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -24,
   },
-  "link_hurt_0": {
-    src: "player.png",
+  link_hurt_0: {
+    src: 'player.png',
     x: 80,
     y: 30,
     w: 16,
@@ -542,8 +542,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -28,
   },
-  "link_walk_0": {
-    src: "player.png",
+  link_walk_0: {
+    src: 'player.png',
     x: 48,
     y: 0,
     w: 16,
@@ -551,8 +551,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -33,
   },
-  "link_walk_1": {
-    src: "player.png",
+  link_walk_1: {
+    src: 'player.png',
     x: 0,
     y: 32,
     w: 16,
@@ -560,8 +560,8 @@ export const spriteFrameDefs = {
     offsetX: 8,
     offsetY: -33,
   },
-  "link_walk_2": {
-    src: "player.png",
+  link_walk_2: {
+    src: 'player.png',
     x: 39,
     y: 32,
     w: 16,
@@ -569,8 +569,8 @@ export const spriteFrameDefs = {
     offsetX: 9,
     offsetY: -32,
   },
-  "lock_default_0": {
-    src: "player.png",
+  lock_default_0: {
+    src: 'player.png',
     x: 48,
     y: 64,
     w: 8,
@@ -578,8 +578,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -16,
   },
-  "lock_wall_0": {
-    src: "player.png",
+  lock_wall_0: {
+    src: 'player.png',
     x: 55,
     y: 32,
     w: 8,
@@ -587,8 +587,8 @@ export const spriteFrameDefs = {
     offsetX: 4,
     offsetY: -16,
   },
-  "owblob_default_0": {
-    src: "overworld.png",
+  owblob_default_0: {
+    src: 'overworld.png',
     x: 9,
     y: 48,
     w: 11,
@@ -597,8 +597,8 @@ export const spriteFrameDefs = {
     offsetY: 0,
     // offsetXFlipped: -6
   },
-  "owblob_default_1": {
-    src: "overworld.png",
+  owblob_default_1: {
+    src: 'overworld.png',
     x: 0,
     y: 48,
     w: 9,
@@ -607,8 +607,8 @@ export const spriteFrameDefs = {
     offsetY: -2,
     // offsetXFlipped: -8
   },
-  "owplayer_raft_0": {
-    src: "overworld.png",
+  owplayer_raft_0: {
+    src: 'overworld.png',
     x: 38,
     y: 0,
     w: 16,
@@ -617,8 +617,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: 0
   },
-  "owplayer_stand_0": {
-    src: "overworld.png",
+  owplayer_stand_0: {
+    src: 'overworld.png',
     x: 31,
     y: 32,
     w: 7,
@@ -627,8 +627,8 @@ export const spriteFrameDefs = {
     offsetY: -7,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_east_0": {
-    src: "overworld.png",
+  owplayer_walk_east_0: {
+    src: 'overworld.png',
     x: 23,
     y: 32,
     w: 8,
@@ -637,8 +637,8 @@ export const spriteFrameDefs = {
     offsetY: -7,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_east_1": {
-    src: "overworld.png",
+  owplayer_walk_east_1: {
+    src: 'overworld.png',
     x: 15,
     y: 32,
     w: 8,
@@ -647,8 +647,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_north_0": {
-    src: "overworld.png",
+  owplayer_walk_north_0: {
+    src: 'overworld.png',
     x: 16,
     y: 16,
     w: 7,
@@ -657,8 +657,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_north_1": {
-    src: "overworld.png",
+  owplayer_walk_north_1: {
+    src: 'overworld.png',
     x: 38,
     y: 16,
     w: 7,
@@ -667,8 +667,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_south_0": {
-    src: "overworld.png",
+  owplayer_walk_south_0: {
+    src: 'overworld.png',
     x: 7,
     y: 0,
     w: 7,
@@ -677,8 +677,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: -10
   },
-  "owplayer_walk_south_1": {
-    src: "overworld.png",
+  owplayer_walk_south_1: {
+    src: 'overworld.png',
     x: 0,
     y: 0,
     w: 7,
@@ -687,8 +687,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: -10
   },
-  "owmonster_default_0": {
-    src: "overworld.png",
+  owmonster_default_0: {
+    src: 'overworld.png',
     x: 23,
     y: 16,
     w: 15,
@@ -697,8 +697,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: 0
   },
-  "owmonster_default_1": {
-    src: "overworld.png",
+  owmonster_default_1: {
+    src: 'overworld.png',
     x: 0,
     y: 32,
     w: 15,
@@ -707,8 +707,8 @@ export const spriteFrameDefs = {
     offsetY: -8,
     // offsetXFlipped: 0
   },
-  "owfairy_default_0": {
-    src: "overworld.png",
+  owfairy_default_0: {
+    src: 'overworld.png',
     x: 54,
     y: 0,
     w: 8,
@@ -717,8 +717,8 @@ export const spriteFrameDefs = {
     offsetY: -7,
     // offsetXFlipped: -8
   },
-  "owfairy_default_1": {
-    src: "overworld.png",
+  owfairy_default_1: {
+    src: 'overworld.png',
     x: 46,
     y: 32,
     w: 8,
@@ -726,5 +726,5 @@ export const spriteFrameDefs = {
     offsetX: -4,
     offsetY: -7,
     // offsetXFlipped: -8
-  }
+  },
 } as const satisfies Record<string, SpriteFrameDef>

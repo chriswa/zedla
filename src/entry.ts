@@ -1,8 +1,5 @@
 import 'reflect-metadata'
-
-// other imports in this file must follow after `import 'reflect-metadata'`
-import { container } from 'tsyringe'
-
 import { App } from '@/app/app'
+import { container } from 'tsyringe'
 
 await container.resolve(App).boot()

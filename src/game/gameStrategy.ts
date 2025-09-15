@@ -1,4 +1,4 @@
-import type { FSMStrategy } from "@/util/fsm";
+import { FSMStrategy } from '@/util/fsm'
 
 export abstract class GameStrategy implements FSMStrategy {
   tick() {}

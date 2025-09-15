@@ -1,5 +1,5 @@
-import type { RoomEntityDef } from "./spawnDef";
-import type { TilesetDef } from "./tilesetDef";
+import { RoomEntityDef } from '@/types/spawnDef'
+import { TilesetDef } from '@/types/tilesetDef'
 
 export interface PhysicsTilemapDef {
   tileSize: number

@@ -1,4 +1,4 @@
-import type { TilesetDef } from "@/types/tilesetDef"
+import { TilesetDef } from '@/types/tilesetDef'
 
 export const tilesetDefs = {
   tiles3: {

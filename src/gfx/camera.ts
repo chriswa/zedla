@@ -1,4 +1,4 @@
-import { vec2, type Vec2 } from "@/math/vec2";
+import { Vec2, vec2 } from '@/math/vec2'
 
 export class Camera {
   public offset: Vec2 = vec2.create(0, 0)

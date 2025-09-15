@@ -1,11 +1,8 @@
+import { BarAgentKind } from '@/game/agent/kinds/barAgentKind'
+import { FooAgentKind } from '@/game/agent/kinds/fooAgentKind'
+import { PlayerAgentKind } from '@/game/agent/kinds/playerAgentKind'
+import { EntityId } from '@/game/ecs/ecs'
 import { container } from 'tsyringe'
-
-
-import { BarAgentKind } from './kinds/barAgentKind'
-import { FooAgentKind } from './kinds/fooAgentKind'
-import { PlayerAgentKind } from './kinds/playerAgentKind'
-
-import type { EntityId } from '../ecs/ecs'
 
 export const agentKindRegistry = {
   Foo: container.resolve(FooAgentKind),

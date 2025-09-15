@@ -6,6 +6,7 @@ import unicorn from 'eslint-plugin-unicorn'
 import regexp from 'eslint-plugin-regexp'
 import globals from 'globals'
 import stylistic from '@stylistic/eslint-plugin'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
 export default tseslint.config(
   // 1) Ignore build artifacts
@@ -18,7 +19,15 @@ export default tseslint.config(
       parserOptions: { project: ['./tsconfig.json'] }, // enables type-aware rules
       globals: globals.browser,
     },
-    plugins: { import: importPlugin, promise, unicorn, regexp, stylistic },
+    settings: {
+      // Ensure eslint-plugin-import resolves TS path aliases (e.g., '@/...')
+      'import/resolver': {
+        typescript: {
+          project: ['./tsconfig.json'],
+        },
+      },
+    },
+    plugins: { import: importPlugin, promise, unicorn, regexp, stylistic, 'simple-import-sort': simpleImportSort },
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
@@ -41,7 +50,10 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
 
       // --- TypeScript safety
-      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'no-type-imports', fixStyle: 'separate-type-imports' },
+      ],
       '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       '@typescript-eslint/await-thenable': 'error',
@@ -74,22 +86,31 @@ export default tseslint.config(
       'import/first': 'error',
       'import/no-duplicates': 'error',
       'import/no-useless-path-segments': 'error',
-      'import/order': [
+      // Enforce alias usage via no-restricted-imports; disable this to avoid false positives with aliases
+      'import/no-relative-parent-imports': 'off',
+      // Disallow all relative imports ('./' and '../'); enforce alias-based imports
+      'no-restricted-imports': [
         'error',
         {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-            'object',
-            'type',
-          ],
-          'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
+          patterns: [
+            {
+              group: ['^\\.'],
+              message: 'Use @/ path alias instead of relative import.'
+            }
+          ]
+        }
+      ],
+      'import/order': 'off',
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [['^.+$']],
         },
+      ],
+      'simple-import-sort/exports': 'error',
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'never', prev: 'import', next: 'import' },
       ],
 
       // --- Promise correctness
@@ -120,8 +141,13 @@ export default tseslint.config(
       '@stylistic/semi': ['error', 'never'],
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
       '@stylistic/indent': ['error', 2, { SwitchCase: 1 }],
+      // No cuddled elses: place `else`/`else if` on a new line (Stroustrup)
+      '@stylistic/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+      // Always require parentheses around arrow function parameters
+      '@stylistic/arrow-parens': ['error', 'always'],
 
       // Do not force multi-line wrapping; let authors decide
+      '@stylistic/max-statements-per-line': 'off',
       '@stylistic/array-bracket-newline': 'off',
       '@stylistic/array-element-newline': 'off',
       '@stylistic/object-curly-newline': 'off',

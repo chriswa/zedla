@@ -1,13 +1,9 @@
-import { singleton } from "tsyringe"
-
-import { GameEventBus } from "../event/gameEventBus"
-
-import { componentRegistry } from "./components"
-
-import type { Brand } from "@/util/type/brand"
-
-import { assert } from "@/util/assert"
-import { assertExists } from "@/util/assertExists"
+import { componentRegistry } from '@/game/ecs/components'
+import { GameEventBus } from '@/game/event/gameEventBus'
+import { assert } from '@/util/assert'
+import { assertExists } from '@/util/assertExists'
+import { Brand } from '@/util/type/brand'
+import { singleton } from 'tsyringe'
 
 export type EntityId = Brand<number, 'EntityId'>
 export type SceneId = Brand<number, 'SceneId'>
@@ -27,8 +23,8 @@ export class ECS {
   private nextSceneId = 0 as SceneId
 
   // Dual-map structure
-  private globalEntities = new Map<EntityId, EntityComponentMap>()  // Global lookup
-  private scenes = new Map<SceneId, Set<EntityId>>()                // Scene -> EntityIds
+  private globalEntities = new Map<EntityId, EntityComponentMap>() // Global lookup
+  private scenes = new Map<SceneId, Set<EntityId>>() // Scene -> EntityIds
 
   // Legacy getter for backward compatibility during transition
   get entities() {

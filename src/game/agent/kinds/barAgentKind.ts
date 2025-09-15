@@ -1,13 +1,9 @@
-import { singleton } from "tsyringe";
-
-import { ECS } from "../../ecs/ecs";
-
-import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
-import type { RoomContext } from "../../roomContext";
-import type { IAgentKind } from "../agentKind";
-
-import { FacingComponent } from "@/game/ecs/components";
-import { Facing } from "@/types/facing";
+import { IAgentKind } from '@/game/agent/agentKind'
+import { FacingComponent } from '@/game/ecs/components'
+import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { RoomContext } from '@/game/roomContext'
+import { Facing } from '@/types/facing'
+import { singleton } from 'tsyringe'
 
 interface BarNpcData {
   name: string
@@ -24,11 +20,12 @@ export class BarAgentKind implements IAgentKind<BarSpawnData> {
   constructor(
     private ecs: ECS,
   ) {}
+
   private npcData = new Map<EntityId, BarNpcData>()
 
   spawn(entityId: EntityId, spawnData: BarSpawnData): void {
-    this.npcData.set(entityId, { 
-      name: spawnData.name, 
+    this.npcData.set(entityId, {
+      name: spawnData.name,
       patrolDistance: spawnData.patrolDistance,
     })
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))

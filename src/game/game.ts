@@ -1,18 +1,14 @@
-import { singleton } from "tsyringe"
-
-import { GameStrategy } from "./gameStrategy"
-import { RoomSimulation } from "./room/roomSimulation"
-import { RoomSimulationStrategy } from "./room/roomSimulationStrategy"
-
-import { roomDefs } from "@/resources/roomDefs"
-import { FSM } from "@/util/fsm"
-
+import { GameStrategy } from '@/game/gameStrategy'
+import { RoomSimulation } from '@/game/room/roomSimulation'
+import { RoomSimulationStrategy } from '@/game/room/roomSimulationStrategy'
+import { roomDefs } from '@/resources/roomDefs'
+import { FSM } from '@/util/fsm'
+import { singleton } from 'tsyringe'
 
 class NoOpGameStrategy extends GameStrategy {}
 
 @singleton()
 export class Game {
-
   public fsm = new FSM<GameStrategy>(new NoOpGameStrategy())
 
   constructor(
@@ -32,6 +28,7 @@ export class Game {
     this.fsm.processQueuedStrategy()
     this.fsm.active.tick()
   }
+
   render(renderBlend: number) {
     this.fsm.active.render(renderBlend)
   }

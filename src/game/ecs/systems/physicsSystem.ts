@@ -1,14 +1,10 @@
-import { singleton, type Disposable } from "tsyringe";
-
-import { TileCollisionService } from "../../collision/tileCollisionService";
-import { ECS } from "../ecs";
-
-import { type ITickingSystem } from "./types";
-
-import { RoomContext } from "@/game/roomContext";
-import { rect } from "@/math/rect";
-import { vec2 } from "@/math/vec2";
-
+import { TileCollisionService } from '@/game/collision/tileCollisionService'
+import { ECS } from '@/game/ecs/ecs'
+import { ITickingSystem } from '@/game/ecs/systems/types'
+import { RoomContext } from '@/game/roomContext'
+import { rect } from '@/math/rect'
+import { vec2 } from '@/math/vec2'
+import { Disposable, singleton } from 'tsyringe'
 
 export const GRAVITY = 100
 
@@ -19,6 +15,7 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
     private tileCollisionService: TileCollisionService,
   ) {
   }
+
   tick(roomContext: RoomContext) {
     // Store previous positions before updating current positions
     vec2.copy(roomContext.camera.previousOffset, roomContext.camera.offset)
@@ -31,11 +28,10 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
         vec2.copy(positionComponent.previousOffset, positionComponent.offset)
 
         if (physicsBodyComponent !== undefined) {
-
           // Calculate desired movement from velocity
           const dt = 1000 / 60
-          const deltaX = physicsBodyComponent.velocity[0]! * dt * 0.5  // Halve for pixel scale
-          const deltaY = physicsBodyComponent.velocity[1]! * dt * 0.5  // Halve for pixel scale
+          const deltaX = physicsBodyComponent.velocity[0]! * dt * 0.5 // Halve for pixel scale
+          const deltaY = physicsBodyComponent.velocity[1]! * dt * 0.5 // Halve for pixel scale
 
           // Get world-space collision rect
           const worldRect = rect.add(physicsBodyComponent.rect, positionComponent.offset)
@@ -70,6 +66,7 @@ export class PhysicsSystem implements ITickingSystem, Disposable {
 
     // TODO: Add camera logic here (following player, bounds checking, etc.)
   }
+
   dispose() {
   }
 }

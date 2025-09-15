@@ -1,5 +1,5 @@
-import type { EntityId } from '@/game/ecs/ecs'
-import type { Vec2 } from '@/math/vec2'
+import { EntityId } from '@/game/ecs/ecs'
+import { Vec2 } from '@/math/vec2'
 
 export interface CombatHitMail {
   type: 'combat-hit'
@@ -8,4 +8,3 @@ export interface CombatHitMail {
 }
 
 export type EntityMail = CombatHitMail
-

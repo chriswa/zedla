@@ -1,16 +1,10 @@
-import { singleton, type Disposable } from "tsyringe";
-
-import { agentKindRegistry } from "../../agent/agentKindRegistry";
-import { GameEventBus } from "../../event/gameEventBus";
-import { ECS } from "../ecs";
-
-import { type ITickingSystem } from "./types";
-
-import type { AgentKindComponent } from "../components";
-
-import { RoomContext } from "@/game/roomContext";
-
-
+import { agentKindRegistry } from '@/game/agent/agentKindRegistry'
+import { AgentKindComponent } from '@/game/ecs/components'
+import { ECS } from '@/game/ecs/ecs'
+import { ITickingSystem } from '@/game/ecs/systems/types'
+import { GameEventBus } from '@/game/event/gameEventBus'
+import { RoomContext } from '@/game/roomContext'
+import { Disposable, singleton } from 'tsyringe'
 
 @singleton()
 export class AgentSystem implements ITickingSystem, Disposable {

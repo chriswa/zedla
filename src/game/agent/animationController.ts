@@ -1,23 +1,19 @@
-import { AnimationComponent, SpriteComponent } from "../ecs/components";
-
-import type { ECS , EntityId } from "../ecs/ecs";
-import type { AnimationDef } from "@/types/animationDef";
-
-import { animationDefs } from "@/resources/animationDefs";
-import { spriteFrameDefs } from "@/resources/spriteFrameDefs";
-import { hasFrameFlag, type AnimationFrameFlag } from "@/types/animationFlags";
-import { assertExists } from "@/util/assertExists";
+import { AnimationComponent, SpriteComponent } from '@/game/ecs/components'
+import { ECS, EntityId } from '@/game/ecs/ecs'
+import { animationDefs } from '@/resources/animationDefs'
+import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
+import { AnimationDef } from '@/types/animationDef'
+import { AnimationFrameFlag, hasFrameFlag } from '@/types/animationFlags'
+import { assertExists } from '@/util/assertExists'
 
 type CharacterKey = keyof typeof animationDefs
 type AnimationName<K extends CharacterKey> = keyof typeof animationDefs[K]
-
 
 export class AnimationController<K extends CharacterKey> {
   private cachedAnimationDefMap: Record<AnimationName<K>, AnimationDef>
   constructor(private characterKey: K) {
     this.cachedAnimationDefMap = animationDefs[this.characterKey] as Record<AnimationName<K>, AnimationDef>
   }
-
 
   // Adds both SpriteComponent and AnimationComponent, initialized to the first frame
   addSpriteAndAnimationComponents(ecs: ECS, entityId: EntityId, initialAnimationName: AnimationName<K>) {
@@ -39,6 +35,7 @@ export class AnimationController<K extends CharacterKey> {
     const spriteComponent = assertExists(ecs.getComponent(entityId, 'SpriteComponent'))
     spriteComponent.spriteFrameDef = spriteFrameDefs[firstFrameKey]
   }
+
   playAnimation(ecs: ECS, entityId: EntityId, animationName: AnimationName<K>) {
     const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
     if (animationComponent.animation !== this.cachedAnimationDefMap[animationName]) {
@@ -56,5 +53,4 @@ export class AnimationController<K extends CharacterKey> {
     const animationComponent = assertExists(ecs.getComponent(entityId, 'AnimationComponent'))
     return animationComponent.hasCompleted
   }
-
 }

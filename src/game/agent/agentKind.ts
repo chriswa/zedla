@@ -1,5 +1,5 @@
-import type { EntityId , EntityComponentMap } from "../ecs/ecs";
-import type { RoomContext } from "../roomContext";
+import { EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { RoomContext } from '@/game/roomContext'
 
 export interface IAgentKind<TSpawnData = void> {
   spawn(entityId: EntityId, spawnData: TSpawnData): void

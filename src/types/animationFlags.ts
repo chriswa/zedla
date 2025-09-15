@@ -1,4 +1,4 @@
-import type { Brand } from '@/util/type/brand'
+import { Brand } from '@/util/type/brand'
 
 export enum AnimationFrameFlag {
   SwordSwing = 1 << 0,
@@ -17,6 +17,5 @@ export function createAnimationFrameBits(...flags: Array<AnimationFrameFlag>): A
 }
 
 export function hasFrameFlag(mask: AnimationFrameBits | undefined, flag: AnimationFrameFlag): boolean {
-   
   return mask !== undefined && (((mask as unknown as number) & flag) !== 0)
 }

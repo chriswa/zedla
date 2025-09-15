@@ -1,6 +1,5 @@
-import { singleton } from 'tsyringe'
-
 import { assertExists } from '@/util/assertExists'
+import { singleton } from 'tsyringe'
 
 @singleton()
 export class Canvas {
@@ -25,6 +24,7 @@ export class Canvas {
     addEventListener('resize', resize)
     resize()
   }
+
   public cls() {
     this.ctx.clearRect(0, 0, this.el.width, this.el.height)
   }

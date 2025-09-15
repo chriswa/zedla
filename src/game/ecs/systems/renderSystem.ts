@@ -1,19 +1,14 @@
-import { singleton, type Disposable } from "tsyringe";
-
-import { ECS } from "../ecs";
-
-
-import type { PositionComponent } from "../components";
-import type { Rect } from "@/math/rect";
-import type { SpriteFrameDef } from "@/types/spriteFrameDef";
-
-import { RoomContext } from "@/game/roomContext";
-import { Canvas } from "@/gfx/canvas";
-import { ImageLoader } from "@/gfx/imageLoader";
-import { rect } from "@/math/rect";
-import { vec2, type Vec2 } from "@/math/vec2";
-import { Facing } from "@/types/facing";
-import { assertExists } from "@/util/assertExists";
+import { PositionComponent } from '@/game/ecs/components'
+import { ECS } from '@/game/ecs/ecs'
+import { RoomContext } from '@/game/roomContext'
+import { Canvas } from '@/gfx/canvas'
+import { ImageLoader } from '@/gfx/imageLoader'
+import { Rect, rect } from '@/math/rect'
+import { Vec2, vec2 } from '@/math/vec2'
+import { Facing } from '@/types/facing'
+import { SpriteFrameDef } from '@/types/spriteFrameDef'
+import { assertExists } from '@/util/assertExists'
+import { Disposable, singleton } from 'tsyringe'
 
 const DO_INTERPOLATION = false as boolean
 const RENDER_PHYSICS_BOXES = true as boolean
@@ -28,6 +23,7 @@ export class RenderSystem implements Disposable {
     private ecs: ECS,
   ) {
   }
+
   private frameCounter = 0
   render(renderBlend: number, roomContext: RoomContext) {
     this.frameCounter++
@@ -43,6 +39,7 @@ export class RenderSystem implements Disposable {
       this.renderCombatBoxes(cameraOffset, renderBlend, roomContext)
     }
   }
+
   private renderSprites(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const spriteComponent = components.SpriteComponent
@@ -64,16 +61,17 @@ export class RenderSystem implements Disposable {
       }
     }
   }
+
   private renderTilemaps(cameraOffset: Vec2, roomContext: RoomContext) {
     for (const [gridIndex, backgroundTilemapDef] of roomContext.roomDef.backgroundTilemaps.entries()) {
       const tileset = backgroundTilemapDef.tileset
       const grid = roomContext.backgroundGrids[gridIndex]!
-      
+
       for (let tileY = 0; tileY < grid.rows; tileY++) {
         for (let tileX = 0; tileX < grid.cols; tileX++) {
           const tileIndex = grid.get(tileX, tileY)
           // if (tileIndex === 0) continue // Skip empty tiles
-          
+
           const tilesetX = tileIndex % tileset.cols
           const tilesetY = Math.floor(tileIndex / tileset.cols)
           this.canvas.ctx.drawImage(
@@ -91,6 +89,7 @@ export class RenderSystem implements Disposable {
       }
     }
   }
+
   private renderPhysicsBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const physicsBody = components.PhysicsBodyComponent
@@ -156,7 +155,7 @@ export class RenderSystem implements Disposable {
 
     // Local offset from the anchor to the sprite's top-left, when facing right
     const localOffsetX = -z * frameDef.offsetX
-    const localOffsetY =  z * frameDef.offsetY
+    const localOffsetY = z * frameDef.offsetY
 
     // Anchor in screen pixels
     const anchorPxX = z * anchor[0]!
@@ -183,7 +182,8 @@ export class RenderSystem implements Disposable {
         drawW,
         drawH,
       )
-    } else {
+    }
+    else {
       this.canvas.ctx.drawImage(
         img,
         frameDef.x,
@@ -217,6 +217,7 @@ export class RenderSystem implements Disposable {
     ctx.lineTo(x + size, y - size)
     ctx.stroke()
   }
+
   dispose() {
   }
 }

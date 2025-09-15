@@ -1,6 +1,5 @@
-import { singleton } from "tsyringe";
-
-import { assertExists } from "@/util/assertExists";
+import { assertExists } from '@/util/assertExists'
+import { singleton } from 'tsyringe'
 
 @singleton()
 export class ImageLoader {
@@ -8,6 +7,7 @@ export class ImageLoader {
   private flippedHorizCanvases = new Map<string, HTMLCanvasElement>()
   constructor() {
   }
+
   async load(filepath: string): Promise<void> {
     if (this.images.has(filepath)) {
       return Promise.resolve()
@@ -33,13 +33,16 @@ export class ImageLoader {
       }
     })
   }
+
   async loadAll(filepaths: Array<string>) {
     const uniqueSrcs = Array.from(new Set(filepaths))
-    await Promise.all(uniqueSrcs.map(async src => this.load(src)))
+    await Promise.all(uniqueSrcs.map(async (src) => this.load(src)))
   }
+
   get(filepath: string): HTMLImageElement {
     return assertExists(this.images.get(filepath), `image ${filepath} not loaded`)
   }
+
   getFlippedHorizontally(filepath: string): HTMLCanvasElement {
     return assertExists(this.flippedHorizCanvases.get(filepath), `flipped image ${filepath} not loaded`)
   }

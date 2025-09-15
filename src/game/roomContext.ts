@@ -1,9 +1,8 @@
-import type { EntityId, SceneId } from "./ecs/ecs"
-import type { RoomDef } from "@/types/roomDef"
-import type { Grid2D } from "@/util/grid2D"
-
-import { Camera } from "@/gfx/camera"
-import { assertExists } from "@/util/assertExists"
+import { EntityId, SceneId } from '@/game/ecs/ecs'
+import { Camera } from '@/gfx/camera'
+import { RoomDef } from '@/types/roomDef'
+import { assertExists } from '@/util/assertExists'
+import { Grid2D } from '@/util/grid2D'
 
 export class RoomContext {
   private _playerEntityId: EntityId | undefined

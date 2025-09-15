@@ -1,6 +1,5 @@
-import { vec2, type Vec2 } from "./vec2"
-
-import type { LayeredBrand } from "@/util/type/brand"
+import { Vec2, vec2 } from '@/math/vec2'
+import { LayeredBrand } from '@/util/type/brand'
 
 export type Rect = LayeredBrand<Float32Array, ['rect']>
 
@@ -25,7 +24,6 @@ export const rect = {
   clone(r: Rect): Rect {
     return new Float32Array(r) as Rect
   },
-
 
   topLeft(r: Rect): Vec2 {
     return vec2.create(r[0]!, r[1]!)
@@ -60,8 +58,8 @@ export const rect = {
   // Axis-aligned bounding box overlap test
   aabbOverlap(a: Rect, b: Rect): boolean {
     return !(a[2]! <= b[0]! || // a right <= b left
-             a[0]! >= b[2]! || // a left >= b right
-             a[3]! <= b[1]! || // a bottom <= b top
-             a[1]! >= b[3]!)   // a top >= b bottom
+      a[0]! >= b[2]! || // a left >= b right
+      a[3]! <= b[1]! || // a bottom <= b top
+      a[1]! >= b[3]!) // a top >= b bottom
   },
 }

@@ -1,11 +1,8 @@
-import { singleton, type Disposable } from "tsyringe";
-
-import { ECS } from "../ecs";
-
-import { type ITickingSystem } from "./types";
-
-import { RoomContext } from "@/game/roomContext";
-import { Canvas } from "@/gfx/canvas";
+import { ECS } from '@/game/ecs/ecs'
+import { ITickingSystem } from '@/game/ecs/systems/types'
+import { RoomContext } from '@/game/roomContext'
+import { Canvas } from '@/gfx/canvas'
+import { Disposable, singleton } from 'tsyringe'
 
 @singleton()
 export class CameraSystem implements ITickingSystem, Disposable {
@@ -14,6 +11,7 @@ export class CameraSystem implements ITickingSystem, Disposable {
     private canvas: Canvas,
   ) {
   }
+
   tick(roomContext: RoomContext) {
     const playerEntityId = roomContext.playerEntityId
     const position = this.ecs.getComponent(playerEntityId, 'PositionComponent')
@@ -23,6 +21,7 @@ export class CameraSystem implements ITickingSystem, Disposable {
       roomContext.camera.offset[1] = position.offset[1]! - this.canvas.el.height / (4 * roomContext.camera.zoom)
     }
   }
+
   dispose() {
   }
 }

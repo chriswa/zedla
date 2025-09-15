@@ -1,19 +1,15 @@
-import { singleton } from "tsyringe";
-
-import { ECS } from "../../ecs/ecs";
-import { AnimationController } from "../animationController";
-
-import type { EntityId, EntityComponentMap } from "../../ecs/ecs";
-import type { RoomContext } from "../../roomContext";
-import type { IAgentKind } from "../agentKind";
-
-import { CanvasLog } from "@/dev/canvasLog";
-import { FacingComponent, HitboxComponent, HurtboxComponent } from "@/game/ecs/components";
-import { rect } from "@/math/rect";
-import { vec2 } from "@/math/vec2";
-import { CombatBit, createCombatMask } from "@/types/combat";
-import { Facing } from "@/types/facing";
-import { assertExists } from "@/util/assertExists";
+import { CanvasLog } from '@/dev/canvasLog'
+import { IAgentKind } from '@/game/agent/agentKind'
+import { AnimationController } from '@/game/agent/animationController'
+import { FacingComponent, HitboxComponent, HurtboxComponent } from '@/game/ecs/components'
+import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { RoomContext } from '@/game/roomContext'
+import { rect } from '@/math/rect'
+import { vec2 } from '@/math/vec2'
+import { CombatBit, createCombatMask } from '@/types/combat'
+import { Facing } from '@/types/facing'
+import { assertExists } from '@/util/assertExists'
+import { singleton } from 'tsyringe'
 
 interface FooNpcData {
   health: number
@@ -32,6 +28,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
     private canvasLog: CanvasLog,
   ) {
   }
+
   private npcData = new Map<EntityId, FooNpcData>()
   private animationController = new AnimationController('blob')
 

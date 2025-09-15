@@ -1,13 +1,11 @@
-import { singleton } from 'tsyringe'
-
-import { Input } from './input'
-
+import { Input } from '@/app/input'
 import { CanvasLog } from '@/dev/canvasLog'
 import { Game } from '@/game/game'
 import { ImageLoader } from '@/gfx/imageLoader'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
 import { FixedTimeStep } from '@/util/fixedTimeStep'
+import { singleton } from 'tsyringe'
 
 @singleton()
 export class App {
@@ -30,8 +28,8 @@ export class App {
 
   async loadAllResources() {
     await this.imageLoader.loadAll([
-      ...Object.values(spriteFrameDefs).map(f => f.src),
-      ...Object.values(tilesetDefs).map(f => f.src),
+      ...Object.values(spriteFrameDefs).map((f) => f.src),
+      ...Object.values(tilesetDefs).map((f) => f.src),
     ])
   }
 
@@ -47,7 +45,7 @@ export class App {
       this.input.sample()
       this.game.tick()
     })
-    
+
     this.game.render(renderBlend)
     // Overlay dev canvas logs after world rendering
     this.canvasLog.render()

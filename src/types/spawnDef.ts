@@ -1,5 +1,5 @@
-import type { AgentKindKey, AgentSpawnData } from "@/game/agent/agentKindRegistry";
-import type { Vec2 } from "@/math/vec2";
+import { AgentKindKey, AgentSpawnData } from '@/game/agent/agentKindRegistry'
+import { Vec2 } from '@/math/vec2'
 
 export type RoomEntityDef = {
   [K in AgentKindKey]: {

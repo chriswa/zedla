@@ -1,14 +1,12 @@
-import type { AgentKindKey } from "../agent/agentKindRegistry";
-import type { Rect } from "@/math/rect";
-import type { Vec2 } from "@/math/vec2";
-import type { animationDefs } from "@/resources/animationDefs";
-import type { AnimationDef } from "@/types/animationDef";
-import type { CombatMask } from "@/types/combat";
-import type { EntityMail } from "@/types/entityMail";
-import type { Facing } from "@/types/facing";
-import type { SpriteFrameDef } from "@/types/spriteFrameDef";
-
-import { vec2 } from "@/math/vec2";
+import { AgentKindKey } from '@/game/agent/agentKindRegistry'
+import { Rect } from '@/math/rect'
+import { Vec2, vec2 } from '@/math/vec2'
+import { animationDefs } from '@/resources/animationDefs'
+import { AnimationDef } from '@/types/animationDef'
+import { CombatMask } from '@/types/combat'
+import { EntityMail } from '@/types/entityMail'
+import { Facing } from '@/types/facing'
+import { SpriteFrameDef } from '@/types/spriteFrameDef'
 
 export class PositionComponent {
   public previousOffset: Vec2

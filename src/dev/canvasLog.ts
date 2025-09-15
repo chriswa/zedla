@@ -1,9 +1,8 @@
+import { Canvas } from '@/gfx/canvas'
 import { singleton } from 'tsyringe'
 
-import { Canvas } from '@/gfx/canvas'
-
-interface PermanentMsg { id: string; text: string; sort: number }
-interface EphemeralMsg { text: string; timeAddedMs: number }
+interface PermanentMsg { id: string, text: string, sort: number }
+interface EphemeralMsg { text: string, timeAddedMs: number }
 
 @singleton()
 export class CanvasLog {
@@ -51,7 +50,7 @@ export class CanvasLog {
 
       // Cull and draw ephemeral messages (above permanents)
       const maxAgeMs = this.LIFE_MS + this.FADE_MS
-      this.ephemerals = this.ephemerals.filter(e => (now - e.timeAddedMs) < maxAgeMs)
+      this.ephemerals = this.ephemerals.filter((e) => (now - e.timeAddedMs) < maxAgeMs)
 
       // Draw ephemerals newest-first (closer to permanents), stacking upward
       for (let i = this.ephemerals.length - 1; i >= 0; i--) {
@@ -69,7 +68,8 @@ export class CanvasLog {
         this.drawOutlinedText(ctx, e.text, x, y, color)
         y -= this.LINE_HEIGHT
       }
-    } finally {
+    }
+    finally {
       ctx.restore()
     }
   }

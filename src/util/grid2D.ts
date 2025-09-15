@@ -18,7 +18,7 @@ export class Grid2D {
 
   set(x: number, y: number, value: number): void {
     if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
-      throw new Error(`grid coords out of bounds for set`)
+      throw new Error('grid coords out of bounds for set')
     }
     this.data[y * this.cols + x] = value
   }
