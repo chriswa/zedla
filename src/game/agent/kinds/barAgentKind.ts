@@ -1,6 +1,7 @@
 import { IAgentKind } from '@/game/agent/agentKind'
 import { FacingComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { RoomContext } from '@/game/roomContext'
 import { Facing } from '@/types/facing'
 import { singleton } from 'tsyringe'
@@ -16,15 +17,17 @@ interface BarSpawnData {
 }
 
 @singleton()
+class BarEntityDataManager extends EntityDataManager<BarNpcData> {}
+
+@singleton()
 export class BarAgentKind implements IAgentKind<BarSpawnData> {
   constructor(
     private ecs: ECS,
+    private barEntityDataManager: BarEntityDataManager,
   ) {}
 
-  private npcData = new Map<EntityId, BarNpcData>()
-
   spawn(entityId: EntityId, spawnData: BarSpawnData): void {
-    this.npcData.set(entityId, {
+    this.barEntityDataManager.onCreate(entityId, {
       name: spawnData.name,
       patrolDistance: spawnData.patrolDistance,
     })
@@ -38,6 +41,6 @@ export class BarAgentKind implements IAgentKind<BarSpawnData> {
   }
 
   onDestroy(entityId: EntityId): void {
-    this.npcData.delete(entityId)
+    this.barEntityDataManager.onDestroy(entityId)
   }
 }

@@ -4,6 +4,7 @@ import { IAgentKind } from '@/game/agent/agentKind'
 import { AnimationController } from '@/game/agent/animationController'
 import { FacingComponent, HitboxComponent, HurtboxComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
 import { Vec2, vec2 } from '@/math/vec2'
@@ -59,14 +60,14 @@ interface PlayerSpawnData {
 
 interface PlayerEntityData {
   fallTicks: number
+  fsm: Fsm<PlayerFsmStrategy, EntityId>
 }
 
-@singleton()
-class PlayerEntityDataStore {
-  public map = new Map<EntityId, PlayerEntityData>()
-}
 
 type PlayerFsmStrategy = FsmStrategy<EntityId>
+
+@singleton()
+class PlayerEntityDataManager extends EntityDataManager<PlayerEntityData> {}
 
 @singleton()
 class PlayerUtilities {
@@ -91,12 +92,11 @@ class PlayerUtilities {
 export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   constructor(
     private ecs: ECS,
-    private playerDataStore: PlayerEntityDataStore,
+    private playerEntityDataManager: PlayerEntityDataManager,
     private playerUtilities: PlayerUtilities,
     private canvasLog: CanvasLog,
   ) {}
 
-  private fsmByEntityId = new Map<EntityId, Fsm<PlayerFsmStrategy, EntityId>>()
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
     this.playerUtilities.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
@@ -105,26 +105,24 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_STANDING_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
 
-    // Initialize player data
-    this.playerDataStore.map.set(entityId, { fallTicks: 9999 })
-
+    // Initialize player data with FSM
     const fsm = new Fsm<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
-    // immediate enter for initial Fsm strategy
-    fsm.active.onEnter(entityId)
-    this.fsmByEntityId.set(entityId, fsm)
+    this.playerEntityDataManager.onCreate(entityId, {
+      fallTicks: 9999,
+      fsm: fsm
+    })
   }
 
   tick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
-    const fsm = assertExists(this.fsmByEntityId.get(entityId))
-    fsm.process(entityId)
+    const data = this.playerEntityDataManager.get(entityId)
+    data.fsm.process(entityId)
 
     const physics = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
     this.canvasLog.upsertPermanent('playerPhysics', `p.v = ${vec2.toString(physics.velocity)}`, 3)
   }
 
   onDestroy(entityId: EntityId): void {
-    this.fsmByEntityId.delete(entityId)
-    this.playerDataStore.map.delete(entityId)
+    this.playerEntityDataManager.onDestroy(entityId)
   }
 }
 
@@ -136,12 +134,12 @@ class GroundedStrategy implements PlayerFsmStrategy {
     private ecs: ECS,
     private input: Input,
     private playerUtilities: PlayerUtilities,
-    private playerDataStore: PlayerEntityDataStore,
+    private playerEntityDataManager: PlayerEntityDataManager,
   ) {}
 
   onEnter(entityId: EntityId): void {
     // reset coyote timer on solid ground
-    const data = assertExists(this.playerDataStore.map.get(entityId))
+    const data = this.playerEntityDataManager.get(entityId)
     data.fallTicks = 0
 
     // Start with stand animation when entering grounded state
@@ -197,7 +195,7 @@ class GroundedStrategy implements PlayerFsmStrategy {
     }
 
     // Jump
-    const data = assertExists(this.playerDataStore.map.get(entityId))
+    const data = this.playerEntityDataManager.get(entityId)
     if (this.input.wasHitThisTick(Button.JUMP) && data.fallTicks < JUMP_GRACE_TICKS) {
       body.velocity[1] = -JUMP_IMPULSE
       data.fallTicks = 9999
@@ -222,7 +220,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
     private ecs: ECS,
     private input: Input,
     private playerUtilities: PlayerUtilities,
-    private playerDataStore: PlayerEntityDataStore,
+    private playerEntityDataManager: PlayerEntityDataManager,
   ) {}
 
   onEnter(entityId: EntityId): void {
@@ -241,7 +239,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
     if (inputFacing) facing.value = inputFacing
 
     // Count fall
-    const data = assertExists(this.playerDataStore.map.get(entityId))
+    const data = this.playerEntityDataManager.get(entityId)
     data.fallTicks += 1
 
     // Create acceleration vector starting with gravity

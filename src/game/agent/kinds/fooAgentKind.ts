@@ -1,6 +1,7 @@
 import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
 import { AnimationController } from '@/game/agent/animationController'
+import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { FacingComponent, HitboxComponent, HurtboxComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
 import { RoomContext } from '@/game/roomContext'
@@ -22,18 +23,20 @@ interface FooSpawnData {
 }
 
 @singleton()
+class FooEntityDataManager extends EntityDataManager<FooNpcData> {}
+
+@singleton()
 export class FooAgentKind implements IAgentKind<FooSpawnData> {
   constructor(
     private ecs: ECS,
+    private fooEntityDataManager: FooEntityDataManager,
     private canvasLog: CanvasLog,
   ) {
   }
-
-  private npcData = new Map<EntityId, FooNpcData>()
   private animationController = new AnimationController('blob')
 
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
-    this.npcData.set(entityId, { health: spawnData.health, speed: spawnData.speed })
+    this.fooEntityDataManager.onCreate(entityId, { health: spawnData.health, speed: spawnData.speed })
     this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch', 0)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
@@ -41,7 +44,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
   }
 
   tick(entityId: EntityId, components: EntityComponentMap, _roomContext: RoomContext): void {
-    const data = assertExists(this.npcData.get(entityId))
+    const data = this.fooEntityDataManager.get(entityId)
     // Mailbox: process and clear
     const mailbox = components.MailboxComponent
     if (mailbox) {
@@ -62,6 +65,6 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
   }
 
   onDestroy(entityId: EntityId): void {
-    this.npcData.delete(entityId)
+    this.fooEntityDataManager.onDestroy(entityId)
   }
 }
