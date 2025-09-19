@@ -1,46 +1,24 @@
-export interface FsmStrategy {
-  onExit(): void
-}
-
-export class Fsm<TBase extends FsmStrategy> {
-  private activeStrategy: TBase
-  private queuedStrategyFactory: (() => TBase) | undefined
-  constructor(initialStrategy: TBase) {
-    this.activeStrategy = initialStrategy
-  }
-
-  processQueuedStrategy(): boolean {
-    if (this.queuedStrategyFactory === undefined) return false
-    this.activeStrategy.onExit()
-    const newStrategy = this.queuedStrategyFactory()
-    this.activeStrategy = newStrategy
-    this.queuedStrategyFactory = undefined
-    return true
-  }
-
-  public get active(): TBase {
-    return this.activeStrategy
-  }
-
-  public queueStrategyFactory(v: () => TBase) {
-    this.queuedStrategyFactory = v
-  }
-}
-
-export interface DirectFsmStrategy<TContext> {
-  update(context: TContext): DirectFsmStrategy<TContext> | undefined
+export interface FsmStrategy<TContext> {
+  update(context: TContext): FsmStrategy<TContext> | undefined
   onEnter(context: TContext): void
   onExit(context: TContext): void
 }
 
-export class DirectFsm<TStrategy extends DirectFsmStrategy<TContext>, TContext> {
+export class Fsm<TStrategy extends FsmStrategy<TContext>, TContext> {
   private activeStrategy: TStrategy
+  private hasCalledInitialOnEnter = false
 
   constructor(initialStrategy: TStrategy) {
     this.activeStrategy = initialStrategy
   }
 
-  processTransitions(context: TContext, maxTransitions = 3): void {
+  process(context: TContext, maxTransitions = 3): void {
+    // Call initial onEnter if this is the first process call
+    if (!this.hasCalledInitialOnEnter) {
+      this.activeStrategy.onEnter(context)
+      this.hasCalledInitialOnEnter = true
+    }
+
     let transitions = 0
 
     for (;;) {
@@ -57,9 +35,9 @@ export class DirectFsm<TStrategy extends DirectFsmStrategy<TContext>, TContext> 
 
       transitions += 1
 
-      // console.log(`[DirectFsm] ${transitions}: ${prevName} -> ${nextName}`)
+      // console.log(`[Fsm] ${transitions}: ${prevName} -> ${nextName}`)
       if (transitions > maxTransitions) {
-        throw new Error(`DirectFsm exceeded max transitions: ${prevName} -> ${nextName}`)
+        throw new Error(`Fsm exceeded max transitions: ${prevName} -> ${nextName}`)
       }
 
       this.activeStrategy.onEnter(context)

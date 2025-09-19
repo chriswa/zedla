@@ -1,35 +1,28 @@
+import { GameContext } from '@/game/gameContext'
 import { GameFsmStrategy } from '@/game/gameFsmStrategy'
 import { RoomSimulation } from '@/game/room/roomSimulation'
 import { RoomSimulationStrategy } from '@/game/room/roomSimulationStrategy'
 import { roomDefs } from '@/resources/roomDefs'
 import { Fsm } from '@/util/fsm'
-import { singleton } from 'tsyringe'
+import { container } from 'tsyringe'
 
-class NoOpGameFsmStrategy extends GameFsmStrategy {}
-
-@singleton()
 export class Game {
-  public fsm = new Fsm<GameFsmStrategy>(new NoOpGameFsmStrategy())
+  public static roomSimulation = container.resolve(RoomSimulation)
 
-  constructor(
-    private roomSimulation: RoomSimulation,
-  ) {
-  }
+  public fsm: Fsm<GameFsmStrategy, GameContext>
 
-  boot() {
-    this.fsm.queueStrategyFactory(() => {
-      const roomDef = roomDefs.intro1
-      const roomContext = this.roomSimulation.initializeRoomContext(roomDef)
-      return new RoomSimulationStrategy(this.roomSimulation, roomContext)
-    })
+  constructor(private gameContext: GameContext) {
+    const roomDef = roomDefs.intro1
+    const roomContext = Game.roomSimulation.initializeRoomContext(roomDef)
+    const initialStrategy = new RoomSimulationStrategy(Game.roomSimulation, roomContext)
+    this.fsm = new Fsm(initialStrategy)
   }
 
   tick() {
-    this.fsm.processQueuedStrategy()
-    this.fsm.active.tick()
+    this.fsm.process(this.gameContext)
   }
 
   render(renderBlend: number) {
-    this.fsm.active.render(renderBlend)
+    this.fsm.active.render(this.gameContext, renderBlend)
   }
 }

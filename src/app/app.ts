@@ -1,6 +1,7 @@
 import { Input } from '@/app/input'
 import { CanvasLog } from '@/dev/canvasLog'
 import { Game } from '@/game/game'
+import { GameContext } from '@/game/gameContext'
 import { ImageLoader } from '@/gfx/imageLoader'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
@@ -10,20 +11,23 @@ import { singleton } from 'tsyringe'
 @singleton()
 export class App {
   private _lastRafTs: number | undefined
+  private game: Game
+
   constructor(
     private imageLoader: ImageLoader,
     private input: Input,
-    private game: Game,
     private fixedTimeStep: FixedTimeStep,
     private canvasLog: CanvasLog,
-  ) {}
+  ) {
+    const gameContext: GameContext = {}
+    this.game = new Game(gameContext)
+  }
 
   // TODO: Fsm with game selection (e.g. new game (choose difficulty) or continue) (this Fsm is separate from Game's Fsm)
 
   async boot() {
     await this.loadAllMediaAssets()
     requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
-    this.game.boot()
   }
 
   async loadAllMediaAssets() {
