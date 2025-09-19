@@ -4,15 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "preinstall": "npx only-allow pnpm && npx -y check-node-version --node \">=22\"",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "preinstall": "npx only-allow pnpm && npx -y check-node-version --node \">=22\"",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "eslint . --fix",
-    "format:check": "eslint ."
+    "format": "eslint . --fix"
   },
   "devDependencies": {
     "@chriswa/ts-config": "^0.0.6",

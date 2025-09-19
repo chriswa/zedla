@@ -7,4 +7,9 @@ export interface CombatHitMail {
   attackVec2: Vec2
 }
 
-export type EntityMail = CombatHitMail
+export interface TodoMail {
+  type: 'todo'
+  message: string
+}
+
+export type EntityMail = CombatHitMail | TodoMail
