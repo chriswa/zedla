@@ -1,49 +1,27 @@
 import { Button, Input } from '@/app/input'
 import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
-import { AnimationController } from '@/game/agent/animationController'
+import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
+import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
+import { MailboxService } from '@/game/agent/behaviors/mailboxService'
+import { PlayerMovementBehavior } from '@/game/agent/behaviors/playerMovementBehavior'
 import { FacingComponent, HitboxComponent, HurtboxComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
-import { Vec2, vec2 } from '@/math/vec2'
+import { vec2 } from '@/math/vec2'
 import { AnimationFrameFlag } from '@/types/animationFlags'
 import { CombatBit, createCombatMask } from '@/types/combat'
-import { directionToFacing, Facing } from '@/types/facing'
+import { Facing } from '@/types/facing'
+import { assert } from '@/util/assert'
 import { assertExists } from '@/util/assertExists'
 import { Fsm, FsmStrategy } from '@/util/fsm'
 import { container, singleton } from 'tsyringe'
 
-// Physics constants
-const GRAVITY = 0.00400
-const WALK_ACCEL = 0.00250
-const WALK_DECEL = 0.00100
-const AIR_ACCEL = 0.00120
-const MAX_X_SPEED = 0.20000
-const JUMP_IMPULSE = 0.60000
-const JUMP_HOLD_BOOST = 0.00150
-const JUMP_X_BOOST = 0.00065 / (MAX_X_SPEED - AIR_ACCEL * 1000 / 60)
 const HURT_IMPULSE_X = 0.15000
 const HURT_IMPULSE_Y = 0.40000
-
-function applyAccelerationToVelocity(body: PhysicsBodyComponent, acceleration: Vec2): void {
-  const dt = 1000 / 60
-
-  // Update velocity from acceleration
-  body.velocity[0]! += acceleration[0]! * dt
-  body.velocity[1]! += acceleration[1]! * dt
-
-  // Clamp horizontal velocity to max speed
-  body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
-}
-
-const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
-
 const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
-
-const ZERO_THRESHOLD_SPEED = 0.01 * 1000
-const JUMP_GRACE_TICKS = 3
 
 // Sword hurtbox rectangles (local to player origin); centered base shifted left/right
 const SWORD_HURTBOX_STANDING_BASE = rect.createCentred(0, -21, 18, 4)
@@ -59,7 +37,6 @@ interface PlayerSpawnData {
 }
 
 interface PlayerEntityData {
-  fallTicks: number
   fsm: Fsm<PlayerFsmStrategy, EntityId>
 }
 
@@ -70,45 +47,35 @@ type PlayerFsmStrategy = FsmStrategy<EntityId>
 class PlayerEntityDataManager extends EntityDataManager<PlayerEntityData> {}
 
 @singleton()
-class PlayerUtilities {
-  public readonly animationController = new AnimationController('link')
-
-  constructor(private ecs: ECS) {}
-  checkForHurt(entityId: EntityId): boolean {
-    const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
-
-    // Peek at mailbox to determine if we should transition to hurt state
-    for (const mail of mailbox.eventQueue) {
-      if (mail.type === 'combat-hit') {
-        return true
-      }
-    }
-
-    return false
-  }
+export class PlayerAnimationBehavior extends AnimationBehavior<'link'> {
+  constructor() { super('link') }
 }
+
 
 @singleton()
 export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   constructor(
     private ecs: ECS,
     private playerEntityDataManager: PlayerEntityDataManager,
-    private playerUtilities: PlayerUtilities,
+    private playerMovementBehavior: PlayerMovementBehavior,
+    private playerAnimationBehavior: PlayerAnimationBehavior,
     private canvasLog: CanvasLog,
   ) {}
 
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
-    this.playerUtilities.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
+    this.playerAnimationBehavior.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_STANDING_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
 
+    // Initialize movement data
+    this.playerMovementBehavior.createMovementData(entityId)
+
     // Initialize player data with FSM
     const fsm = new Fsm<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
     this.playerEntityDataManager.onCreate(entityId, {
-      fallTicks: 9999,
       fsm: fsm
     })
   }
@@ -122,6 +89,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   }
 
   onDestroy(entityId: EntityId): void {
+    this.playerMovementBehavior.destroyMovementData(entityId)
     this.playerEntityDataManager.onDestroy(entityId)
   }
 }
@@ -133,81 +101,57 @@ class GroundedStrategy implements PlayerFsmStrategy {
   constructor(
     private ecs: ECS,
     private input: Input,
-    private playerUtilities: PlayerUtilities,
-    private playerEntityDataManager: PlayerEntityDataManager,
+    private playerAnimationBehavior: PlayerAnimationBehavior,
+    private playerMovementBehavior: PlayerMovementBehavior,
+    private combatBehavior: CombatBehavior,
   ) {}
 
   onEnter(entityId: EntityId): void {
     // reset coyote timer on solid ground
-    const data = this.playerEntityDataManager.get(entityId)
-    data.fallTicks = 0
+    this.playerMovementBehavior.resetFallTicks(entityId)
 
     // Start with stand animation when entering grounded state
-    this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'stand')
+    this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'stand')
   }
 
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
-    const facing = this.ecs.getComponent(entityId, 'FacingComponent')
+
     // Facing and horizontal movement
     const inputDirection = this.input.getHorizontalInputDirection()
-    const inputFacing = directionToFacing(inputDirection)
-    if (inputFacing) facing.value = inputFacing
-
-    const acceleration = vec2.clone(GRAVITY_VEC2)
-
-    // Check for crouching first
     const isCrouching = this.input.isDown(Button.DOWN)
-    if (isCrouching) {
-      // Crouching: decelerate and play crouch animation
-      if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
-        body.velocity[0] = 0
-        acceleration[0] = 0
-      }
-      else {
-        acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
-      }
-      this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'crouch')
-    }
-    else {
-      // Not crouching: normal movement and animations
-      if (inputDirection !== 0) {
-        acceleration[0] = inputDirection * WALK_ACCEL
-        this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'walk')
-      }
-      else {
-        if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
-          body.velocity[0] = 0
-          acceleration[0] = 0
-        }
-        else {
-          acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
-        }
 
+    // Apply movement physics
+    this.playerMovementBehavior.applyGroundMovement(entityId, inputDirection, isCrouching)
+
+    // Handle animations
+    if (isCrouching) {
+      this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'crouch')
+    } else {
+      if (inputDirection !== 0) {
+        this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'walk')
+      } else {
         // Play stand animation if velocity is low (like legacy)
         if (Math.abs(body.velocity[0]!) < 0.5) {
-          this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'stand')
+          this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'stand')
         }
       }
-      applyAccelerationToVelocity(body, acceleration)
     }
 
     // Jump
-    const data = this.playerEntityDataManager.get(entityId)
-    if (this.input.wasHitThisTick(Button.JUMP) && data.fallTicks < JUMP_GRACE_TICKS) {
-      body.velocity[1] = -JUMP_IMPULSE
-      data.fallTicks = 9999
-      return playerStrategyRegistry.AirborneStrategy
+    if (this.input.wasHitThisTick(Button.JUMP) && this.playerMovementBehavior.canJump(entityId)) {
+      if (this.playerMovementBehavior.attemptJump(entityId)) {
+        return playerStrategyRegistry.AirborneStrategy
+      }
     }
     // Attack
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
     }
     // If no longer contacting ground, start counting fall ticks and go airborne
-    const onGround = body.touchingDown
-    if (!onGround) {
+    if (!body.touchingDown) {
       return playerStrategyRegistry.AirborneStrategy
     }
     return undefined
@@ -219,42 +163,28 @@ class AirborneStrategy implements PlayerFsmStrategy {
   constructor(
     private ecs: ECS,
     private input: Input,
-    private playerUtilities: PlayerUtilities,
-    private playerEntityDataManager: PlayerEntityDataManager,
+    private playerAnimationBehavior: PlayerAnimationBehavior,
+    private playerMovementBehavior: PlayerMovementBehavior,
+    private combatBehavior: CombatBehavior,
   ) {}
 
   onEnter(entityId: EntityId): void {
     // Start with jump animation when entering airborne state
-    this.playerUtilities.animationController.playAnimation(this.ecs, entityId, 'jump')
+    this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'jump')
   }
 
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
-    const facing = this.ecs.getComponent(entityId, 'FacingComponent')
+
     // Facing and horizontal air control
     const inputDirection = this.input.getHorizontalInputDirection()
-    const inputFacing = directionToFacing(inputDirection)
-    if (inputFacing) facing.value = inputFacing
+    const jumpHeld = this.input.isDown(Button.JUMP)
 
-    // Count fall
-    const data = this.playerEntityDataManager.get(entityId)
-    data.fallTicks += 1
-
-    // Create acceleration vector starting with gravity
-    const acceleration = vec2.create(
-      inputDirection * AIR_ACCEL,
-      GRAVITY,
-    )
-
-    // Apply jump modifiers to vertical acceleration
-    if (body.velocity[1]! < 0) {
-      acceleration[1]! -= JUMP_X_BOOST * Math.abs(body.velocity[0]!)
-      if (this.input.isDown(Button.JUMP)) acceleration[1]! -= JUMP_HOLD_BOOST
-    }
-
-    applyAccelerationToVelocity(body, acceleration)
+    // Count fall and apply air movement
+    this.playerMovementBehavior.incrementFallTicks(entityId)
+    this.playerMovementBehavior.applyAirMovement(entityId, inputDirection, jumpHeld)
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return playerStrategyRegistry.AttackStrategy
@@ -274,7 +204,8 @@ class AttackStrategy implements PlayerFsmStrategy {
   constructor(
     private ecs: ECS,
     private input: Input,
-    private playerUtilities: PlayerUtilities,
+    private playerAnimationBehavior: PlayerAnimationBehavior,
+    private combatBehavior: CombatBehavior,
   ) {}
 
   // Snapshot crouch decision on enter by DOWN held and current groundedness
@@ -286,7 +217,7 @@ class AttackStrategy implements PlayerFsmStrategy {
     // Store attack data for this entity
     this.attackData.set(entityId, { isCrouching, startedAirborne })
 
-    this.playerUtilities.animationController.startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
+    this.playerAnimationBehavior.startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
   }
 
   onExit(entityId: EntityId): void {
@@ -299,7 +230,7 @@ class AttackStrategy implements PlayerFsmStrategy {
   }
 
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
@@ -310,10 +241,11 @@ class AttackStrategy implements PlayerFsmStrategy {
     }
 
     // Apply gravity (attacks can happen in air)
-    applyAccelerationToVelocity(body, GRAVITY_VEC2)
+    const dt = 1000 / 60
+    body.velocity[1]! += 0.00400 * dt
 
     // Enable sword per frame bits and set rect per facing
-    const active = this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
+    const active = this.playerAnimationBehavior.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
     const attackData = assertExists(this.attackData.get(entityId))
 
     hurtBox.enabled = active
@@ -329,8 +261,8 @@ class AttackStrategy implements PlayerFsmStrategy {
     const justLanded = attackData.startedAirborne && body.touchingDown && body.velocity[1]! >= 0
 
     // Transition out when animation can be interrupted, is complete, or just landed
-    if (this.playerUtilities.animationController.isCompleted(this.ecs, entityId) ||
-      this.playerUtilities.animationController.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt) ||
+    if (this.playerAnimationBehavior.isCompleted(this.ecs, entityId) ||
+      this.playerAnimationBehavior.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt) ||
       justLanded) {
       return body.touchingDown ? playerStrategyRegistry.GroundedStrategy : playerStrategyRegistry.AirborneStrategy
     }
@@ -343,37 +275,34 @@ class HurtStrategy implements PlayerFsmStrategy {
   private info = new Map<EntityId, { ticks: number }>()
   constructor(
     private ecs: ECS,
-    private playerUtilities: PlayerUtilities,
+    private playerAnimationBehavior: PlayerAnimationBehavior,
+    private mailboxService: MailboxService,
+    private combatBehavior: CombatBehavior,
   ) {}
 
   onEnter(entityId: EntityId): void {
     // Process combat-hit mail from mailbox
-    const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
-    for (const mail of mailbox.eventQueue) {
-      if (mail.type === 'combat-hit') {
-        const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
-        const facing = this.ecs.getComponent(entityId, 'FacingComponent')
-        // Knockback opposite to player's facing direction
-        body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_IMPULSE_X : HURT_IMPULSE_X
-        body.velocity[1] = -HURT_IMPULSE_Y
-        this.info.set(entityId, { ticks: HURT_TICKS })
-        break // Only process the first combat hit
-      }
+    const combatHits = this.mailboxService.getMessagesOfType(entityId, 'combat-hit')
+    assert(combatHits.length > 0)
+    if (combatHits.length > 0) {
+      const facing = this.ecs.getComponent(entityId, 'FacingComponent')
+      // Knockback opposite to player's facing direction
+      const velocityX = facing.value === Facing.RIGHT ? -HURT_IMPULSE_X : HURT_IMPULSE_X
+      this.combatBehavior.applyKnockback(entityId, velocityX, -HURT_IMPULSE_Y)
+      this.info.set(entityId, { ticks: HURT_TICKS })
     }
-    mailbox.eventQueue.length = 0
+    this.mailboxService.clearMailbox(entityId)
 
     // Disable hitbox during hurt state
-    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-    hitbox.enabled = false
+    this.combatBehavior.disableHitbox(entityId)
 
     // Set hurt animation
-    this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'hurt')
+    this.playerAnimationBehavior.startAnimation(this.ecs, entityId, 'hurt')
   }
 
   onExit(entityId: EntityId): void {
     // Re-enable hitbox when leaving hurt state
-    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-    hitbox.enabled = true
+    this.combatBehavior.enableHitbox(entityId)
 
     // Clean up map entry
     this.info.delete(entityId)
@@ -384,7 +313,8 @@ class HurtStrategy implements PlayerFsmStrategy {
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 
     // Apply gravity during hurt state
-    applyAccelerationToVelocity(body, GRAVITY_VEC2)
+    const dt = 1000 / 60
+    body.velocity[1]! += 0.00400 * dt
 
     rec.ticks -= 1
     if (rec.ticks <= 0) {

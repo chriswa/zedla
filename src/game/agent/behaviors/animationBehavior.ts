@@ -4,12 +4,11 @@ import { animationDefs } from '@/resources/animationDefs'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { AnimationDef } from '@/types/animationDef'
 import { AnimationFrameFlag, hasFrameFlag } from '@/types/animationFlags'
-import { assertExists } from '@/util/assertExists'
 
 type CharacterKey = keyof typeof animationDefs
 type AnimationName<K extends CharacterKey> = keyof typeof animationDefs[K]
 
-export class AnimationController<K extends CharacterKey> {
+export class AnimationBehavior<K extends CharacterKey> {
   constructor(
     private characterKey: K,
   ) {

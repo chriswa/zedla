@@ -1,6 +1,6 @@
 import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
-import { AnimationController } from '@/game/agent/animationController'
+import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { FacingComponent, HitboxComponent, HurtboxComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
@@ -9,7 +9,6 @@ import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { CombatBit, createCombatMask } from '@/types/combat'
 import { Facing } from '@/types/facing'
-import { assertExists } from '@/util/assertExists'
 import { singleton } from 'tsyringe'
 
 interface FooNpcData {
@@ -33,7 +32,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
     private canvasLog: CanvasLog,
   ) {
   }
-  private animationController = new AnimationController('blob')
+  private animationController = new AnimationBehavior('blob')
 
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
     this.fooEntityDataManager.onCreate(entityId, { health: spawnData.health, speed: spawnData.speed })
