@@ -75,7 +75,7 @@ class PlayerUtilities {
 
   constructor(private ecs: ECS) {}
   checkForHurt(entityId: EntityId): boolean {
-    const mailbox = assertExists(this.ecs.getComponent(entityId, 'MailboxComponent'))
+    const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
 
     // Peek at mailbox to determine if we should transition to hurt state
     for (const mail of mailbox.eventQueue) {
@@ -117,7 +117,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     const data = this.playerEntityDataManager.get(entityId)
     data.fsm.process(entityId)
 
-    const physics = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    const physics = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     this.canvasLog.upsertPermanent('playerPhysics', `p.v = ${vec2.toString(physics.velocity)}`, 3)
   }
 
@@ -149,8 +149,8 @@ class GroundedStrategy implements PlayerFsmStrategy {
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-    const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
+    const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     // Facing and horizontal movement
     const inputDirection = this.input.getHorizontalInputDirection()
     const inputFacing = directionToFacing(inputDirection)
@@ -231,8 +231,8 @@ class AirborneStrategy implements PlayerFsmStrategy {
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-    const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
+    const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     // Facing and horizontal air control
     const inputDirection = this.input.getHorizontalInputDirection()
     const inputFacing = directionToFacing(inputDirection)
@@ -279,7 +279,7 @@ class AttackStrategy implements PlayerFsmStrategy {
 
   // Snapshot crouch decision on enter by DOWN held and current groundedness
   onEnter(entityId: EntityId): void {
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown
     const startedAirborne = !body.touchingDown
 
@@ -291,7 +291,7 @@ class AttackStrategy implements PlayerFsmStrategy {
 
   onExit(entityId: EntityId): void {
     // Disable hurtbox when leaving attack state
-    const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
+    const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     hurtBox.enabled = false
 
     // Clean up attack data
@@ -300,9 +300,9 @@ class AttackStrategy implements PlayerFsmStrategy {
 
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     if (this.playerUtilities.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
-    const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
-    const hurtBox = assertExists(this.ecs.getComponent(entityId, 'HurtboxComponent'))
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    const facing = this.ecs.getComponent(entityId, 'FacingComponent')
+    const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
+    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 
     // Stop horizontal movement during attack only when grounded
     if (body.touchingDown) {
@@ -348,11 +348,11 @@ class HurtStrategy implements PlayerFsmStrategy {
 
   onEnter(entityId: EntityId): void {
     // Process combat-hit mail from mailbox
-    const mailbox = assertExists(this.ecs.getComponent(entityId, 'MailboxComponent'))
+    const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
     for (const mail of mailbox.eventQueue) {
       if (mail.type === 'combat-hit') {
-        const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
-        const facing = assertExists(this.ecs.getComponent(entityId, 'FacingComponent'))
+        const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
+        const facing = this.ecs.getComponent(entityId, 'FacingComponent')
         // Knockback opposite to player's facing direction
         body.velocity[0] = facing.value === Facing.RIGHT ? -HURT_IMPULSE_X : HURT_IMPULSE_X
         body.velocity[1] = -HURT_IMPULSE_Y
@@ -363,17 +363,16 @@ class HurtStrategy implements PlayerFsmStrategy {
     mailbox.eventQueue.length = 0
 
     // Disable hitbox during hurt state
-    const hitbox = assertExists(this.ecs.getComponent(entityId, 'HitboxComponent'))
+    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
     hitbox.enabled = false
 
     // Set hurt animation
-    const anim = this.ecs.getComponent(entityId, 'AnimationComponent')
-    if (anim) this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'hurt')
+    this.playerUtilities.animationController.startAnimation(this.ecs, entityId, 'hurt')
   }
 
   onExit(entityId: EntityId): void {
     // Re-enable hitbox when leaving hurt state
-    const hitbox = assertExists(this.ecs.getComponent(entityId, 'HitboxComponent'))
+    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
     hitbox.enabled = true
 
     // Clean up map entry
@@ -382,7 +381,7 @@ class HurtStrategy implements PlayerFsmStrategy {
 
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
     const rec = assertExists(this.info.get(entityId))
-    const body = assertExists(this.ecs.getComponent(entityId, 'PhysicsBodyComponent'))
+    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 
     // Apply gravity during hurt state
     applyAccelerationToVelocity(body, GRAVITY_VEC2)

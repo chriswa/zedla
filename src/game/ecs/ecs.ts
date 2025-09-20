@@ -75,11 +75,18 @@ export class ECS {
     this.gameEventBus.emit('ecs:component_added', entityId, componentKey)
   }
 
+  maybeGetComponent<K extends keyof typeof componentRegistry>(
+    entityId: EntityId,
+    componentKey: K,
+  ) {
+    return this.globalEntities.get(entityId)?.[componentKey]
+  }
+
   getComponent<K extends keyof typeof componentRegistry>(
     entityId: EntityId,
     componentKey: K,
-  ): EntityComponentMap[K] | undefined {
-    return this.globalEntities.get(entityId)?.[componentKey]
+  ) {
+    return assertExists(this.globalEntities.get(entityId)?.[componentKey])
   }
 
   removeComponent(
