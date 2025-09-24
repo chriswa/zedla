@@ -128,12 +128,8 @@ export class PlayerMovementBehavior {
   private applyAccelerationToVelocity(body: PhysicsBodyComponent, acceleration: Vec2): void {
     const dt = 1000 / 60
 
-    // Update velocity from acceleration
     body.velocity = vec2.add(body.velocity, vec2.mulScalar(acceleration, dt))
-    // body.velocity[0] = body.velocity[0]! + acceleration[0]! * dt
-    // body.velocity[1] = body.velocity[1]! + acceleration[1]! * dt
 
-    // Clamp horizontal velocity to max speed
     body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))
   }
 }
