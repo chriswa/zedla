@@ -18,21 +18,21 @@ export class CombatCollisionSystem implements ITickingSystem {
     // Iterate all entities with hurtboxes against all entities with hitboxes
     for (const [attackerId, attackerComponents] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const hurt = attackerComponents.HurtboxComponent
-      if (!hurt?.enabled) continue
+      if (!hurt?.enabled) { continue }
       const attackerPos = assertExists(attackerComponents.PositionComponent).offset
       const hurtWorldRect = rect.add(hurt.rect, attackerPos)
 
       for (const [targetId, targetComponents] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
-        if (targetId === attackerId) continue
+        if (targetId === attackerId) { continue }
         const hit = targetComponents.HitboxComponent
-        if (!hit?.enabled) continue
+        if (!hit?.enabled) { continue }
         // mask test
-        if (!masksOverlap(hurt.mask, hit.mask)) continue
+        if (!masksOverlap(hurt.mask, hit.mask)) { continue }
 
         const targetPos = assertExists(targetComponents.PositionComponent).offset
         const hitWorldRect = rect.add(hit.rect, targetPos)
 
-        if (!rect.aabbOverlap(hurtWorldRect, hitWorldRect)) continue
+        if (!rect.aabbOverlap(hurtWorldRect, hitWorldRect)) { continue }
 
         const hurtCentre = rect.centre(hurtWorldRect)
         const hitCentre = rect.centre(hitWorldRect)

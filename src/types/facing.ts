@@ -4,7 +4,7 @@ export enum Facing {
 }
 
 export function facingToDirection(facing: Facing | undefined): -1 | 0 | 1 {
-  if (facing === undefined) return 0
+  if (facing === undefined) { return 0 }
   return facing as -1 | 1
 }
 

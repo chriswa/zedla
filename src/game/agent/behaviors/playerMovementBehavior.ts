@@ -1,3 +1,4 @@
+import { PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { Vec2, vec2 } from '@/math/vec2'
@@ -57,7 +58,7 @@ export class PlayerMovementBehavior {
 
     // Update facing
     const inputFacing = directionToFacing(inputDirection)
-    if (inputFacing) facing.value = inputFacing
+    if (inputFacing) { facing.value = inputFacing }
 
     const acceleration = vec2.clone(GRAVITY_VEC2)
 
@@ -66,18 +67,22 @@ export class PlayerMovementBehavior {
       if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
         body.velocity[0] = 0
         acceleration[0] = 0
-      } else {
+      }
+      else {
         acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
       }
-    } else {
+    }
+    else {
       // Normal movement
       if (inputDirection !== 0) {
         acceleration[0] = inputDirection * WALK_ACCEL
-      } else {
+      }
+      else {
         if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
           body.velocity[0] = 0
           acceleration[0] = 0
-        } else {
+        }
+        else {
           acceleration[0] = -WALK_DECEL * Math.sign(body.velocity[0]!)
         }
       }
@@ -92,7 +97,7 @@ export class PlayerMovementBehavior {
 
     // Update facing
     const inputFacing = directionToFacing(inputDirection)
-    if (inputFacing) facing.value = inputFacing
+    if (inputFacing) { facing.value = inputFacing }
 
     // Create acceleration vector starting with gravity
     const acceleration = vec2.create(
@@ -103,14 +108,14 @@ export class PlayerMovementBehavior {
     // Apply jump modifiers to vertical acceleration
     if (body.velocity[1]! < 0) {
       acceleration[1]! -= JUMP_X_BOOST * Math.abs(body.velocity[0]!)
-      if (jumpHeld) acceleration[1]! -= JUMP_HOLD_BOOST
+      if (jumpHeld) { acceleration[1]! -= JUMP_HOLD_BOOST }
     }
 
     this.applyAccelerationToVelocity(body, acceleration)
   }
 
   attemptJump(entityId: EntityId): boolean {
-    if (!this.canJump(entityId)) return false
+    if (!this.canJump(entityId)) { return false }
 
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     const data = this.movementData.get(entityId)
@@ -120,12 +125,13 @@ export class PlayerMovementBehavior {
     return true
   }
 
-  private applyAccelerationToVelocity(body: any, acceleration: Vec2): void {
+  private applyAccelerationToVelocity(body: PhysicsBodyComponent, acceleration: Vec2): void {
     const dt = 1000 / 60
 
     // Update velocity from acceleration
-    body.velocity[0]! += acceleration[0]! * dt
-    body.velocity[1]! += acceleration[1]! * dt
+    body.velocity = vec2.add(body.velocity, vec2.mulScalar(acceleration, dt))
+    // body.velocity[0] = body.velocity[0]! + acceleration[0]! * dt
+    // body.velocity[1] = body.velocity[1]! + acceleration[1]! * dt
 
     // Clamp horizontal velocity to max speed
     body.velocity[0] = Math.max(-MAX_X_SPEED, Math.min(MAX_X_SPEED, body.velocity[0]!))

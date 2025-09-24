@@ -1,9 +1,9 @@
 import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
 import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
-import { EntityDataManager } from '@/game/ecs/entityDataManager'
-import { FacingComponent, HitboxComponent, HurtboxComponent } from '@/game/ecs/components'
+import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
+import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { RoomContext } from '@/game/roomContext'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
@@ -32,6 +32,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
     private canvasLog: CanvasLog,
   ) {
   }
+
   private animationController = new AnimationBehavior('blob')
 
   spawn(entityId: EntityId, spawnData: FooSpawnData): void {
@@ -40,6 +41,7 @@ export class FooAgentKind implements IAgentKind<FooSpawnData> {
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
+    this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
   }
 
   tick(entityId: EntityId, components: EntityComponentMap, _roomContext: RoomContext): void {

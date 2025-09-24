@@ -13,7 +13,7 @@ export const COMBAT_MASK_NONE = 0 as CombatMask
 
 export function createCombatMask(...bits: Array<CombatBit>): CombatMask {
   let m = 0
-  for (const b of bits) m |= b
+  for (const b of bits) { m |= b }
   return m as CombatMask
 }
 

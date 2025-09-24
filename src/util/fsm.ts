@@ -23,7 +23,7 @@ export class Fsm<TStrategy extends FsmStrategy<TContext>, TContext> {
 
     for (;;) {
       const nextStrategy = this.activeStrategy.update(context) as TStrategy | undefined
-      if (!nextStrategy) break
+      if (!nextStrategy) { break }
 
       const prevName = this.activeStrategy.constructor.name
       const nextName = nextStrategy.constructor.name

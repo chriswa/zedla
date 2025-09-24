@@ -66,12 +66,12 @@ export class EventBus<S extends EventSchema> {
   }
 
   emit<E extends keyof S>(event: E, ...a: ParamsOf<S[E]>) {
-    if (this.listeners[event]) for (const fn of this.listeners[event]) fn(...a)
+    if (this.listeners[event]) { for (const fn of this.listeners[event]) { fn(...a) } }
   }
 
   clear<E extends keyof S>(event?: E) {
-    if (event) this.listeners[event]?.clear()
-    else for (const s of (Object.values(this.listeners) as Array<Set<any> | undefined>)) s?.clear()
+    if (event) { this.listeners[event]?.clear() }
+    else { for (const s of (Object.values(this.listeners) as Array<Set<any> | undefined>)) { s?.clear() } }
   }
 
   listenerCount<E extends keyof S>(event: E) {

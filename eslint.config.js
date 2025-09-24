@@ -6,6 +6,10 @@ export default [
   {
     languageOptions: {
       globals: globals.browser
+    },
+    rules: {
+      // Require curly braces for all control statements (auto-fixable)
+      curly: ['error', 'all']
     }
   }
 ]

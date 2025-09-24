@@ -110,7 +110,7 @@ export class RenderSystem {
     for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const physicsBody = components.PhysicsBodyComponent
       const positionComponent = components.PositionComponent
-      if (!physicsBody || !positionComponent) continue
+      if (!physicsBody || !positionComponent) { continue }
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
       const worldRect = rect.add(physicsBody.rect, pos)
       this.strokeWorldRect(worldRect, cameraOffset, 'red', roomContext)
@@ -120,7 +120,7 @@ export class RenderSystem {
   private renderCombatBoxes(cameraOffset: Vec2, renderBlend: number, roomContext: RoomContext) {
     for (const [_entityId, components] of this.ecs.getEntitiesInScene(roomContext.sceneId).entries()) {
       const positionComponent = components.PositionComponent
-      if (!positionComponent) continue
+      if (!positionComponent) { continue }
       const pos = this.getInterpolatedPosition(positionComponent, renderBlend)
 
       const hurt = components.HurtboxComponent

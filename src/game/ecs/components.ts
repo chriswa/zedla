@@ -6,6 +6,7 @@ import { AnimationDef } from '@/types/animationDef'
 import { CombatMask } from '@/types/combat'
 import { EntityMail } from '@/types/entityMail'
 import { Facing } from '@/types/facing'
+import { InvulnerabilityBitfield } from '@/types/invulnerability'
 import { SpriteFrameDef } from '@/types/spriteFrameDef'
 
 export class PositionComponent {
@@ -74,6 +75,12 @@ export class MailboxComponent {
   public eventQueue: Array<EntityMail> = []
 }
 
+export class InvulnerabilityComponent {
+  constructor(
+    public bitfield: InvulnerabilityBitfield = 0 as InvulnerabilityBitfield,
+  ) {}
+}
+
 export type ComponentKey = keyof typeof componentRegistry
 
 // TODO: auto-generate this object with barrelsby/ts-intern
@@ -87,4 +94,5 @@ export const componentRegistry = {
   MailboxComponent,
   AnimationComponent,
   AgentKindComponent,
+  InvulnerabilityComponent,
 } as const

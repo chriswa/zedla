@@ -12,7 +12,7 @@ export type AnimationFrameBits = Brand<number, 'AnimationFrameBits'>
 
 export function createAnimationFrameBits(...flags: Array<AnimationFrameFlag>): AnimationFrameBits {
   let m = 0
-  for (const f of flags) m |= f
+  for (const f of flags) { m |= f }
   return m as AnimationFrameBits
 }
 

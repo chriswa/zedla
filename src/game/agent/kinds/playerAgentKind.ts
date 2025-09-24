@@ -3,9 +3,10 @@ import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
 import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
+import { InvulnerabilityBehavior } from '@/game/agent/behaviors/invulnerabilityBehavior'
 import { MailboxService } from '@/game/agent/behaviors/mailboxService'
 import { PlayerMovementBehavior } from '@/game/agent/behaviors/playerMovementBehavior'
-import { FacingComponent, HitboxComponent, HurtboxComponent, PhysicsBodyComponent } from '@/game/ecs/components'
+import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
 import { RoomContext } from '@/game/roomContext'
@@ -14,6 +15,7 @@ import { vec2 } from '@/math/vec2'
 import { AnimationFrameFlag } from '@/types/animationFlags'
 import { CombatBit, createCombatMask } from '@/types/combat'
 import { Facing } from '@/types/facing'
+import { InvulnerabilityBit } from '@/types/invulnerability'
 import { assert } from '@/util/assert'
 import { assertExists } from '@/util/assertExists'
 import { Fsm, FsmStrategy } from '@/util/fsm'
@@ -40,7 +42,6 @@ interface PlayerEntityData {
   fsm: Fsm<PlayerFsmStrategy, EntityId>
 }
 
-
 type PlayerFsmStrategy = FsmStrategy<EntityId>
 
 @singleton()
@@ -50,7 +51,6 @@ class PlayerEntityDataManager extends EntityDataManager<PlayerEntityData> {}
 export class PlayerAnimationBehavior extends AnimationBehavior<'link'> {
   constructor() { super('link') }
 }
-
 
 @singleton()
 export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
@@ -62,13 +62,13 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     private canvasLog: CanvasLog,
   ) {}
 
-
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
     this.playerAnimationBehavior.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_STANDING_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
+    this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
 
     // Initialize movement data
     this.playerMovementBehavior.createMovementData(entityId)
@@ -76,7 +76,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     // Initialize player data with FSM
     const fsm = new Fsm<PlayerFsmStrategy, EntityId>(playerStrategyRegistry.GroundedStrategy)
     this.playerEntityDataManager.onCreate(entityId, {
-      fsm: fsm
+      fsm: fsm,
     })
   }
 
@@ -116,7 +116,7 @@ class GroundedStrategy implements PlayerFsmStrategy {
 
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) { return playerStrategyRegistry.HurtStrategy }
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 
     // Facing and horizontal movement
@@ -129,10 +129,12 @@ class GroundedStrategy implements PlayerFsmStrategy {
     // Handle animations
     if (isCrouching) {
       this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'crouch')
-    } else {
+    }
+    else {
       if (inputDirection !== 0) {
         this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'walk')
-      } else {
+      }
+      else {
         // Play stand animation if velocity is low (like legacy)
         if (Math.abs(body.velocity[0]!) < 0.5) {
           this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'stand')
@@ -175,7 +177,7 @@ class AirborneStrategy implements PlayerFsmStrategy {
 
   onExit(_entityId: EntityId): void {}
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) { return playerStrategyRegistry.HurtStrategy }
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 
     // Facing and horizontal air control
@@ -230,7 +232,7 @@ class AttackStrategy implements PlayerFsmStrategy {
   }
 
   update(entityId: EntityId): PlayerFsmStrategy | undefined {
-    if (this.combatBehavior.checkForHurt(entityId)) return playerStrategyRegistry.HurtStrategy
+    if (this.combatBehavior.checkForHurt(entityId)) { return playerStrategyRegistry.HurtStrategy }
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
@@ -278,6 +280,7 @@ class HurtStrategy implements PlayerFsmStrategy {
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private mailboxService: MailboxService,
     private combatBehavior: CombatBehavior,
+    private invulnerabilityBehavior: InvulnerabilityBehavior,
   ) {}
 
   onEnter(entityId: EntityId): void {
@@ -293,16 +296,16 @@ class HurtStrategy implements PlayerFsmStrategy {
     }
     this.mailboxService.clearMailbox(entityId)
 
-    // Disable hitbox during hurt state
-    this.combatBehavior.disableHitbox(entityId)
+    // Set invulnerable during hurt state
+    this.invulnerabilityBehavior.setInvulnerable(entityId, InvulnerabilityBit.HURT)
 
     // Set hurt animation
     this.playerAnimationBehavior.startAnimation(this.ecs, entityId, 'hurt')
   }
 
   onExit(entityId: EntityId): void {
-    // Re-enable hitbox when leaving hurt state
-    this.combatBehavior.enableHitbox(entityId)
+    // Clear hurt invulnerability when leaving hurt state
+    this.invulnerabilityBehavior.clearInvulnerable(entityId, InvulnerabilityBit.HURT)
 
     // Clean up map entry
     this.info.delete(entityId)

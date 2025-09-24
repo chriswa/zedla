@@ -1,5 +1,5 @@
-import { ECS, EntityId } from '@/game/ecs/ecs'
 import { MailboxService } from '@/game/agent/behaviors/mailboxService'
+import { ECS, EntityId } from '@/game/ecs/ecs'
 import { CombatHitMail } from '@/types/entityMail'
 import { singleton } from 'tsyringe'
 
@@ -15,7 +15,7 @@ export class CombatBehavior {
     return combatHits.length > 0
   }
 
-  processCombatHits(entityId: EntityId): CombatHitMail[] {
+  processCombatHits(entityId: EntityId): Array<CombatHitMail> {
     return this.mailboxService.getMessagesOfType<CombatHitMail>(entityId, 'combat-hit')
   }
 
@@ -23,15 +23,5 @@ export class CombatBehavior {
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     body.velocity[0] = velocityX
     body.velocity[1] = velocityY
-  }
-
-  enableHitbox(entityId: EntityId): void {
-    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-    hitbox.enabled = true
-  }
-
-  disableHitbox(entityId: EntityId): void {
-    const hitbox = this.ecs.getComponent(entityId, 'HitboxComponent')
-    hitbox.enabled = false
   }
 }

@@ -13,7 +13,7 @@ export class TileCollisionService {
   }
 
   sweepX(physicsGrid: Grid2D, tileSize: number, worldRect: Rect, deltaX: number): number {
-    if (deltaX === 0) return deltaX
+    if (deltaX === 0) { return deltaX }
 
     const step = deltaX > 0 ? 1 : -1
     let currentDelta = 0
@@ -41,7 +41,7 @@ export class TileCollisionService {
   }
 
   sweepY(physicsGrid: Grid2D, tileSize: number, worldRect: Rect, deltaY: number): number {
-    if (deltaY === 0) return deltaY
+    if (deltaY === 0) { return deltaY }
 
     const step = deltaY > 0 ? 1 : -1
     let currentDelta = 0

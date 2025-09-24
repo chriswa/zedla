@@ -1,5 +1,5 @@
-import { FsmStrategy } from '@/util/fsm'
 import { GameContext } from '@/game/gameContext'
+import { FsmStrategy } from '@/util/fsm'
 
 export abstract class GameFsmStrategy implements FsmStrategy<GameContext> {
   abstract update(context: GameContext): GameFsmStrategy | undefined

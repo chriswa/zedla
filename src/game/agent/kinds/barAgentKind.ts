@@ -37,7 +37,7 @@ export class BarAgentKind implements IAgentKind<BarSpawnData> {
   tick(_entityId: EntityId, _components: EntityComponentMap, _roomContext: RoomContext): void {
     // Example: consume and clear mailbox (no reaction yet)
     const mailbox = _components.MailboxComponent
-    if (mailbox) mailbox.eventQueue.length = 0
+    if (mailbox) { mailbox.eventQueue.length = 0 }
   }
 
   onDestroy(entityId: EntityId): void {

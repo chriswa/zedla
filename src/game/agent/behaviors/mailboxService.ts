@@ -5,9 +5,9 @@ import { singleton } from 'tsyringe'
 export class MailboxService {
   constructor(private ecs: ECS) {}
 
-  getMessagesOfType<T>(entityId: EntityId, messageType: string): T[] {
+  getMessagesOfType<T>(entityId: EntityId, messageType: string): Array<T> {
     const mailbox = this.ecs.getComponent(entityId, 'MailboxComponent')
-    return mailbox.eventQueue.filter(msg => msg.type === messageType) as T[]
+    return mailbox.eventQueue.filter((msg) => msg.type === messageType) as Array<T>
   }
 
   clearMailbox(entityId: EntityId): void {
