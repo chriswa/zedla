@@ -19,7 +19,7 @@ export class App {
     private fixedTimeStep: FixedTimeStep,
     private canvasLog: CanvasLog,
   ) {
-    const gameContext: GameContext = {}
+    const gameContext: GameContext = { todo: 'hello world' }
     this.game = new Game(gameContext)
   }
 

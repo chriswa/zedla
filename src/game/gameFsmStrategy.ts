@@ -1,7 +1,7 @@
 import { GameContext } from '@/game/gameContext'
 import { FsmStrategy } from '@/util/fsm'
 
-export abstract class GameFsmStrategy implements FsmStrategy<GameContext> {
+export abstract class GameFsmStrategy implements FsmStrategy<GameContext, GameFsmStrategy> {
   abstract update(context: GameContext): GameFsmStrategy | undefined
   abstract onEnter(context: GameContext): void
   abstract onExit(context: GameContext): void

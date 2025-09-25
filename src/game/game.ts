@@ -9,7 +9,7 @@ import { container } from 'tsyringe'
 export class Game {
   public static roomSimulation = container.resolve(RoomSimulation)
 
-  public fsm: Fsm<GameFsmStrategy, GameContext>
+  public fsm: Fsm<GameFsmStrategy>
 
   constructor(private gameContext: GameContext) {
     const roomDef = roomDefs.intro1

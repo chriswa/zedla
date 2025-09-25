@@ -1,6 +1,6 @@
 import { BarAgentKind } from '@/game/agent/kinds/barAgentKind'
 import { FooAgentKind } from '@/game/agent/kinds/fooAgentKind'
-import { PlayerAgentKind } from '@/game/agent/kinds/playerAgentKind'
+import { PlayerAgentKind } from '@/game/agent/kinds/player/playerAgentKind'
 import { EntityId } from '@/game/ecs/ecs'
 import { container } from 'tsyringe'
 

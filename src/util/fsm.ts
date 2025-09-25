@@ -1,18 +1,25 @@
-export interface FsmStrategy<TContext> {
-  update(context: TContext): FsmStrategy<TContext> | undefined
+export interface FsmStrategy<TContext, TReturn> {
+  update(context: TContext): TReturn | undefined
   onEnter(context: TContext): void
   onExit(context: TContext): void
 }
 
-export class Fsm<TStrategy extends FsmStrategy<TContext>, TContext> {
+// Extract types from FsmStrategy
+type ExtractContext<T> = T extends FsmStrategy<infer TContext, unknown> ? TContext : never
+type ExtractReturn<T> = T extends FsmStrategy<unknown, infer TReturn> ? TReturn : never
+
+export class Fsm<TStrategy extends FsmStrategy<unknown, unknown>> {
   private activeStrategy: TStrategy
   private hasCalledInitialOnEnter = false
 
-  constructor(initialStrategy: TStrategy) {
+  constructor(
+    initialStrategy: TStrategy,
+    private strategyResolver: (result: ExtractReturn<TStrategy>) => TStrategy = (result) => result as TStrategy,
+  ) {
     this.activeStrategy = initialStrategy
   }
 
-  process(context: TContext, maxTransitions = 3): void {
+  process(context: ExtractContext<TStrategy>, maxTransitions = 3): void {
     // Call initial onEnter if this is the first process call
     if (!this.hasCalledInitialOnEnter) {
       this.activeStrategy.onEnter(context)
@@ -22,9 +29,10 @@ export class Fsm<TStrategy extends FsmStrategy<TContext>, TContext> {
     let transitions = 0
 
     for (;;) {
-      const nextStrategy = this.activeStrategy.update(context) as TStrategy | undefined
-      if (!nextStrategy) { break }
+      const result = this.activeStrategy.update(context)
+      if (result === undefined) { break }
 
+      const nextStrategy = this.strategyResolver(result as ExtractReturn<TStrategy>)
       const prevName = this.activeStrategy.constructor.name
       const nextName = nextStrategy.constructor.name
 
