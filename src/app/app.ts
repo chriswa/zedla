@@ -1,3 +1,4 @@
+import { BrowserFrameScheduler } from '@/app/browserFrameScheduler'
 import { Input } from '@/app/input'
 import { CanvasLog } from '@/dev/canvasLog'
 import { Game } from '@/game/game'
@@ -18,6 +19,7 @@ export class App {
     private input: Input,
     private fixedTimeStep: FixedTimeStep,
     private canvasLog: CanvasLog,
+    private frameScheduler: BrowserFrameScheduler,
   ) {
     const gameContext: GameContext = { todo: 'hello world' }
     this.game = new Game(gameContext)
@@ -26,8 +28,9 @@ export class App {
   // TODO: Fsm with game selection (e.g. new game (choose difficulty) or continue) (this Fsm is separate from Game's Fsm)
 
   async boot() {
+    this.input.init()
     await this.loadAllMediaAssets()
-    requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
+    this.frameScheduler.forever((timestamp) => this.frameCallback(timestamp))
   }
 
   async loadAllMediaAssets() {
@@ -37,7 +40,7 @@ export class App {
     ])
   }
 
-  private rafCallback(timestamp: number): void {
+  private frameCallback(timestamp: number): void {
     if (this._lastRafTs !== undefined) {
       const dt = timestamp - this._lastRafTs
       this.canvasLog.upsertPermanent('raf-dt', `RAF dt: ${dt.toFixed(1)} ms`, 0)
@@ -52,7 +55,5 @@ export class App {
 
     this.game.render(renderBlend)
     this.canvasLog.render()
-
-    requestAnimationFrame((timestamp) => this.rafCallback(timestamp))
   }
 }

@@ -27,13 +27,16 @@ const keyboardEventCodeToButton: Record<string, Button> = {
 
 @singleton()
 export class Input {
-  private volatileDown = new Set<Button>()
-  private volatileHit = new Set<Button>()
+  protected volatileDown = new Set<Button>()
+  protected volatileHit = new Set<Button>()
 
-  private sampledDown = new Set<Button>()
-  private sampledHit = new Set<Button>()
+  protected sampledDown = new Set<Button>()
+  protected sampledHit = new Set<Button>()
 
   constructor() {
+  }
+
+  init(): void {
     document.addEventListener('keydown', (keyboardEvent) => {
       const button = keyboardEventCodeToButton[keyboardEvent.code]
       if (button !== undefined && !this.volatileDown.has(button)) {

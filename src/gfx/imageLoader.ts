@@ -3,8 +3,9 @@ import { singleton } from 'tsyringe'
 
 @singleton()
 export class ImageLoader {
-  private images = new Map<string, HTMLImageElement>()
-  private flippedHorizCanvases = new Map<string, HTMLCanvasElement>()
+  protected images = new Map<string, HTMLImageElement>()
+  protected flippedHorizCanvases = new Map<string, HTMLCanvasElement>()
+
   constructor() {
   }
 
