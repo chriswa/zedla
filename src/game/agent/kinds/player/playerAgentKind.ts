@@ -14,9 +14,6 @@ import { Facing } from '@/types/facing'
 import { Fsm } from '@/util/fsm'
 import { singleton } from 'tsyringe'
 
-// Sword hurtbox rectangles (local to player origin); centered base shifted left/right
-const SWORD_HURTBOX_STANDING_BASE = rect.createCentred(0, -21, 18, 4)
-
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface PlayerSpawnData {
 }
@@ -43,7 +40,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-6, -30, 6, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
-    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(SWORD_HURTBOX_STANDING_BASE, createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
+    this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.zero(), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy), false))
     this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
 
     // Initialize movement data

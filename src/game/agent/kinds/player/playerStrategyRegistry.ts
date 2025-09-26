@@ -14,7 +14,7 @@ export const playerStrategyRegistry = {
   AirborneStrategy: container.resolve(AirborneStrategy),
   AttackStrategy: container.resolve(AttackStrategy),
   HurtStrategy: container.resolve(HurtStrategy),
-} as const
+} as const satisfies Record<PlayerStrategyKey, PlayerFsmStrategy>
 
 export function resolvePlayerStrategy(key: PlayerStrategyKey): PlayerFsmStrategy {
   return playerStrategyRegistry[key]
