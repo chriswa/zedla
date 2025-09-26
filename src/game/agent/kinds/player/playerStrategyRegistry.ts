@@ -5,17 +5,18 @@ import { HurtStrategy } from './hurtStrategy'
 import { PlayerStrategyKey } from './playerStrategyKey'
 import { EntityId } from '@/game/ecs/ecs'
 import { FsmStrategy } from '@/util/fsm'
-import { container } from 'tsyringe'
+import { resolveFromClassMap } from '@/util/resolveFromClassMap'
 
 export type PlayerFsmStrategy = FsmStrategy<EntityId, PlayerStrategyKey>
 
-export const playerStrategyRegistry = {
-  GroundedStrategy: container.resolve(GroundedStrategy),
-  AirborneStrategy: container.resolve(AirborneStrategy),
-  AttackStrategy: container.resolve(AttackStrategy),
-  HurtStrategy: container.resolve(HurtStrategy),
-} as const satisfies Record<PlayerStrategyKey, PlayerFsmStrategy>
+// Simple class map - no eager resolution
+const playerStrategyClassMap = {
+  GroundedStrategy,
+  AirborneStrategy,
+  AttackStrategy,
+  HurtStrategy,
+} as const
 
 export function resolvePlayerStrategy(key: PlayerStrategyKey): PlayerFsmStrategy {
-  return playerStrategyRegistry[key]
+  return resolveFromClassMap(playerStrategyClassMap, key)
 }

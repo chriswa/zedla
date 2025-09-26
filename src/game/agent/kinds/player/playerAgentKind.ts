@@ -2,7 +2,7 @@ import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
 import { PlayerMovementBehavior } from '@/game/agent/behaviors/playerMovementBehavior'
 import { PlayerAnimationBehavior } from '@/game/agent/kinds/player/playerAnimationBehavior'
-import { PlayerFsmStrategy, playerStrategyRegistry, resolvePlayerStrategy } from '@/game/agent/kinds/player/playerStrategyRegistry'
+import { PlayerFsmStrategy, resolvePlayerStrategy } from '@/game/agent/kinds/player/playerStrategyRegistry'
 import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
@@ -36,6 +36,8 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   ) {}
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
+    console.log('PlayerAgentKind ECS:', this.ecs)
+    console.log('Entity exists:', this.ecs.entities.has(entityId))
     this.playerAnimationBehavior.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
@@ -47,7 +49,7 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.playerMovementBehavior.createMovementData(entityId)
 
     // Initialize player data with FSM
-    const fsm = new Fsm(playerStrategyRegistry.GroundedStrategy, resolvePlayerStrategy)
+    const fsm = new Fsm(resolvePlayerStrategy('GroundedStrategy'), resolvePlayerStrategy)
     this.playerEntityDataManager.onCreate(entityId, {
       fsm: fsm,
     })
