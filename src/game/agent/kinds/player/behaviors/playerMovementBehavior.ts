@@ -1,3 +1,4 @@
+import { AgentLifecycleConsumer } from '@/game/agent/agentLifecycleConsumer'
 import { PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
@@ -24,16 +25,16 @@ interface MovementData {
 }
 
 @singleton()
-export class PlayerMovementBehavior {
+export class PlayerMovementBehavior implements AgentLifecycleConsumer {
   private movementData = new EntityDataManager<MovementData>()
 
   constructor(private ecs: ECS) {}
 
-  createMovementData(entityId: EntityId): void {
+  afterSpawn(entityId: EntityId): void {
     this.movementData.onCreate(entityId, { fallTicks: 9999 })
   }
 
-  destroyMovementData(entityId: EntityId): void {
+  beforeDestroy(entityId: EntityId): void {
     this.movementData.onDestroy(entityId)
   }
 

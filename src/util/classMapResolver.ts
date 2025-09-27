@@ -8,7 +8,7 @@ import { container, DependencyContainer } from 'tsyringe'
  * Designed to be extended by specific resolver singletons.
  */
 
-export abstract class ClassMapResolver<TClassMap extends Record<string, Ctor>> {
+export class ClassMapResolver<TClassMap extends Record<string, Ctor<unknown>>> {
   constructor(
     private classMap: TClassMap,
     private containerInstance: DependencyContainer = container,
