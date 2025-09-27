@@ -1,5 +1,5 @@
-import { PlayerAnimationBehavior } from './playerAnimationBehavior'
-import { PlayerStrategyKey } from './playerStrategyKey'
+import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
+import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
 import { Button, Input } from '@/app/input'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { rect } from '@/math/rect'
@@ -20,7 +20,7 @@ const SWORD_HURTBOX_CROUCHING_RIGHT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2
 const SWORD_HURTBOX_CROUCHING_LEFT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(-15, SWORD_CROUCH_OFFSET_Y))
 
 @singleton()
-export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyKey> {
+export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClassMapKeys> {
   private attackData = new Map<EntityId, { isCrouching: boolean, startedAirborne: boolean }>()
 
   constructor(
@@ -50,7 +50,7 @@ export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyKey> 
     this.attackData.delete(entityId)
   }
 
-  update(entityId: EntityId): PlayerStrategyKey | undefined {
+  update(entityId: EntityId): PlayerStrategyFsmClassMapKeys | undefined {
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')

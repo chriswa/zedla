@@ -16,8 +16,7 @@ export type EntityComponentMap = {
 export class ECS {
   constructor(
     private gameEventBus: GameEventBus,
-  ) {
-  }
+  ) {}
 
   private nextEntityId = 0 as EntityId
   private nextSceneId = 0 as SceneId

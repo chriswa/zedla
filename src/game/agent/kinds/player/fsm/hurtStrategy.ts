@@ -1,5 +1,5 @@
-import { PlayerAnimationBehavior } from './playerAnimationBehavior'
-import { PlayerStrategyKey } from './playerStrategyKey'
+import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
+import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { InvulnerabilityBehavior } from '@/game/agent/behaviors/invulnerabilityBehavior'
 import { MailboxService } from '@/game/agent/behaviors/mailboxService'
@@ -15,7 +15,7 @@ const HURT_IMPULSE_Y = 0.40000
 const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
 
 @singleton()
-export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyKey> {
+export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClassMapKeys> {
   private info = new Map<EntityId, { ticks: number }>()
 
   constructor(
@@ -53,7 +53,7 @@ export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyKey> {
     this.info.delete(entityId)
   }
 
-  update(entityId: EntityId): PlayerStrategyKey | undefined {
+  update(entityId: EntityId): PlayerStrategyFsmClassMapKeys | undefined {
     const rec = assertExists(this.info.get(entityId))
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 

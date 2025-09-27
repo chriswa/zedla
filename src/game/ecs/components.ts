@@ -1,4 +1,4 @@
-import { AgentKindKey } from '@/game/agent/agentKindRegistry'
+import { AgentKindKey } from '@/game/agent/agentKindResolver'
 import { Rect } from '@/math/rect'
 import { Vec2, vec2 } from '@/math/vec2'
 import { animationDefs } from '@/resources/animationDefs'

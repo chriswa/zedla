@@ -3,6 +3,7 @@ import { Input } from '@/app/input'
 import { CanvasLog } from '@/dev/canvasLog'
 import { Game } from '@/game/game'
 import { GameContext } from '@/game/gameContext'
+import { Canvas } from '@/gfx/canvas'
 import { ImageLoader } from '@/gfx/imageLoader'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { tilesetDefs } from '@/resources/tilesetDefs'
@@ -15,6 +16,7 @@ export class App {
   private game: Game
 
   constructor(
+    private canvas: Canvas,
     private imageLoader: ImageLoader,
     private input: Input,
     private fixedTimeStep: FixedTimeStep,
@@ -28,6 +30,7 @@ export class App {
   // TODO: Fsm with game selection (e.g. new game (choose difficulty) or continue) (this Fsm is separate from Game's Fsm)
 
   async boot() {
+    this.canvas.init()
     this.input.init()
     await this.loadAllMediaAssets()
     this.frameScheduler.forever((timestamp) => this.frameCallback(timestamp))

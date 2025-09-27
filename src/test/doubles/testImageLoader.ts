@@ -1,4 +1,5 @@
 import { ImageLoader } from '@/gfx/imageLoader'
+import { createStrictMock } from '@/util/createStrictMock'
 import { singleton } from 'tsyringe'
 
 /**
@@ -11,8 +12,15 @@ export class TestImageLoader extends ImageLoader {
     // Skip actual loading but populate the maps with stub data
     if (!this.images.has(filepath)) {
       // Create stub image and canvas objects
-      const stubImage: any = { width: 32, height: 32, src: filepath }
-      const stubCanvas: any = { width: 32, height: 32 }
+      const stubImage = createStrictMock<HTMLImageElement>({
+        width: 32,
+        height: 32,
+        src: filepath,
+      })
+      const stubCanvas = createStrictMock<HTMLCanvasElement>({
+        width: 32,
+        height: 32,
+      })
 
       this.images.set(filepath, stubImage)
       this.flippedHorizCanvases.set(filepath, stubCanvas)

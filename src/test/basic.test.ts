@@ -13,7 +13,7 @@ describe('Basic Compilation Test', () => {
     // Verify that imports with @/ alias work
     // If compilation succeeds, path mapping is working
     const testButton: Button = 0 // Button.DOWN has value 0
-    const testEntityId: EntityId = 1
+    const testEntityId: EntityId = 1 as EntityId
 
     expect(typeof testButton).toBe('number')
     expect(typeof testEntityId).toBe('number')

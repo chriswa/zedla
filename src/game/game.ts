@@ -7,14 +7,13 @@ import { Fsm } from '@/util/fsm'
 import { container } from 'tsyringe'
 
 export class Game {
-  public static roomSimulation = container.resolve(RoomSimulation)
-
   public fsm: Fsm<GameFsmStrategy>
 
   constructor(private gameContext: GameContext) {
+    const roomSimulation = container.resolve(RoomSimulation)
     const roomDef = roomDefs.intro1
-    const roomContext = Game.roomSimulation.initializeRoomContext(roomDef)
-    const initialStrategy = new RoomSimulationStrategy(Game.roomSimulation, roomContext)
+    const roomContext = roomSimulation.initializeRoomContext(roomDef)
+    const initialStrategy = new RoomSimulationStrategy(roomSimulation, roomContext)
     this.fsm = new Fsm(initialStrategy)
   }
 

@@ -3,9 +3,9 @@ import { singleton } from 'tsyringe'
 
 @singleton()
 export class Canvas {
-  public readonly el: HTMLCanvasElement
-  public readonly ctx: CanvasRenderingContext2D
-  constructor() {
+  public el!: HTMLCanvasElement
+  public ctx!: CanvasRenderingContext2D
+  init() {
     this.el = document.createElement('canvas')
     document.body.appendChild(this.el)
 

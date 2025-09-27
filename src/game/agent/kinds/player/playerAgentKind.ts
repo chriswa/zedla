@@ -1,8 +1,8 @@
 import { CanvasLog } from '@/dev/canvasLog'
 import { IAgentKind } from '@/game/agent/agentKind'
-import { PlayerMovementBehavior } from '@/game/agent/behaviors/playerMovementBehavior'
-import { PlayerAnimationBehavior } from '@/game/agent/kinds/player/playerAnimationBehavior'
-import { PlayerFsmStrategy, resolvePlayerStrategy } from '@/game/agent/kinds/player/playerStrategyRegistry'
+import { PlayerAnimationBehavior } from '@/game/agent/kinds/player/behaviors/playerAnimationBehavior'
+import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
+import { playerStrategyFsmClassMap } from '@/game/agent/kinds/player/fsm/_classMap'
 import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
 import { EntityDataManager } from '@/game/ecs/entityDataManager'
@@ -11,11 +11,17 @@ import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
 import { CombatBit, createCombatMask } from '@/types/combat'
 import { Facing } from '@/types/facing'
-import { Fsm } from '@/util/fsm'
+import { ClassMapResolver } from '@/util/classMapResolver'
+import { Fsm, FsmStrategy } from '@/util/fsm'
 import { singleton } from 'tsyringe'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface PlayerSpawnData {
+type PlayerFsmStrategy = FsmStrategy<EntityId, keyof typeof playerStrategyFsmClassMap>
+
+@singleton()
+class PlayerFsmStrategyResolver extends ClassMapResolver<typeof playerStrategyFsmClassMap> {
+  constructor() {
+    super(playerStrategyFsmClassMap)
+  }
 }
 
 interface PlayerEntityData {
@@ -25,6 +31,10 @@ interface PlayerEntityData {
 @singleton()
 class PlayerEntityDataManager extends EntityDataManager<PlayerEntityData> {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface PlayerSpawnData {
+}
+
 @singleton()
 export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
   constructor(
@@ -32,12 +42,11 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     private playerEntityDataManager: PlayerEntityDataManager,
     private playerMovementBehavior: PlayerMovementBehavior,
     private playerAnimationBehavior: PlayerAnimationBehavior,
+    private playerFsmStrategyResolver: PlayerFsmStrategyResolver,
     private canvasLog: CanvasLog,
   ) {}
 
   spawn(entityId: EntityId, _spawnData: PlayerSpawnData): void {
-    console.log('PlayerAgentKind ECS:', this.ecs)
-    console.log('Entity exists:', this.ecs.entities.has(entityId))
     this.playerAnimationBehavior.addSpriteAndAnimationComponents(this.ecs, entityId, 'stand', 1)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'PhysicsBodyComponent', new PhysicsBodyComponent(rect.createFromCorners(-6, -30, 6, 0), vec2.zero()))
@@ -49,7 +58,10 @@ export class PlayerAgentKind implements IAgentKind<PlayerSpawnData> {
     this.playerMovementBehavior.createMovementData(entityId)
 
     // Initialize player data with FSM
-    const fsm = new Fsm(resolvePlayerStrategy('GroundedStrategy'), resolvePlayerStrategy)
+    const fsm = new Fsm<PlayerFsmStrategy>(
+      this.playerFsmStrategyResolver.resolve('GroundedStrategy'),
+      (key) => this.playerFsmStrategyResolver.resolve(key),
+    )
     this.playerEntityDataManager.onCreate(entityId, {
       fsm: fsm,
     })

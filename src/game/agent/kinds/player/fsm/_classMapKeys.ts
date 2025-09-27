@@ -1,4 +1,4 @@
-export type PlayerStrategyKey =
+export type PlayerStrategyFsmClassMapKeys =
   | 'GroundedStrategy'
   | 'AirborneStrategy'
   | 'AttackStrategy'
