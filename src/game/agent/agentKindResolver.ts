@@ -1,4 +1,3 @@
-import { BarAgentKind } from '@/game/agent/kinds/barAgentKind'
 import { FooAgentKind } from '@/game/agent/kinds/fooAgentKind'
 import { PlayerAgentKind } from '@/game/agent/kinds/player/playerAgentKind'
 import { EntityId } from '@/game/ecs/ecs'
@@ -8,7 +7,6 @@ import { singleton } from 'tsyringe'
 // Simple class map - no eager resolution
 const agentKindClassMap = {
   Foo: FooAgentKind,
-  Bar: BarAgentKind,
   Player: PlayerAgentKind,
 } as const
 

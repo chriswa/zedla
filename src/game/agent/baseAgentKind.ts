@@ -1,7 +1,7 @@
 import { IAgentKind } from './agentKind'
 import { AgentLifecycleConsumer } from './agentLifecycleConsumer'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
-import { EntityDataManager } from '@/game/ecs/entityDataManager'
+import { EntityDataMap } from '@/game/ecs/entityDataMap'
 import { RoomContext } from '@/game/roomContext'
 import { ClassMapResolver } from '@/util/classMapResolver'
 import { Fsm, FsmStrategy } from '@/util/fsm'
@@ -20,7 +20,7 @@ export abstract class BaseAgentKind<
   TClassMap extends Record<string, Ctor<FsmStrategy<EntityId, string>>>,
 > implements IAgentKind<TSpawnData> {
   protected fsmStrategyResolver: ClassMapResolver<TClassMap>
-  protected baseFsmEntityDataManager: EntityDataManager<BaseFsmEntityData>
+  protected baseFsmEntityDataManager: EntityDataMap<BaseFsmEntityData>
 
   constructor(
     protected ecs: ECS,
@@ -29,7 +29,7 @@ export abstract class BaseAgentKind<
     protected lifecycleEventConsumers: Array<AgentLifecycleConsumer>,
   ) {
     this.fsmStrategyResolver = new ClassMapResolver(strategyClassMap)
-    this.baseFsmEntityDataManager = new EntityDataManager<BaseFsmEntityData>()
+    this.baseFsmEntityDataManager = new EntityDataMap<BaseFsmEntityData>()
   }
 
   spawn(entityId: EntityId, spawnData: TSpawnData): void {
@@ -45,7 +45,7 @@ export abstract class BaseAgentKind<
     for (const agentLifecycleConsumer of this.lifecycleEventConsumers) { agentLifecycleConsumer.afterSpawn(entityId) }
 
     // Store FSM in base entity data manager
-    this.baseFsmEntityDataManager.onCreate(entityId, { fsm })
+    this.baseFsmEntityDataManager.set(entityId, { fsm })
 
     // Allow subclass to do post-spawn setup
     this.afterSpawn(entityId, spawnData)
@@ -68,22 +68,25 @@ export abstract class BaseAgentKind<
     for (const agentLifecycleConsumer of this.lifecycleEventConsumers) { agentLifecycleConsumer.beforeDestroy(entityId) }
 
     // Clean up FSM data
-    this.baseFsmEntityDataManager.onDestroy(entityId)
+    this.baseFsmEntityDataManager.delete(entityId)
   }
 
   // Abstract methods for subclasses to implement
   protected abstract addComponents(entityId: EntityId, spawnData: TSpawnData): void
 
   // Optional hooks with default implementations
-  protected afterSpawn(_entityId: EntityId, _spawnData: TSpawnData): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected afterSpawn(entityId: EntityId, spawnData: TSpawnData): void {
     // Override if needed
   }
 
-  protected afterTick(_entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected afterTick(entityId: EntityId, components: EntityComponentMap, room: RoomContext): void {
     // Override if needed
   }
 
-  protected beforeDestroy(_entityId: EntityId): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected beforeDestroy(entityId: EntityId): void {
     // Override if needed
   }
 }

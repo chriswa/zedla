@@ -1,7 +1,7 @@
 import { AgentLifecycleConsumer } from '@/game/agent/agentLifecycleConsumer'
 import { PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityId } from '@/game/ecs/ecs'
-import { EntityDataManager } from '@/game/ecs/entityDataManager'
+import { EntityDataMap } from '@/game/ecs/entityDataMap'
 import { Vec2, vec2 } from '@/math/vec2'
 import { directionToFacing } from '@/types/facing'
 import { singleton } from 'tsyringe'
@@ -26,16 +26,16 @@ interface MovementData {
 
 @singleton()
 export class PlayerMovementBehavior implements AgentLifecycleConsumer {
-  private movementData = new EntityDataManager<MovementData>()
+  private movementData = new EntityDataMap<MovementData>()
 
   constructor(private ecs: ECS) {}
 
   afterSpawn(entityId: EntityId): void {
-    this.movementData.onCreate(entityId, { fallTicks: 9999 })
+    this.movementData.set(entityId, { fallTicks: 9999 })
   }
 
   beforeDestroy(entityId: EntityId): void {
-    this.movementData.onDestroy(entityId)
+    this.movementData.delete(entityId)
   }
 
   resetFallTicks(entityId: EntityId): void {

@@ -1,71 +1,83 @@
 import { CanvasLog } from '@/dev/canvasLog'
-import { IAgentKind } from '@/game/agent/agentKind'
+import { BaseAgentKind } from '@/game/agent/baseAgentKind'
 import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
+import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
+import { MailboxService } from '@/game/agent/behaviors/mailboxService'
 import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent } from '@/game/ecs/components'
-import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
-import { EntityDataManager } from '@/game/ecs/entityDataManager'
-import { RoomContext } from '@/game/roomContext'
+import { ECS, EntityId } from '@/game/ecs/ecs'
+import { EntityDataMap } from '@/game/ecs/entityDataMap'
 import { rect } from '@/math/rect'
-import { vec2 } from '@/math/vec2'
 import { CombatBit, createCombatMask } from '@/types/combat'
 import { Facing } from '@/types/facing'
+import { FsmStrategy } from '@/util/fsm'
 import { singleton } from 'tsyringe'
-
-interface FooNpcData {
-  health: number
-  speed: number
-}
 
 interface FooSpawnData {
   health: number
   speed: number
 }
 
-@singleton()
-class FooEntityDataManager extends EntityDataManager<FooNpcData> {}
+interface FooEntityData {
+  health: number
+  speed: number
+}
 
 @singleton()
-export class FooAgentKind implements IAgentKind<FooSpawnData> {
+class FooEntityDataMap extends EntityDataMap<FooEntityData> {}
+
+const animationName = 'blob'
+@singleton()
+class FooAnimationBehavior extends AnimationBehavior<typeof animationName> {
+  constructor() { super(animationName) }
+}
+
+@singleton()
+class FooIdleStrategy implements FsmStrategy<EntityId, keyof typeof fooStrategyFsmClassMap> {
   constructor(
-    private ecs: ECS,
-    private fooEntityDataManager: FooEntityDataManager,
+    private combatBehavior: CombatBehavior,
+    private mailboxService: MailboxService,
     private canvasLog: CanvasLog,
-  ) {
+  ) {}
+
+  update(entityId: EntityId): keyof typeof fooStrategyFsmClassMap | undefined {
+    if (this.combatBehavior.checkForHurt(entityId)) {
+      this.canvasLog.postEphemeral('Foo: ouch!')
+      this.mailboxService.clearMailbox(entityId)
+    }
+    return undefined
   }
 
-  private animationController = new AnimationBehavior('blob')
+  onEnter(_entityId: EntityId): void {}
+  onExit(_entityId: EntityId): void {}
+}
 
-  spawn(entityId: EntityId, spawnData: FooSpawnData): void {
-    this.fooEntityDataManager.onCreate(entityId, { health: spawnData.health, speed: spawnData.speed })
-    this.animationController.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch', 0)
+const fooStrategyFsmClassMap = {
+  FooIdleStrategy,
+} as const
+
+@singleton()
+export class FooAgentKind extends BaseAgentKind<FooSpawnData, typeof fooStrategyFsmClassMap> {
+  constructor(
+    ecs: ECS,
+    private animationBehavior: FooAnimationBehavior,
+    private entityDataMap: FooEntityDataMap,
+  ) {
+    super(ecs, fooStrategyFsmClassMap, 'FooIdleStrategy', [])
+  }
+
+  protected addComponents(entityId: EntityId, _spawnData: FooSpawnData): void {
+    this.animationBehavior.addSpriteAndAnimationComponents(this.ecs, entityId, 'inch', 0)
     this.ecs.addComponent(entityId, 'FacingComponent', new FacingComponent(Facing.RIGHT))
     this.ecs.addComponent(entityId, 'HitboxComponent', new HitboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.PlayerWeaponHurtingEnemy)))
     this.ecs.addComponent(entityId, 'HurtboxComponent', new HurtboxComponent(rect.createFromCorners(-8, -13, 8, 0), createCombatMask(CombatBit.EnemyWeaponHurtingPlayer)))
     this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
   }
 
-  tick(entityId: EntityId, components: EntityComponentMap, _roomContext: RoomContext): void {
-    const data = this.fooEntityDataManager.get(entityId)
-    // Mailbox: process and clear
-    const mailbox = components.MailboxComponent
-    if (mailbox) {
-      for (const mail of mailbox.eventQueue) {
-        if (mail.type === 'combat-hit') {
-          // Example reaction: reduce health and face attacker
-          data.health = Math.max(0, data.health - 1)
-          const facing = this.ecs.getComponent(entityId, 'FacingComponent')
-          facing.value = mail.attackVec2[0]! < 0 ? Facing.RIGHT : Facing.LEFT
-          const attackerKind = this.ecs.maybeGetComponent(mail.attackerId, 'AgentKindComponent')?.kind ?? 'Unknown'
-          this.canvasLog.postEphemeral(`Foo hurt by ${attackerKind} ${vec2.toString(mail.attackVec2)}`)
-        }
-      }
-      mailbox.eventQueue.length = 0
-    }
-    // Simple idle/walk animation sample
-    this.animationController.playAnimation(this.ecs, entityId, 'inch')
+  protected afterSpawn(entityId: EntityId, spawnData: FooSpawnData): void {
+    this.entityDataMap.set(entityId, { health: spawnData.health, speed: spawnData.speed })
   }
 
-  onDestroy(entityId: EntityId): void {
-    this.fooEntityDataManager.onDestroy(entityId)
+  protected beforeDestroy(entityId: EntityId): void {
+    this.entityDataMap.delete(entityId)
   }
 }

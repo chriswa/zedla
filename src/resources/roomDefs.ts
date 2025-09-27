@@ -60,7 +60,6 @@ export const roomDefs = {
     // ],
     spawns: [
       { kind: 'Foo', position: vec2.create(100, 100), spawnData: { health: 100, speed: 50 } },
-      { kind: 'Bar', position: vec2.create(200, 150), spawnData: { name: 'Guard', patrolDistance: 64 } },
     ],
   },
 } as const satisfies Record<string, RoomDef>
