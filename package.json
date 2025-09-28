@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "eslint . --fix",
-    "test": "vitest --run",
+    "codegen": "npx ts-codegen build src",
+    "test": "pnpm codegen && vitest --run",
     "test:watch": "vitest",
     "test:ci": "vitest --run --coverage"
   },
@@ -29,6 +30,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@chriswa/ts-codegen": "^1.2.0",
     "keycode-js": "^3.1.0",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0"

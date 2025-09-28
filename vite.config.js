@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import swc from 'unplugin-swc'
+import { tsCodegenVitePlugin } from '@chriswa/ts-codegen'
 
 export default defineConfig({
   server: {
@@ -14,5 +15,8 @@ export default defineConfig({
       '@': '/src', // so you can import from "@/math/vector"
     },
   },
-  plugins: [swc.vite()],
+  plugins: [
+    swc.vite(),
+    tsCodegenVitePlugin('src'),
+  ],
 })

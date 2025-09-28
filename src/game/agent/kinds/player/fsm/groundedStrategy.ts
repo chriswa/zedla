@@ -1,5 +1,5 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
-import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
+import { ClassMapKeys as PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
 import { Button, Input } from '@/app/input'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'

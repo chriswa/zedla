@@ -1,12 +1,13 @@
+// Generated code - see *.hbs file
+
 import { AirborneStrategy } from './airborneStrategy'
 import { AttackStrategy } from './attackStrategy'
 import { GroundedStrategy } from './groundedStrategy'
 import { HurtStrategy } from './hurtStrategy'
 
-// Simple class map - no eager resolution
-export const playerStrategyFsmClassMap = {
-  GroundedStrategy,
+export const classMap = {
   AirborneStrategy,
   AttackStrategy,
+  GroundedStrategy,
   HurtStrategy,
 } as const
