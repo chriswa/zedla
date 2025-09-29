@@ -1,14 +1,7 @@
-import { FooAgentKind } from '@/game/agent/kinds/fooAgentKind'
-import { PlayerAgentKind } from '@/game/agent/kinds/player/playerAgentKind'
+import { agentKindClassMap } from './kinds/_classMap.hbs'
 import { EntityId } from '@/game/ecs/ecs'
 import { ClassMapResolver } from '@/util/classMapResolver'
 import { singleton } from 'tsyringe'
-
-// Simple class map - no eager resolution
-const agentKindClassMap = {
-  Foo: FooAgentKind,
-  Player: PlayerAgentKind,
-} as const
 
 export type AgentKindKey = keyof typeof agentKindClassMap
 

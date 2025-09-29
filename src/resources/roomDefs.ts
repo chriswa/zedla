@@ -59,7 +59,7 @@ export const roomDefs = {
     //   { "area": "intro1_down", "hitbox": { "x1": 512, "y1": 448, "x2": 704, "y2": 480 } }
     // ],
     spawns: [
-      { kind: 'Foo', position: vec2.create(100, 100), spawnData: { health: 100, speed: 50 } },
+      { kind: 'FooAgentKind', position: vec2.create(100, 100), spawnData: { health: 100, speed: 50 } },
     ],
   },
 } as const satisfies Record<string, RoomDef>

@@ -1,5 +1,5 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
-import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
+import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys.hbs'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { InvulnerabilityBehavior } from '@/game/agent/behaviors/invulnerabilityBehavior'
 import { MailboxService } from '@/game/agent/behaviors/mailboxService'

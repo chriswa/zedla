@@ -27,7 +27,7 @@ export class RoomSimulation {
     const sceneId = this.ecs.allocateSceneId()
     const roomContext = new RoomContext(sceneId, roomDef)
 
-    const playerEntityId = this.agentSystem.spawnAgent(sceneId, 'Player', vec2.create(64, 64), {})
+    const playerEntityId = this.agentSystem.spawnAgent(sceneId, 'PlayerAgentKind', vec2.create(64, 64), {})
     roomContext.setPlayerEntityId(playerEntityId)
 
     for (const spawn of roomDef.spawns) {

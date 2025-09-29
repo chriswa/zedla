@@ -1,5 +1,6 @@
-// Generated code - see *.hbs file
+// {{include "@/templates/classMap.ts.hbs" identifier="playerStrategyFsmClassMap" files=(readdir "." "*.ts")}}
 
+// ============= GENERATED CODE =============
 import { AirborneStrategy } from './airborneStrategy'
 import { AttackStrategy } from './attackStrategy'
 import { GroundedStrategy } from './groundedStrategy'
