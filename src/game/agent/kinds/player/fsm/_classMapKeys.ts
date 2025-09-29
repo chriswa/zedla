@@ -1,6 +1,6 @@
 // Generated code - see *.hbs file
 
-export type ClassMapKeys =
+export type PlayerStrategyFsmClassMapKeys =
   | 'AirborneStrategy'
   | 'AttackStrategy'
   | 'GroundedStrategy'

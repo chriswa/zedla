@@ -5,7 +5,7 @@ import { AttackStrategy } from './attackStrategy'
 import { GroundedStrategy } from './groundedStrategy'
 import { HurtStrategy } from './hurtStrategy'
 
-export const classMap = {
+export const playerStrategyFsmClassMap = {
   AirborneStrategy,
   AttackStrategy,
   GroundedStrategy,

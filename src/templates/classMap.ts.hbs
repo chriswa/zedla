@@ -1,0 +1,17 @@
+// Generated code - see *.hbs file
+
+{{#each files}}
+{{#startsWith "_" (basename this)}}
+{{else}}
+import { {{pascalcase (replace (basename this) ".ts" "")}} } from './{{replace this ".ts" ""}}'
+{{/startsWith}}
+{{/each}}
+
+export const {{identifier}} = {
+{{#each files}}
+{{#startsWith "_" (basename this)}}
+{{else}}
+  {{pascalcase (replace (basename this) ".ts" "")}},
+{{/startsWith}}
+{{/each}}
+} as const

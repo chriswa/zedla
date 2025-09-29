@@ -1,5 +1,5 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
-import { ClassMapKeys as PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
+import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys'
 import { Button, Input } from '@/app/input'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { rect } from '@/math/rect'
