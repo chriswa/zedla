@@ -1,3 +1,3 @@
 export interface GameContext {
-  todo: string
+  currentTick: number
 }

@@ -1,3 +1,4 @@
+import { AgentContext } from './agentContext'
 import { IAgentKind } from './agentKind'
 import { AgentLifecycleConsumer } from './agentLifecycleConsumer'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
@@ -8,7 +9,7 @@ import { Fsm, FsmStrategy } from '@/util/fsm'
 import { Ctor } from '@/util/type/ctor'
 
 interface BaseFsmEntityData {
-  fsm: Fsm<FsmStrategy<EntityId, string>>
+  fsm: Fsm<FsmStrategy<AgentContext, string>>
 }
 
 /**
@@ -17,7 +18,7 @@ interface BaseFsmEntityData {
  */
 export abstract class BaseAgentKind<
   TSpawnData,
-  TClassMap extends Record<string, Ctor<FsmStrategy<EntityId, string>>>,
+  TClassMap extends Record<string, Ctor<FsmStrategy<AgentContext, string>>>,
 > implements IAgentKind<TSpawnData> {
   protected fsmStrategyResolver: ClassMapResolver<TClassMap>
   protected baseFsmEntityDataManager: EntityDataMap<BaseFsmEntityData>
@@ -37,7 +38,7 @@ export abstract class BaseAgentKind<
     this.addComponents(entityId, spawnData)
 
     // Create and initialize FSM
-    const fsm = new Fsm<FsmStrategy<EntityId, string>>(
+    const fsm = new Fsm<FsmStrategy<AgentContext, string>>(
       this.fsmStrategyResolver.resolve(this.initialStrategyKey),
       (key) => this.fsmStrategyResolver.resolve(key),
     )
@@ -51,14 +52,15 @@ export abstract class BaseAgentKind<
     this.afterSpawn(entityId, spawnData)
   }
 
-  tick(entityId: EntityId, components: EntityComponentMap, room: RoomContext): void {
+  tick(entityId: EntityId, components: EntityComponentMap, roomContext: RoomContext): void {
     const fsmData = this.baseFsmEntityDataManager.get(entityId)
 
-    // Process FSM
-    fsmData.fsm.process(entityId)
+    // Process FSM with AgentContext
+    const agentContext: AgentContext = { entityId, roomContext }
+    fsmData.fsm.process(agentContext)
 
     // Allow subclass to do additional tick work
-    this.afterTick(entityId, components, room)
+    this.afterTick(entityId, components, roomContext)
   }
 
   onDestroy(entityId: EntityId): void {

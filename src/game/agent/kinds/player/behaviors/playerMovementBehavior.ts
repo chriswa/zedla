@@ -1,7 +1,8 @@
+import { AgentContext } from '@/game/agent/agentContext'
 import { AgentLifecycleConsumer } from '@/game/agent/agentLifecycleConsumer'
+import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
 import { PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityId } from '@/game/ecs/ecs'
-import { EntityDataMap } from '@/game/ecs/entityDataMap'
 import { Vec2, vec2 } from '@/math/vec2'
 import { directionToFacing } from '@/types/facing'
 import { singleton } from 'tsyringe'
@@ -16,41 +17,40 @@ const JUMP_IMPULSE = 0.60000
 const JUMP_HOLD_BOOST = 0.00150
 const JUMP_X_BOOST = 0.00065 / (MAX_X_SPEED - AIR_ACCEL * 1000 / 60)
 const ZERO_THRESHOLD_SPEED = 0.01 * 1000
-const JUMP_GRACE_TICKS = 3
+
+// Jump timing constants
+export const COYOTE_TIME_TICKS = 3
+export const JUMP_INPUT_BUFFER_TICKS = 6
 
 const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
 
-interface MovementData {
-  fallTicks: number
-}
-
 @singleton()
 export class PlayerMovementBehavior implements AgentLifecycleConsumer {
-  private movementData = new EntityDataMap<MovementData>()
+  constructor(
+    private ecs: ECS,
+    private playerTimerBehavior: PlayerTimerBehavior,
+  ) {}
 
-  constructor(private ecs: ECS) {}
+  afterSpawn(_entityId: EntityId): void {}
 
-  afterSpawn(entityId: EntityId): void {
-    this.movementData.set(entityId, { fallTicks: 9999 })
+  beforeDestroy(_entityId: EntityId): void {}
+
+  startCoyoteTime(agentContext: AgentContext): void {
+    this.playerTimerBehavior.setTimer(agentContext, 'coyoteTime')
   }
 
-  beforeDestroy(entityId: EntityId): void {
-    this.movementData.delete(entityId)
+  canCoyoteJump(agentContext: AgentContext): boolean {
+    const elapsed = this.playerTimerBehavior.maybeGetElapsedTicks(agentContext, 'coyoteTime')
+    return elapsed !== undefined && elapsed < COYOTE_TIME_TICKS
   }
 
-  resetFallTicks(entityId: EntityId): void {
-    const data = this.movementData.get(entityId)
-    data.fallTicks = 0
+  bufferJumpInput(agentContext: AgentContext): void {
+    this.playerTimerBehavior.setTimer(agentContext, 'jumpInputBuffer')
   }
 
-  incrementFallTicks(entityId: EntityId): void {
-    const data = this.movementData.get(entityId)
-    data.fallTicks += 1
-  }
-
-  canJump(entityId: EntityId): boolean {
-    const data = this.movementData.get(entityId)
-    return data.fallTicks < JUMP_GRACE_TICKS
+  hasBufferedJumpInput(agentContext: AgentContext): boolean {
+    const elapsed = this.playerTimerBehavior.maybeGetElapsedTicks(agentContext, 'jumpInputBuffer')
+    return elapsed !== undefined && elapsed < JUMP_INPUT_BUFFER_TICKS
   }
 
   applyGroundMovement(entityId: EntityId, inputDirection: -1 | 0 | 1, isCrouching: boolean): void {
@@ -115,15 +115,13 @@ export class PlayerMovementBehavior implements AgentLifecycleConsumer {
     this.applyAccelerationToVelocity(body, acceleration)
   }
 
-  attemptJump(entityId: EntityId): boolean {
-    if (!this.canJump(entityId)) { return false }
-
-    const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
-    const data = this.movementData.get(entityId)
-
+  executeJump(agentContext: AgentContext): void {
+    const body = this.ecs.getComponent(agentContext.entityId, 'PhysicsBodyComponent')
     body.velocity[1] = -JUMP_IMPULSE
-    data.fallTicks = 9999
-    return true
+
+    // Clear coyote time and jump input buffer when successfully jumping
+    this.playerTimerBehavior.clearTimer(agentContext, 'coyoteTime')
+    this.playerTimerBehavior.clearTimer(agentContext, 'jumpInputBuffer')
   }
 
   private applyAccelerationToVelocity(body: PhysicsBodyComponent, acceleration: Vec2): void {

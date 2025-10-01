@@ -1,5 +1,6 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
 import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys.hbs'
+import { AgentContext } from '@/game/agent/agentContext'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { InvulnerabilityBehavior } from '@/game/agent/behaviors/invulnerabilityBehavior'
 import { MailboxService } from '@/game/agent/behaviors/mailboxService'
@@ -15,7 +16,7 @@ const HURT_IMPULSE_Y = 0.40000
 const HURT_TICKS = Math.round(0.4 * 60) // ~400ms
 
 @singleton()
-export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClassMapKeys> {
+export class HurtStrategy implements FsmStrategy<AgentContext, PlayerStrategyFsmClassMapKeys> {
   private info = new Map<EntityId, { ticks: number }>()
 
   constructor(
@@ -26,7 +27,8 @@ export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClas
     private invulnerabilityBehavior: InvulnerabilityBehavior,
   ) {}
 
-  onEnter(entityId: EntityId): void {
+  onEnter(agentContext: AgentContext): void {
+    const entityId = agentContext.entityId
     // Process combat-hit mail from mailbox
     const combatHits = this.mailboxService.getMessagesOfType(entityId, 'combat-hit')
     if (combatHits.length > 0) {
@@ -45,7 +47,8 @@ export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClas
     this.playerAnimationBehavior.startAnimation(this.ecs, entityId, 'hurt')
   }
 
-  onExit(entityId: EntityId): void {
+  onExit(agentContext: AgentContext): void {
+    const entityId = agentContext.entityId
     // Clear hurt invulnerability when leaving hurt state
     this.invulnerabilityBehavior.clearInvulnerable(entityId, InvulnerabilityBit.HURT)
 
@@ -53,7 +56,8 @@ export class HurtStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClas
     this.info.delete(entityId)
   }
 
-  update(entityId: EntityId): PlayerStrategyFsmClassMapKeys | undefined {
+  update(agentContext: AgentContext): PlayerStrategyFsmClassMapKeys | undefined {
+    const entityId = agentContext.entityId
     const rec = assertExists(this.info.get(entityId))
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
 

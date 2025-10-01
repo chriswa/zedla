@@ -1,6 +1,7 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
 import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys.hbs'
 import { Button, Input } from '@/app/input'
+import { AgentContext } from '@/game/agent/agentContext'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
@@ -20,7 +21,7 @@ const SWORD_HURTBOX_CROUCHING_RIGHT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2
 const SWORD_HURTBOX_CROUCHING_LEFT = rect.add(SWORD_HURTBOX_STANDING_BASE, vec2.create(-15, SWORD_CROUCH_OFFSET_Y))
 
 @singleton()
-export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClassMapKeys> {
+export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyFsmClassMapKeys> {
   private attackData = new Map<EntityId, { isCrouching: boolean, startedAirborne: boolean }>()
 
   constructor(
@@ -30,7 +31,8 @@ export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmCl
   ) {}
 
   // Snapshot crouch decision on enter by DOWN held and current groundedness
-  onEnter(entityId: EntityId): void {
+  onEnter(agentContext: AgentContext): void {
+    const entityId = agentContext.entityId
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     const isCrouching = this.input.isDown(Button.DOWN) && body.touchingDown
     const startedAirborne = !body.touchingDown
@@ -41,7 +43,8 @@ export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmCl
     this.playerAnimationBehavior.startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
   }
 
-  onExit(entityId: EntityId): void {
+  onExit(agentContext: AgentContext): void {
+    const entityId = agentContext.entityId
     // Disable hurtbox when leaving attack state
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     hurtBox.enabled = false
@@ -50,7 +53,8 @@ export class AttackStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmCl
     this.attackData.delete(entityId)
   }
 
-  update(entityId: EntityId): PlayerStrategyFsmClassMapKeys | undefined {
+  update(agentContext: AgentContext): PlayerStrategyFsmClassMapKeys | undefined {
+    const entityId = agentContext.entityId
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')

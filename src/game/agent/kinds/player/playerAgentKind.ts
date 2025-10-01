@@ -2,6 +2,7 @@ import { CanvasLog } from '@/dev/canvasLog'
 import { BaseAgentKind } from '@/game/agent/baseAgentKind'
 import { PlayerAnimationBehavior } from '@/game/agent/kinds/player/behaviors/playerAnimationBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
+import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
 import { playerStrategyFsmClassMap } from '@/game/agent/kinds/player/fsm/_classMap.hbs'
 import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
@@ -20,10 +21,11 @@ export class PlayerAgentKind extends BaseAgentKind<PlayerSpawnData, typeof playe
   constructor(
     ecs: ECS,
     playerMovementBehavior: PlayerMovementBehavior,
+    playerTimerBehavior: PlayerTimerBehavior,
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private canvasLog: CanvasLog,
   ) {
-    super(ecs, playerStrategyFsmClassMap, 'GroundedStrategy', [playerMovementBehavior])
+    super(ecs, playerStrategyFsmClassMap, 'GroundedStrategy', [playerMovementBehavior, playerTimerBehavior])
   }
 
   protected addComponents(entityId: EntityId, _spawnData: PlayerSpawnData): void {

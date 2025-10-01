@@ -4,6 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
+- `pnpm check` - **Preferred: Run all verification steps** (codegen + typecheck + lint with auto-fix + tests)
 - `npm run typecheck` - Type check without emitting files (`tsc --noEmit`)
 - `npm run lint` - Run ESLint on codebase
 - `npm run lint:fix` - Run ESLint with auto-fix

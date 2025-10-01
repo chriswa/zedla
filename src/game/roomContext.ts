@@ -1,4 +1,5 @@
 import { EntityId, SceneId } from '@/game/ecs/ecs'
+import { GameContext } from '@/game/gameContext'
 import { Camera } from '@/gfx/camera'
 import { RoomDef } from '@/types/roomDef'
 import { assertExists } from '@/util/assertExists'
@@ -13,6 +14,7 @@ export class RoomContext {
   constructor(
     public readonly sceneId: SceneId,
     public readonly roomDef: RoomDef,
+    public readonly gameContext: GameContext,
   ) {
     this.physicsGrid = new Grid2D(roomDef.physicsTilemap.tiles, roomDef.physicsTilemap.cols)
     this.backgroundGrids = roomDef.backgroundTilemaps.map((bg) => new Grid2D(bg.tiles, bg.cols))

@@ -1,35 +1,52 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
 import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys.hbs'
 import { Button, Input } from '@/app/input'
+import { CanvasLog } from '@/dev/canvasLog'
+import { AgentContext } from '@/game/agent/agentContext'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
-import { ECS, EntityId } from '@/game/ecs/ecs'
+import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
+import { ECS } from '@/game/ecs/ecs'
 import { FsmStrategy } from '@/util/fsm'
 import { singleton } from 'tsyringe'
 
 @singleton()
-export class GroundedStrategy implements FsmStrategy<EntityId, PlayerStrategyFsmClassMapKeys> {
+export class GroundedStrategy implements FsmStrategy<AgentContext, PlayerStrategyFsmClassMapKeys> {
   constructor(
     private ecs: ECS,
     private input: Input,
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private playerMovementBehavior: PlayerMovementBehavior,
+    private playerTimerBehavior: PlayerTimerBehavior,
     private combatBehavior: CombatBehavior,
+    private canvasLog: CanvasLog,
   ) {}
 
-  onEnter(entityId: EntityId): void {
-    // reset coyote timer on solid ground
-    this.playerMovementBehavior.resetFallTicks(entityId)
+  onEnter(agentContext: AgentContext): void {
+    // Check for buffered jump input when entering grounded state
+    if (this.playerMovementBehavior.hasBufferedJumpInput(agentContext)) {
+      // Don't play stand animation, we'll immediately transition to airborne
+      return
+    }
 
     // Start with stand animation when entering grounded state
-    this.playerAnimationBehavior.playAnimation(this.ecs, entityId, 'stand')
+    this.playerAnimationBehavior.playAnimation(this.ecs, agentContext.entityId, 'stand')
   }
 
-  onExit(_entityId: EntityId): void {}
+  onExit(_agentContext: AgentContext): void {}
 
-  update(entityId: EntityId): PlayerStrategyFsmClassMapKeys | undefined {
+  update(agentContext: AgentContext): PlayerStrategyFsmClassMapKeys | undefined {
+    const entityId = agentContext.entityId
     if (this.combatBehavior.checkForHurt(entityId)) { return 'HurtStrategy' }
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
+
+    // Check for buffered jump input at start of update (handles AttackStrategy landing)
+    if (this.playerMovementBehavior.hasBufferedJumpInput(agentContext)) {
+      const elapsed = this.playerTimerBehavior.getElapsedTicks(agentContext, 'jumpInputBuffer')
+      this.canvasLog.postEphemeral(`Buffered jump! (${elapsed} ticks after input)`)
+      this.playerMovementBehavior.executeJump(agentContext)
+      return 'AirborneStrategy'
+    }
 
     // Facing and horizontal movement
     const inputDirection = this.input.getHorizontalInputDirection()
@@ -54,18 +71,20 @@ export class GroundedStrategy implements FsmStrategy<EntityId, PlayerStrategyFsm
       }
     }
 
-    // Jump
-    if (this.input.wasHitThisTick(Button.JUMP) && this.playerMovementBehavior.canJump(entityId)) {
-      if (this.playerMovementBehavior.attemptJump(entityId)) {
-        return 'AirborneStrategy'
-      }
+    // Jump (from grounded or buffered input)
+    if (this.input.wasHitThisTick(Button.JUMP)) {
+      this.playerMovementBehavior.executeJump(agentContext)
+      return 'AirborneStrategy'
     }
+
     // Attack
     if (this.input.wasHitThisTick(Button.ATTACK)) {
       return 'AttackStrategy'
     }
-    // If no longer contacting ground, start counting fall ticks and go airborne
+
+    // If no longer contacting ground, start coyote time and go airborne
     if (!body.touchingDown) {
+      this.playerMovementBehavior.startCoyoteTime(agentContext)
       return 'AirborneStrategy'
     }
     return undefined

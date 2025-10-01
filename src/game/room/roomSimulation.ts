@@ -5,6 +5,7 @@ import { CameraSystem } from '@/game/ecs/systems/cameraSystem'
 import { CombatCollisionSystem } from '@/game/ecs/systems/combatCollisionSystem'
 import { PhysicsSystem } from '@/game/ecs/systems/physicsSystem'
 import { RenderSystem } from '@/game/ecs/systems/renderSystem'
+import { GameContext } from '@/game/gameContext'
 import { RoomContext } from '@/game/roomContext'
 import { vec2 } from '@/math/vec2'
 import { RoomDef } from '@/types/roomDef'
@@ -23,9 +24,9 @@ export class RoomSimulation {
   ) {
   }
 
-  initializeRoomContext(roomDef: RoomDef): RoomContext {
+  initializeRoomContext(roomDef: RoomDef, gameContext: GameContext): RoomContext {
     const sceneId = this.ecs.allocateSceneId()
-    const roomContext = new RoomContext(sceneId, roomDef)
+    const roomContext = new RoomContext(sceneId, roomDef, gameContext)
 
     const playerEntityId = this.agentSystem.spawnAgent(sceneId, 'PlayerAgentKind', vec2.create(64, 64), {})
     roomContext.setPlayerEntityId(playerEntityId)

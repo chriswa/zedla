@@ -1,4 +1,5 @@
 import { CanvasLog } from '@/dev/canvasLog'
+import { AgentContext } from '@/game/agent/agentContext'
 import { BaseAgentKind } from '@/game/agent/baseAgentKind'
 import { AnimationBehavior } from '@/game/agent/behaviors/animationBehavior'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
@@ -32,14 +33,15 @@ class FooAnimationBehavior extends AnimationBehavior<typeof animationName> {
 }
 
 @singleton()
-class FooIdleStrategy implements FsmStrategy<EntityId, keyof typeof fooStrategyFsmClassMap> {
+class FooIdleStrategy implements FsmStrategy<AgentContext, keyof typeof fooStrategyFsmClassMap> {
   constructor(
     private combatBehavior: CombatBehavior,
     private mailboxService: MailboxService,
     private canvasLog: CanvasLog,
   ) {}
 
-  update(entityId: EntityId): keyof typeof fooStrategyFsmClassMap | undefined {
+  update(agentContext: AgentContext): keyof typeof fooStrategyFsmClassMap | undefined {
+    const entityId = agentContext.entityId
     if (this.combatBehavior.checkForHurt(entityId)) {
       this.canvasLog.postEphemeral('Foo: ouch!')
       this.mailboxService.clearMailbox(entityId)
@@ -47,8 +49,8 @@ class FooIdleStrategy implements FsmStrategy<EntityId, keyof typeof fooStrategyF
     return undefined
   }
 
-  onEnter(_entityId: EntityId): void {}
-  onExit(_entityId: EntityId): void {}
+  onEnter(_agentContext: AgentContext): void {}
+  onExit(_agentContext: AgentContext): void {}
 }
 
 const fooStrategyFsmClassMap = {

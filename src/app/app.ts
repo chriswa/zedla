@@ -23,7 +23,7 @@ export class App {
     private canvasLog: CanvasLog,
     private frameScheduler: BrowserFrameScheduler,
   ) {
-    const gameContext: GameContext = { todo: 'hello world' }
+    const gameContext: GameContext = { currentTick: 0 }
     this.game = new Game(gameContext)
   }
 
