@@ -43,7 +43,9 @@ export abstract class BaseAgentKind<
       (key) => this.fsmStrategyResolver.resolve(key),
     )
 
-    for (const agentLifecycleConsumer of this.lifecycleEventConsumers) { agentLifecycleConsumer.afterSpawn(entityId) }
+    for (const agentLifecycleConsumer of this.lifecycleEventConsumers) {
+      agentLifecycleConsumer.afterSpawn(entityId)
+    }
 
     // Store FSM in base entity data manager
     this.baseFsmEntityDataManager.set(entityId, { fsm })

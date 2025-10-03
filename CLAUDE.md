@@ -20,14 +20,40 @@ This is a game engine built in TypeScript using a modular architecture with depe
 - **ECS System** (`src/game/ecs/`) - Entity Component System for game objects with systems for physics, animation, and rendering
 - **Room System** (`src/game/room/`) - Room-based game progression using RoomSimulation as game strategy
 
+### Room Simulation
+
+The game boots into RoomSimulation, which orchestrates the following systems in order:
+
+1. **AgentSystem** - Processes agent FSMs and behaviors
+2. **PhysicsSystem** - Handles collision detection and movement
+3. **CombatCollisionSystem** - Checks hitbox/hurtbox intersections
+4. **AnimationSystem** - Updates sprite animations
+5. **CameraSystem** - Updates camera position/tracking
+6. **RenderSystem** - Renders the scene (called separately with blend factor)
+
+### Agent Architecture
+
+Agents are entities with AI/behavior logic, built using:
+
+- **BaseAgentKind** - Base class managing FSM lifecycle, reducing boilerplate for agent implementations
+- **AgentContext** - Passed to FSM strategies, contains `{ entityId, roomContext }` for accessing game state
+- **Shared Behaviors** - Reusable behavior classes injected into agent kinds:
+  - `CombatBehavior` - Damage/hurt checking
+  - `AnimationBehavior` - Sprite and animation management
+  - `TimerBehavior` - Tick-based timer tracking
+  - `MailboxService` - Agent message passing
+  - `InvulnerabilityBehavior` - Temporary damage immunity
+
+**Example: FooAgentKind** demonstrates a minimal agent with custom spawn data, entity data storage, single FSM strategy, and use of shared behaviors.
+
 ### Key Patterns
 
 - **Zero/Minimal Boilerplate**: DX is extremely important due to this being a solo dev project
-- **Separation of Conerns is Paramount**: To keep code readable and pleasing to work with
+- **Separation of Concerns is Paramount**: To keep code readable and pleasing to work with
 - **Typing is Critical**: It is sometimes necessary to build rare complex type helpers to enable great code intel with minimal boilerplate
-- **Readability is Critical**: Use verbose variable names, function names, and class names to prioritize readability. 
+- **Readability is Critical**: Use verbose variable names, function names, and class names to prioritize readability
 - **Dependency Injection**: Uses tsyringe with `@singleton()` decorators
-- **FSM (Finite State Machine)**: Custom FSM implementation (`src/util/fsm.ts`) for state/strategy management (Prefer using the term "FSM strategy" instead of FSM state to avoid confusion with the overloaded word'state'. )
+- **FSM (Finite State Machine)**: Custom FSM implementation (`src/util/fsm.ts`) for state/strategy management (Prefer using the term "FSM strategy" instead of FSM state to avoid confusion with the overloaded word 'state')
 - **ECS Architecture**: Entity-component-system pattern with scene-based isolation for different simulations
 - **Strategy Pattern**: GameStrategy base class for different game modes
 - **Scene-Based Entity Management**: Each room/simulation gets its own scene for entity isolation while maintaining globally unique EntityIDs
