@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@chriswa/ts-codegen':
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.4.1
+        version: 1.4.1
       keycode-js:
         specifier: ^3.1.0
         version: 3.1.0
@@ -79,8 +79,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@chriswa/ts-codegen@1.4.0':
-    resolution: {integrity: sha512-fAoXGeTWSALpTuG8JuFM2Iu64w7OvRUuBojtn/VDG4FWrMv4K6bqTQJB8PrVc4qUd8wBuE1g2wSvMIwfUuRkVQ==}
+  '@chriswa/ts-codegen@1.4.1':
+    resolution: {integrity: sha512-XNvGPjz9T/biAm7IgB/PK9/3yu9l9/0dcfvvDotFV1fxQIr5suJ2PBUDO71oiwseTW+aHda2ZUZiXrhumSn12g==}
     hasBin: true
 
   '@chriswa/ts-config@0.0.6':
@@ -2876,7 +2876,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@chriswa/ts-codegen@1.4.0':
+  '@chriswa/ts-codegen@1.4.1':
     dependencies:
       catch-unknown: 2.0.0
       chokidar: 3.6.0
