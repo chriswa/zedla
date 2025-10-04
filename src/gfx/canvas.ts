@@ -3,15 +3,28 @@ import { singleton } from 'tsyringe'
 
 @singleton()
 export class Canvas {
-  public el!: HTMLCanvasElement
-  public ctx!: CanvasRenderingContext2D
-  init() {
-    this.el = document.createElement('canvas')
-    document.body.appendChild(this.el)
+  public el: HTMLCanvasElement
+  public ctx: CanvasRenderingContext2D
 
-    this.ctx = assertExists(this.el.getContext('2d', { alpha: false }))
-    // this.ctx.imageSmoothingEnabled = false
+  constructor() {
+    this.el = this.initEl()
+    this.ctx = this.initCtx(this.el)
+    this.setupResizeHandler()
+  }
 
+  protected initEl(): HTMLCanvasElement {
+    const el = document.createElement('canvas')
+    document.body.appendChild(el)
+    return el
+  }
+
+  protected initCtx(el: HTMLCanvasElement): CanvasRenderingContext2D {
+    const ctx = assertExists(el.getContext('2d', { alpha: false }))
+    // ctx.imageSmoothingEnabled = false
+    return ctx
+  }
+
+  protected setupResizeHandler(): void {
     const resize = () => {
       const dpr = Math.max(1, window.devicePixelRatio || 1)
       const { innerWidth: w, innerHeight: h } = window

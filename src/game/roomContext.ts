@@ -7,8 +7,8 @@ import { Grid2D } from '@/util/grid2D'
 
 export class RoomContext {
   private _playerEntityId: EntityId | undefined
-  public physicsGrid!: Grid2D
-  public backgroundGrids!: Array<Grid2D>
+  public physicsGrid: Grid2D
+  public backgroundGrids: Array<Grid2D>
   public camera = new Camera()
 
   constructor(

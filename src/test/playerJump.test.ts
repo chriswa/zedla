@@ -28,7 +28,7 @@ class PlayerJumpTestHarness {
     this.ecs = container.resolve(ECS)
     this.agentSystem = container.resolve(AgentSystem)
     this.testInput = container.resolve(TestInput)
-    this.gameContext = { currentTick: 0 }
+    this.gameContext = { currentTick: 0, currentRoomDefKey: 'intro1' }
 
     // Create minimal room context with fake room def
     const sceneId = this.ecs.allocateSceneId()

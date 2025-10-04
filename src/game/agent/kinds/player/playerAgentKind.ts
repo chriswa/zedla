@@ -37,7 +37,7 @@ export class PlayerAgentKind extends BaseAgentKind<PlayerSpawnData, typeof playe
     this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
   }
 
-  protected afterTick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
+  protected override afterTick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
     const physics = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     this.canvasLog.upsertPermanent('player-velocity', `player velocity: ${(physics.velocity[0] ?? 0).toFixed(3)}, ${(physics.velocity[1] ?? 0).toFixed(3)}`, 0)
   }

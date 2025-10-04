@@ -16,21 +16,22 @@ export class App {
   private game: Game
 
   constructor(
-    private canvas: Canvas,
+    canvas: Canvas,
     private imageLoader: ImageLoader,
     private input: Input,
     private fixedTimeStep: FixedTimeStep,
     private canvasLog: CanvasLog,
     private frameScheduler: BrowserFrameScheduler,
   ) {
-    const gameContext: GameContext = { currentTick: 0 }
+    // Resolve canvas singleton to trigger constructor initialization
+    void canvas
+    const gameContext: GameContext = { currentTick: 0, currentRoomDefKey: 'intro1' }
     this.game = new Game(gameContext)
   }
 
   // TODO: Fsm with game selection (e.g. new game (choose difficulty) or continue) (this Fsm is separate from Game's Fsm)
 
   async boot() {
-    this.canvas.init()
     this.input.init()
     await this.loadAllMediaAssets()
     this.frameScheduler.forever((timestamp) => this.frameCallback(timestamp))

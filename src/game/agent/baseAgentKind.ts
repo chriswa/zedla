@@ -79,18 +79,15 @@ export abstract class BaseAgentKind<
   protected abstract addComponents(entityId: EntityId, spawnData: TSpawnData): void
 
   // Optional hooks with default implementations
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected afterSpawn(entityId: EntityId, spawnData: TSpawnData): void {
+  protected afterSpawn(_entityId: EntityId, _spawnData: TSpawnData): void {
     // Override if needed
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected afterTick(entityId: EntityId, components: EntityComponentMap, room: RoomContext): void {
+  protected afterTick(_entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
     // Override if needed
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected beforeDestroy(entityId: EntityId): void {
+  protected beforeDestroy(_entityId: EntityId): void {
     // Override if needed
   }
 }

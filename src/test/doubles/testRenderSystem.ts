@@ -8,7 +8,7 @@ import { singleton } from 'tsyringe'
  */
 @singleton()
 export class TestRenderSystem extends RenderSystem {
-  render(_renderBlend: number, _roomContext: RoomContext): void {
+  override render(_renderBlend: number, _roomContext: RoomContext): void {
     // No-op render - skip all browser-dependent drawing operations
     // This allows game logic to run without needing canvas/window APIs
   }

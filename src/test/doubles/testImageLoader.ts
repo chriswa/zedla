@@ -8,7 +8,7 @@ import { singleton } from 'tsyringe'
  */
 @singleton()
 export class TestImageLoader extends ImageLoader {
-  async load(filepath: string): Promise<void> {
+  override async load(filepath: string): Promise<void> {
     // Skip actual loading but populate the maps with stub data
     if (!this.images.has(filepath)) {
       // Create stub image and canvas objects
@@ -28,7 +28,7 @@ export class TestImageLoader extends ImageLoader {
     return Promise.resolve()
   }
 
-  async loadAll(filepaths: Array<string>): Promise<void> {
+  override async loadAll(filepaths: Array<string>): Promise<void> {
     // Skip actual loading - just populate all with stubs
     const uniqueSrcs = Array.from(new Set(filepaths))
     await Promise.all(uniqueSrcs.map(async (src) => this.load(src)))

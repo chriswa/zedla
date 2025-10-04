@@ -2,7 +2,6 @@ import { GameContext } from '@/game/gameContext'
 import { GameFsmStrategy } from '@/game/gameFsmStrategy'
 import { RoomSimulation } from '@/game/room/roomSimulation'
 import { RoomSimulationStrategy } from '@/game/room/roomSimulationStrategy'
-import { roomDefs } from '@/resources/roomDefs'
 import { Fsm } from '@/util/fsm'
 import { container } from 'tsyringe'
 
@@ -11,9 +10,7 @@ export class Game {
 
   constructor(private gameContext: GameContext) {
     const roomSimulation = container.resolve(RoomSimulation)
-    const roomDef = roomDefs.intro1
-    const roomContext = roomSimulation.initializeRoomContext(roomDef, gameContext)
-    const initialStrategy = new RoomSimulationStrategy(roomSimulation, roomContext)
+    const initialStrategy = new RoomSimulationStrategy(roomSimulation)
     this.fsm = new Fsm(initialStrategy)
   }
 

@@ -4,16 +4,18 @@ import { singleton } from 'tsyringe'
 
 @singleton()
 export class TestCanvas extends Canvas {
-  init() {
-    this.el = createStrictMock<HTMLCanvasElement>({
+  protected override initEl(): HTMLCanvasElement {
+    return createStrictMock<HTMLCanvasElement>({
       width: 800,
       height: 600,
       clientHeight: 800,
       clientWidth: 800,
       style: createStrictMock<CSSStyleDeclaration>({}),
     })
+  }
 
-    this.ctx = createStrictMock<CanvasRenderingContext2D>({
+  protected override initCtx(_el: HTMLCanvasElement): CanvasRenderingContext2D {
+    return createStrictMock<CanvasRenderingContext2D>({
       clearRect: () => {},
       setTransform: () => {},
       save: () => {},
@@ -31,6 +33,11 @@ export class TestCanvas extends Canvas {
     })
   }
 
-  public cls() {
+  protected override setupResizeHandler(): void {
+    // No-op in tests - skip DOM event listeners and resize logic
+  }
+
+  public override cls() {
+    // No-op in tests
   }
 }

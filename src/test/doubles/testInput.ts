@@ -8,7 +8,7 @@ import { singleton } from 'tsyringe'
 @singleton()
 export class TestInput extends Input {
   // Override init() to do nothing - prevents DOM access in tests
-  init(): void {
+  override init(): void {
     // No DOM event listeners in test environment
   }
 

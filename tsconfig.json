@@ -4,7 +4,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["reflect-metadata"],
     "useDefineForClassFields": false,
-    "noUnusedParameters": false,
+    "noImplicitOverride": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

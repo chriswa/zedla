@@ -75,11 +75,11 @@ export class FooAgentKind extends BaseAgentKind<FooSpawnData, typeof fooStrategy
     this.ecs.addComponent(entityId, 'InvulnerabilityComponent', new InvulnerabilityComponent())
   }
 
-  protected afterSpawn(entityId: EntityId, spawnData: FooSpawnData): void {
+  protected override afterSpawn(entityId: EntityId, spawnData: FooSpawnData): void {
     this.entityDataMap.set(entityId, { health: spawnData.health, speed: spawnData.speed })
   }
 
-  protected beforeDestroy(entityId: EntityId): void {
+  protected override beforeDestroy(entityId: EntityId): void {
     this.entityDataMap.delete(entityId)
   }
 }
