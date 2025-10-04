@@ -12,7 +12,7 @@ import { singleton } from 'tsyringe'
 
 @singleton()
 export class App {
-  private _lastRafTs: number | undefined
+  private lastRafTs: number | undefined
   private game: Game
 
   constructor(
@@ -34,7 +34,7 @@ export class App {
   async boot() {
     this.input.init()
     await this.loadAllMediaAssets()
-    this.frameScheduler.forever((timestamp) => this.frameCallback(timestamp))
+    this.frameScheduler.forever((rafTs) => this.frameCallback(rafTs))
   }
 
   async loadAllMediaAssets() {
@@ -44,15 +44,15 @@ export class App {
     ])
   }
 
-  private frameCallback(timestamp: number): void {
-    if (this._lastRafTs !== undefined) {
-      const dt = timestamp - this._lastRafTs
+  private frameCallback(rafTs: number): void {
+    if (this.lastRafTs !== undefined) {
+      const dt = rafTs - this.lastRafTs
       this.canvasLog.upsertPermanent('raf-dt', `RAF dt: ${dt.toFixed(1)} ms`, 0)
     }
-    this._lastRafTs = timestamp
+    this.lastRafTs = rafTs
 
     // tick the fixed step logic 0 or more times depending on elapsed time
-    const renderBlend = this.fixedTimeStep.tick(timestamp, () => {
+    const renderBlend = this.fixedTimeStep.tick(rafTs, () => {
       this.input.sample()
       this.game.tick()
     })
