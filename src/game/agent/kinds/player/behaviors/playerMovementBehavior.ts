@@ -13,6 +13,7 @@ interface PlayerMovementEntityData {
   jumpInputBufferStart: Tickstamp | undefined
   dashTimeStart: Tickstamp | undefined
   isAirDashAvailable: boolean
+  sprintDirection: -1 | 1 | undefined
 }
 
 @singleton()
@@ -30,7 +31,6 @@ const JUMP_X_BOOST = 0.00065 / (MAX_X_SPEED - AIR_ACCEL * 1000 / 60)
 const ZERO_THRESHOLD_SPEED = 0.01 * 1000
 const DASH_SPEED = 0.50000
 const SPRINT_ACCEL = 0.00350
-const SPRINT_DECEL = 0.00150
 const SPRINT_MAX_SPEED = 0.28000
 
 // Jump timing constants
@@ -59,6 +59,7 @@ export class PlayerMovementBehavior extends StatefulAgentBehavior<PlayerMovement
       jumpInputBufferStart: undefined,
       dashTimeStart: undefined,
       isAirDashAvailable: false,
+      sprintDirection: undefined,
     }
   }
 
@@ -102,6 +103,18 @@ export class PlayerMovementBehavior extends StatefulAgentBehavior<PlayerMovement
 
   getDashElapsedTicks(agentContext: AgentContext): number {
     return this.timerSystem.getElapsedTicks(agentContext, this.getData(agentContext), 'dashTimeStart')
+  }
+
+  setSprintDirection(agentContext: AgentContext, direction: -1 | 1): void {
+    this.getData(agentContext).sprintDirection = direction
+  }
+
+  getSprintDirection(agentContext: AgentContext): -1 | 1 | undefined {
+    return this.getData(agentContext).sprintDirection
+  }
+
+  clearSprintDirection(agentContext: AgentContext): void {
+    this.getData(agentContext).sprintDirection = undefined
   }
 
   applyGroundMovement(entityId: EntityId, inputDirection: -1 | 0 | 1, isCrouching: boolean): void {
@@ -194,31 +207,19 @@ export class PlayerMovementBehavior extends StatefulAgentBehavior<PlayerMovement
     this.applyAccelerationToVelocity(body, acceleration)
   }
 
-  applySprintMovement(entityId: EntityId, inputDirection: -1 | 0 | 1): void {
+  applySprintMovement(entityId: EntityId, sprintDirection: -1 | 1): void {
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
 
-    // Update facing
-    const inputFacing = directionToFacing(inputDirection)
-    if (inputFacing) { facing.value = inputFacing }
+    // Update facing to match sprint direction
+    const sprintFacing = directionToFacing(sprintDirection)!
+    facing.value = sprintFacing
 
     const acceleration = vec2.clone(GRAVITY_VEC2)
 
-    if (inputDirection !== 0) {
-      // Only accelerate if below sprint max speed (preserve higher speeds from dash)
-      if (Math.abs(body.velocity[0]!) < SPRINT_MAX_SPEED) {
-        acceleration[0] = inputDirection * SPRINT_ACCEL
-      }
-    }
-    else {
-      // Decelerate when no input
-      if (Math.abs(body.velocity[0]!) < ZERO_THRESHOLD_SPEED) {
-        body.velocity[0] = 0
-        acceleration[0] = 0
-      }
-      else {
-        acceleration[0] = -SPRINT_DECEL * Math.sign(body.velocity[0]!)
-      }
+    // Always accelerate in sprint direction if below max speed
+    if (Math.abs(body.velocity[0]!) < SPRINT_MAX_SPEED) {
+      acceleration[0] = sprintDirection * SPRINT_ACCEL
     }
 
     this.applyAccelerationToVelocity(body, acceleration)
