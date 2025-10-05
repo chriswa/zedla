@@ -1,5 +1,5 @@
 import { AgentContext } from '@/game/agent/agentContext'
-import { AgentLifecycleConsumer } from '@/game/agent/agentLifecycleConsumer'
+import { StatefulAgentBehavior } from '@/game/agent/behaviors/statefulAgentBehavior'
 import { Tickstamp, TimerSystem } from '@/game/agent/systems/timerSystem'
 import { PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityId } from '@/game/ecs/ecs'
@@ -44,28 +44,22 @@ export const DASH_SPRINT_TRANSITION_TICKS = 18
 const GRAVITY_VEC2 = vec2.create(0, GRAVITY)
 
 @singleton()
-export class PlayerMovementBehavior implements AgentLifecycleConsumer {
+export class PlayerMovementBehavior extends StatefulAgentBehavior<PlayerMovementEntityData> {
   constructor(
     private ecs: ECS,
     private timerSystem: TimerSystem,
-    private playerMovementEntityDataMap: PlayerMovementEntityDataMap,
-  ) {}
+    playerMovementEntityDataMap: PlayerMovementEntityDataMap,
+  ) {
+    super(playerMovementEntityDataMap)
+  }
 
-  afterSpawn(entityId: EntityId): void {
-    this.playerMovementEntityDataMap.set(entityId, {
+  protected createInitialEntityData(): PlayerMovementEntityData {
+    return {
       coyoteTimeStart: undefined,
       jumpInputBufferStart: undefined,
       dashTimeStart: undefined,
       isAirDashAvailable: false,
-    })
-  }
-
-  beforeDestroy(entityId: EntityId): void {
-    this.playerMovementEntityDataMap.delete(entityId)
-  }
-
-  private getData(agentContext: AgentContext): PlayerMovementEntityData {
-    return this.playerMovementEntityDataMap.get(agentContext.entityId)
+    }
   }
 
   startCoyoteTime(agentContext: AgentContext): void {

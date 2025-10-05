@@ -1,7 +1,6 @@
 import { AgentContext } from '@/game/agent/agentContext'
-import { AgentLifecycleConsumer } from '@/game/agent/agentLifecycleConsumer'
+import { StatefulAgentBehavior } from '@/game/agent/behaviors/statefulAgentBehavior'
 import { Tickstamp, TimerSystem } from '@/game/agent/systems/timerSystem'
-import { EntityId } from '@/game/ecs/ecs'
 import { EntityDataMap } from '@/game/ecs/entityDataMap'
 import { singleton } from 'tsyringe'
 
@@ -26,24 +25,18 @@ interface PlayerCombatEntityData {
 class PlayerCombatEntityDataMap extends EntityDataMap<PlayerCombatEntityData> {}
 
 @singleton()
-export class PlayerCombatBehavior implements AgentLifecycleConsumer {
+export class PlayerCombatBehavior extends StatefulAgentBehavior<PlayerCombatEntityData> {
   constructor(
     private timerSystem: TimerSystem,
-    private playerCombatEntityDataMap: PlayerCombatEntityDataMap,
-  ) {}
+    playerCombatEntityDataMap: PlayerCombatEntityDataMap,
+  ) {
+    super(playerCombatEntityDataMap)
+  }
 
-  afterSpawn(entityId: EntityId): void {
-    this.playerCombatEntityDataMap.set(entityId, {
+  protected createInitialEntityData(): PlayerCombatEntityData {
+    return {
       attackTimeStart: undefined,
-    })
-  }
-
-  beforeDestroy(entityId: EntityId): void {
-    this.playerCombatEntityDataMap.delete(entityId)
-  }
-
-  private getData(agentContext: AgentContext): PlayerCombatEntityData {
-    return this.playerCombatEntityDataMap.get(agentContext.entityId)
+    }
   }
 
   startAttackTimer(agentContext: AgentContext): void {
