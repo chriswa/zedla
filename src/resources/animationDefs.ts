@@ -1,5 +1,4 @@
 import { AnimationDef } from '@/types/animationDef'
-import { AnimationFrameFlag, createAnimationFrameBits } from '@/types/animationFlags'
 
 // export const animations: Record<string, Record<string, Animation>> = {
 export const animationDefs = {
@@ -428,17 +427,14 @@ export const animationDefs = {
         {
           spriteFrame: 'link_attack_1',
           duration: 7,
-          flags: createAnimationFrameBits(AnimationFrameFlag.SwordSwing),
         },
         {
           spriteFrame: 'link_attack_0',
           duration: 30,
-          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         },
         {
           spriteFrame: 'link_stand_0',
           duration: 0,
-          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         },
       ],
     },
@@ -466,7 +462,6 @@ export const animationDefs = {
         {
           spriteFrame: 'link_crouch_attack_0',
           duration: 7,
-          flags: createAnimationFrameBits(AnimationFrameFlag.SwordSwing),
         },
         {
           spriteFrame: 'link_crouch_0',
@@ -475,7 +470,6 @@ export const animationDefs = {
         {
           spriteFrame: 'link_crouch_0',
           duration: 0,
-          flags: createAnimationFrameBits(AnimationFrameFlag.CanInterrupt),
         },
       ],
     },

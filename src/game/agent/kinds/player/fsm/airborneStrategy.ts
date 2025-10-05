@@ -5,7 +5,6 @@ import { CanvasLog } from '@/dev/canvasLog'
 import { AgentContext } from '@/game/agent/agentContext'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
-import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
 import { ECS } from '@/game/ecs/ecs'
 import { FsmStrategy } from '@/util/fsm'
 import { singleton } from 'tsyringe'
@@ -17,7 +16,6 @@ export class AirborneStrategy implements FsmStrategy<AgentContext, PlayerStrateg
     private input: Input,
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private playerMovementBehavior: PlayerMovementBehavior,
-    private playerTimerBehavior: PlayerTimerBehavior,
     private combatBehavior: CombatBehavior,
     private canvasLog: CanvasLog,
   ) {}
@@ -27,7 +25,9 @@ export class AirborneStrategy implements FsmStrategy<AgentContext, PlayerStrateg
     this.playerAnimationBehavior.playAnimation(this.ecs, agentContext.entityId, 'jump')
   }
 
-  onExit(_agentContext: AgentContext): void {}
+  onExit(_agentContext: AgentContext): void {
+    // Air dash availability is restored in GroundedStrategy.onEnter
+  }
 
   update(agentContext: AgentContext): PlayerStrategyFsmClassMapKeys | undefined {
     const entityId = agentContext.entityId
@@ -45,7 +45,7 @@ export class AirborneStrategy implements FsmStrategy<AgentContext, PlayerStrateg
     if (this.input.wasHitThisTick(Button.JUMP)) {
       if (this.playerMovementBehavior.canCoyoteJump(agentContext)) {
         // Coyote jump: player just left ground, allow jump
-        const elapsed = this.playerTimerBehavior.getElapsedTicks(agentContext, 'coyoteTime')
+        const elapsed = this.playerMovementBehavior.getCoyoteTimeElapsed(agentContext)
         this.canvasLog.postEphemeral(`Coyote jump! (${elapsed} ticks after leaving ground)`)
         this.playerMovementBehavior.executeJump(agentContext)
         return 'AirborneStrategy'
@@ -53,6 +53,14 @@ export class AirborneStrategy implements FsmStrategy<AgentContext, PlayerStrateg
 
       // Buffer jump input for when we land
       this.playerMovementBehavior.bufferJumpInput(agentContext)
+    }
+
+    // Air dash (only once per air time)
+    if (this.input.wasHitThisTick(Button.DASH)) {
+      if (this.playerMovementBehavior.isAirDashAvailable(agentContext)) {
+        this.playerMovementBehavior.setAirDashAvailable(agentContext, false)
+        return 'DashStrategy'
+      }
     }
 
     if (this.input.wasHitThisTick(Button.ATTACK)) {

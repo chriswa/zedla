@@ -1,11 +1,12 @@
 import { PlayerAnimationBehavior } from '../behaviors/playerAnimationBehavior'
+import { ATTACK_CROUCH_CAN_INTERRUPT_TICK, ATTACK_CROUCH_SWORD_END_TICK, ATTACK_CROUCH_SWORD_START_TICK, ATTACK_CROUCH_TOTAL_TICKS, ATTACK_STANDING_CAN_INTERRUPT_TICK, ATTACK_STANDING_SWORD_END_TICK, ATTACK_STANDING_SWORD_START_TICK, ATTACK_STANDING_TOTAL_TICKS, PlayerCombatBehavior } from '../behaviors/playerCombatBehavior'
+import { GRAVITY } from '../behaviors/playerMovementBehavior'
 import { PlayerStrategyFsmClassMapKeys } from './_classMapKeys.hbs'
 import { Button, Input } from '@/app/input'
 import { AgentContext } from '@/game/agent/agentContext'
 import { ECS, EntityId } from '@/game/ecs/ecs'
 import { rect } from '@/math/rect'
 import { vec2 } from '@/math/vec2'
-import { AnimationFrameFlag } from '@/types/animationFlags'
 import { Facing } from '@/types/facing'
 import { assertExists } from '@/util/assertExists'
 import { FsmStrategy } from '@/util/fsm'
@@ -28,6 +29,7 @@ export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyF
     private ecs: ECS,
     private input: Input,
     private playerAnimationBehavior: PlayerAnimationBehavior,
+    private playerCombatBehavior: PlayerCombatBehavior,
   ) {}
 
   // Snapshot crouch decision on enter by DOWN held and current groundedness
@@ -40,6 +42,10 @@ export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyF
     // Store attack data for this entity
     this.attackData.set(entityId, { isCrouching, startedAirborne })
 
+    // Start attack timer
+    this.playerCombatBehavior.startAttackTimer(agentContext)
+
+    // Start animation (visual only, gameplay uses timer)
     this.playerAnimationBehavior.startAnimation(this.ecs, entityId, isCrouching ? 'crouch-attack' : 'attack')
   }
 
@@ -58,6 +64,7 @@ export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyF
     const facing = this.ecs.getComponent(entityId, 'FacingComponent')
     const hurtBox = this.ecs.getComponent(entityId, 'HurtboxComponent')
     const body = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
+    const attackData = assertExists(this.attackData.get(entityId))
 
     // Stop horizontal movement during attack only when grounded
     if (body.touchingDown) {
@@ -66,14 +73,19 @@ export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyF
 
     // Apply gravity (attacks can happen in air)
     const dt = 1000 / 60
-    body.velocity[1]! += 0.00400 * dt
+    body.velocity[1]! += GRAVITY * dt
 
-    // Enable sword per frame bits and set rect per facing
-    const active = this.playerAnimationBehavior.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.SwordSwing)
-    const attackData = assertExists(this.attackData.get(entityId))
+    // Get attack timing based on crouch state
+    const attackTick = this.playerCombatBehavior.getAttackElapsedTicks(agentContext)
+    const swordStartTick = attackData.isCrouching ? ATTACK_CROUCH_SWORD_START_TICK : ATTACK_STANDING_SWORD_START_TICK
+    const swordEndTick = attackData.isCrouching ? ATTACK_CROUCH_SWORD_END_TICK : ATTACK_STANDING_SWORD_END_TICK
+    const canInterruptTick = attackData.isCrouching ? ATTACK_CROUCH_CAN_INTERRUPT_TICK : ATTACK_STANDING_CAN_INTERRUPT_TICK
+    const totalTicks = attackData.isCrouching ? ATTACK_CROUCH_TOTAL_TICKS : ATTACK_STANDING_TOTAL_TICKS
 
-    hurtBox.enabled = active
-    if (active) {
+    // Enable sword hurtbox during active window
+    const swordActive = attackTick >= swordStartTick && attackTick < swordEndTick
+    hurtBox.enabled = swordActive
+    if (swordActive) {
       if (attackData.isCrouching) {
         hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_CROUCHING_LEFT : SWORD_HURTBOX_CROUCHING_RIGHT
       }
@@ -81,13 +93,15 @@ export class AttackStrategy implements FsmStrategy<AgentContext, PlayerStrategyF
         hurtBox.rect = (facing.value === Facing.LEFT) ? SWORD_HURTBOX_STANDING_LEFT : SWORD_HURTBOX_STANDING_RIGHT
       }
     }
+
     // Check if we just landed (was airborne attack, now touching ground)
     const justLanded = attackData.startedAirborne && body.touchingDown && body.velocity[1]! >= 0
 
-    // Transition out when animation can be interrupted, is complete, or just landed
-    if (this.playerAnimationBehavior.isCompleted(this.ecs, entityId) ||
-      this.playerAnimationBehavior.hasCurrentFrameFlag(this.ecs, entityId, AnimationFrameFlag.CanInterrupt) ||
-      justLanded) {
+    // Transition out when attack is complete, can be interrupted, or just landed
+    const attackComplete = attackTick >= totalTicks
+    const canInterrupt = attackTick >= canInterruptTick
+
+    if (attackComplete || canInterrupt || justLanded) {
       return body.touchingDown ? 'GroundedStrategy' : 'AirborneStrategy'
     }
     return undefined

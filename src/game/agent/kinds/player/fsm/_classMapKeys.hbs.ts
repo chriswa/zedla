@@ -7,5 +7,7 @@
 export type PlayerStrategyFsmClassMapKeys =
   | 'AirborneStrategy'
   | 'AttackStrategy'
+  | 'DashStrategy'
   | 'GroundedStrategy'
   | 'HurtStrategy'
+  | 'SprintingStrategy'

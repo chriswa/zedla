@@ -1,5 +1,5 @@
 // EventBus.ts — class-based bus + compile-time subset enforcement (self-contained)
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-parameters, @typescript-eslint/no-empty-object-type */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type */
 
 /* ====================== Types ====================== */
 

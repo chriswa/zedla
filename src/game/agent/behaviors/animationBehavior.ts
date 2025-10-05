@@ -3,7 +3,6 @@ import { ECS, EntityId } from '@/game/ecs/ecs'
 import { animationDefs } from '@/resources/animationDefs'
 import { spriteFrameDefs } from '@/resources/spriteFrameDefs'
 import { AnimationDef } from '@/types/animationDef'
-import { AnimationFrameFlag, hasFrameFlag } from '@/types/animationFlags'
 
 type CharacterKey = keyof typeof animationDefs
 type AnimationName<K extends CharacterKey> = keyof typeof animationDefs[K]
@@ -44,16 +43,5 @@ export class AnimationBehavior<K extends CharacterKey> {
     if (animationComponent.animation !== this.getAnimationDef(animationName)) {
       this.startAnimation(ecs, entityId, animationName)
     }
-  }
-
-  hasCurrentFrameFlag(ecs: ECS, entityId: EntityId, flag: AnimationFrameFlag): boolean {
-    const animationComponent = ecs.getComponent(entityId, 'AnimationComponent')
-    const curFrame = animationComponent.animation.frames[animationComponent.frameIndex]!
-    return hasFrameFlag(curFrame.flags, flag)
-  }
-
-  isCompleted(ecs: ECS, entityId: EntityId): boolean {
-    const animationComponent = ecs.getComponent(entityId, 'AnimationComponent')
-    return animationComponent.hasCompleted
   }
 }

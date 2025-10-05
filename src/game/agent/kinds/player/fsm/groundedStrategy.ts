@@ -5,7 +5,6 @@ import { CanvasLog } from '@/dev/canvasLog'
 import { AgentContext } from '@/game/agent/agentContext'
 import { CombatBehavior } from '@/game/agent/behaviors/combatBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
-import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
 import { ECS } from '@/game/ecs/ecs'
 import { FsmStrategy } from '@/util/fsm'
 import { singleton } from 'tsyringe'
@@ -17,12 +16,14 @@ export class GroundedStrategy implements FsmStrategy<AgentContext, PlayerStrateg
     private input: Input,
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private playerMovementBehavior: PlayerMovementBehavior,
-    private playerTimerBehavior: PlayerTimerBehavior,
     private combatBehavior: CombatBehavior,
     private canvasLog: CanvasLog,
   ) {}
 
   onEnter(agentContext: AgentContext): void {
+    // Restore air dash availability when landing
+    this.playerMovementBehavior.setAirDashAvailable(agentContext, true)
+
     // Check for buffered jump input when entering grounded state
     if (this.playerMovementBehavior.hasBufferedJumpInput(agentContext)) {
       // Don't play stand animation, we'll immediately transition to airborne
@@ -42,7 +43,7 @@ export class GroundedStrategy implements FsmStrategy<AgentContext, PlayerStrateg
 
     // Check for buffered jump input at start of update (handles AttackStrategy landing)
     if (this.playerMovementBehavior.hasBufferedJumpInput(agentContext)) {
-      const elapsed = this.playerTimerBehavior.getElapsedTicks(agentContext, 'jumpInputBuffer')
+      const elapsed = this.playerMovementBehavior.getJumpInputBufferElapsed(agentContext)
       this.canvasLog.postEphemeral(`Buffered jump! (${elapsed} ticks after input)`)
       this.playerMovementBehavior.executeJump(agentContext)
       return 'AirborneStrategy'
@@ -75,6 +76,11 @@ export class GroundedStrategy implements FsmStrategy<AgentContext, PlayerStrateg
     if (this.input.wasHitThisTick(Button.JUMP)) {
       this.playerMovementBehavior.executeJump(agentContext)
       return 'AirborneStrategy'
+    }
+
+    // Dash
+    if (this.input.wasHitThisTick(Button.DASH)) {
+      return 'DashStrategy'
     }
 
     // Attack

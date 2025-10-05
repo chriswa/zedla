@@ -1,8 +1,8 @@
 import { CanvasLog } from '@/dev/canvasLog'
 import { BaseAgentKind } from '@/game/agent/baseAgentKind'
 import { PlayerAnimationBehavior } from '@/game/agent/kinds/player/behaviors/playerAnimationBehavior'
+import { PlayerCombatBehavior } from '@/game/agent/kinds/player/behaviors/playerCombatBehavior'
 import { PlayerMovementBehavior } from '@/game/agent/kinds/player/behaviors/playerMovementBehavior'
-import { PlayerTimerBehavior } from '@/game/agent/kinds/player/behaviors/playerTimerBehavior'
 import { playerStrategyFsmClassMap } from '@/game/agent/kinds/player/fsm/_classMap.hbs'
 import { FacingComponent, HitboxComponent, HurtboxComponent, InvulnerabilityComponent, PhysicsBodyComponent } from '@/game/ecs/components'
 import { ECS, EntityComponentMap, EntityId } from '@/game/ecs/ecs'
@@ -21,11 +21,11 @@ export class PlayerAgentKind extends BaseAgentKind<PlayerSpawnData, typeof playe
   constructor(
     ecs: ECS,
     playerMovementBehavior: PlayerMovementBehavior,
-    playerTimerBehavior: PlayerTimerBehavior,
+    playerCombatBehavior: PlayerCombatBehavior,
     private playerAnimationBehavior: PlayerAnimationBehavior,
     private canvasLog: CanvasLog,
   ) {
-    super(ecs, playerStrategyFsmClassMap, 'GroundedStrategy', [playerMovementBehavior, playerTimerBehavior])
+    super(ecs, playerStrategyFsmClassMap, 'GroundedStrategy', [playerMovementBehavior, playerCombatBehavior])
   }
 
   protected addComponents(entityId: EntityId, _spawnData: PlayerSpawnData): void {
@@ -40,5 +40,10 @@ export class PlayerAgentKind extends BaseAgentKind<PlayerSpawnData, typeof playe
   protected override afterTick(entityId: EntityId, _components: EntityComponentMap, _room: RoomContext): void {
     const physics = this.ecs.getComponent(entityId, 'PhysicsBodyComponent')
     this.canvasLog.upsertPermanent('player-velocity', `player velocity: ${(physics.velocity[0] ?? 0).toFixed(3)}, ${(physics.velocity[1] ?? 0).toFixed(3)}`, 0)
+
+    // Show current FSM strategy
+    const fsmData = this.baseFsmEntityDataManager.get(entityId)
+    const strategyName = fsmData.fsm.active.constructor.name
+    this.canvasLog.upsertPermanent('player-strategy', `player strategy: ${strategyName}`, 1)
   }
 }

@@ -6,12 +6,16 @@
 // ================================================================
 import { AirborneStrategy } from './airborneStrategy'
 import { AttackStrategy } from './attackStrategy'
+import { DashStrategy } from './dashStrategy'
 import { GroundedStrategy } from './groundedStrategy'
 import { HurtStrategy } from './hurtStrategy'
+import { SprintingStrategy } from './sprintingStrategy'
 
 export const playerStrategyFsmClassMap = {
   AirborneStrategy,
   AttackStrategy,
+  DashStrategy,
   GroundedStrategy,
   HurtStrategy,
+  SprintingStrategy,
 } as const

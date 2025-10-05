@@ -8,6 +8,7 @@ export enum Button {
   RIGHT,
   ATTACK,
   JUMP,
+  DASH,
 }
 
 const keyboardEventCodeToButton: Record<string, Button> = {
@@ -17,12 +18,14 @@ const keyboardEventCodeToButton: Record<string, Button> = {
   [KeyCode.CODE_RIGHT]: Button.RIGHT,
   [KeyCode.CODE_Z]: Button.ATTACK,
   [KeyCode.CODE_X]: Button.JUMP,
+  [KeyCode.CODE_C]: Button.DASH,
 
   [KeyCode.CODE_A]: Button.LEFT,
   [KeyCode.CODE_D]: Button.RIGHT,
   [KeyCode.CODE_S]: Button.DOWN,
   [KeyCode.CODE_SLASH]: Button.JUMP,
   [KeyCode.CODE_PERIOD]: Button.ATTACK,
+  [KeyCode.CODE_QUOTE]: Button.DASH,
 }
 
 @singleton()
